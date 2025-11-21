@@ -1,0 +1,31 @@
+{
+  "name": "myceo-lms",
+  "version": "1.0.0",
+  "description": "LMS Platform for Parents - Monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "preview": "pnpm --filter web preview",
+    "lint": "pnpm --filter web lint",
+    "type-check": "pnpm --filter web type-check",
+    "test": "pnpm --filter web test",
+    "supabase:migrate": "supabase db push",
+    "supabase:link": "supabase link",
+    "supabase:deploy:functions": "supabase functions deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "dependencies": {
+    "lucide-react": "^0.554.0"
+  }
+}

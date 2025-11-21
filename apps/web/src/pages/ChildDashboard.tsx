@@ -1,0 +1,152 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChildNavBar } from '@/components/navigation/ChildNavBar';
+import { XPProgressBar } from '@/components/child/XPProgressBar';
+import { supabase } from '@/lib/supabase';
+
+interface ChildSession {
+  childId: string;
+  childName: string;
+  accessCode: string;
+}
+
+interface ChildData {
+  total_xp: number;
+  current_level: number;
+  current_streak: number;
+}
+
+export default function ChildDashboardPage() {
+  const [childSession, setChildSession] = useState<ChildSession | null>(null);
+  const [childData, setChildData] = useState<ChildData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get child session from localStorage
+    const sessionStr = localStorage.getItem('child_session');
+    if (!sessionStr) {
+      navigate('/child/login');
+      return;
+    }
+
+    try {
+      const session = JSON.parse(sessionStr);
+      setChildSession(session);
+    } catch (err) {
+      navigate('/child/login');
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!childSession) return;
+
+    async function fetchChildData() {
+      try {
+        const { data, error } = await supabase
+          .from('children')
+          .select('total_xp, current_level, current_streak')
+          .eq('id', childSession.childId)
+          .single();
+
+        if (error) throw error;
+        setChildData(data);
+      } catch (err) {
+        console.error('Failed to fetch child data:', err);
+      }
+    }
+
+    fetchChildData();
+  }, [childSession]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50">
+        <div className="text-2xl">Loading...</div>
+      </div>
+    );
+  }
+
+
+  if (!childSession) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50">
+      <ChildNavBar />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Welcome, {childSession.childName}! 👋
+          </h1>
+          <p className="text-lg text-gray-600">Ready to learn about money and business?</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-yellow-300">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">My Company 🏢</h2>
+            <p className="text-gray-600 mb-4">Build and manage your virtual company!</p>
+            <button
+              onClick={() => navigate('/child/company')}
+              className="w-full py-3 bg-yellow-400 text-gray-900 font-bold rounded-lg hover:bg-yellow-500"
+            >
+              View Company
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-blue-300">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Learn 📚</h2>
+            <p className="text-gray-600 mb-4">Complete modules and earn XP!</p>
+            <button
+              onClick={() => navigate('/child/modules')}
+              className="w-full py-3 bg-blue-400 text-gray-900 font-bold rounded-lg hover:bg-blue-500"
+            >
+              Start Learning
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-green-300">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Achievements 🏆</h2>
+            <p className="text-gray-600 mb-4">See all your badges and rewards!</p>
+            <button
+              onClick={() => navigate('/child/achievements')}
+              className="w-full py-3 bg-green-400 text-gray-900 font-bold rounded-lg hover:bg-green-500"
+            >
+              View Badges
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Progress</h2>
+          <div className="space-y-6">
+            {childData && (
+              <XPProgressBar
+                currentLevel={childData.current_level}
+                currentXP={childData.total_xp}
+                showDetails={true}
+              />
+            )}
+            <div>
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-700">Streak</span>
+                <span className="font-bold text-orange-600">
+                  🔥 {childData?.current_streak || 0} {childData?.current_streak === 1 ? 'day' : 'days'}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Keep learning daily to maintain your streak! +10 XP per day of streak.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
