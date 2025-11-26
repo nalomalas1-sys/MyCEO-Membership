@@ -33,6 +33,7 @@ export default function LessonViewerPage() {
   const [quizResults, setQuizResults] = useState<boolean[]>([]);
   const [showExplanation, setShowExplanation] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [lessonCompleted, setLessonCompleted] = useState(false);
   const [notification, setNotification] = useState<{
     isOpen: boolean;
     xpEarned: number;
@@ -43,6 +44,12 @@ export default function LessonViewerPage() {
   } | null>(null);
 
   useEffect(() => {
+    // Clear any existing Supabase auth session to ensure we use anon role
+    // This is important because child sessions use access codes, not Supabase Auth
+    supabase.auth.signOut().catch(() => {
+      // Ignore errors if already signed out
+    });
+
     const sessionStr = localStorage.getItem('child_session');
     if (!sessionStr) {
       navigate('/child/login');
@@ -92,6 +99,38 @@ export default function LessonViewerPage() {
     fetchLesson();
   }, [lessonId]);
 
+  // Check if lesson is already completed
+  useEffect(() => {
+    if (!childSession || !lessonId) return;
+
+    async function checkLessonProgress() {
+      if (!childSession) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('child_lesson_progress')
+          .select('is_completed')
+          .eq('child_id', childSession.childId)
+          .eq('lesson_id', lessonId)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          // PGRST116 means no rows found, which is fine
+          console.error('Failed to check lesson progress:', error);
+          return;
+        }
+
+        if (data) {
+          setLessonCompleted(data.is_completed || false);
+        }
+      } catch (err: any) {
+        console.error('Error checking lesson progress:', err);
+      }
+    }
+
+    checkLessonProgress();
+  }, [childSession, lessonId]);
+
   const { module } = useModule(lesson?.module_id || '');
 
   const handleAnswerSelect = (answerIndex: number) => {
@@ -120,7 +159,7 @@ export default function LessonViewerPage() {
   };
 
   const handleCompleteLesson = async () => {
-    if (!childSession || !lesson) return;
+    if (!childSession || !lesson || lessonCompleted) return;
 
     setCompleting(true);
     try {
@@ -143,17 +182,10 @@ export default function LessonViewerPage() {
 
       if (progressError) throw progressError;
 
-      // Create activity
-      await supabase.from('activities').insert({
-        child_id: childSession.childId,
-        activity_type: 'lesson_complete',
-        module_id: lesson.module_id,
-        lesson_id: lesson.id,
-        quiz_score: quizScore,
-        xp_earned: 0, // Will be calculated by award function
-      });
+      // Mark lesson as completed in state
+      setLessonCompleted(true);
 
-      // Award achievements and XP
+      // Award achievements and XP first (before creating activity)
       let awardData = null;
       try {
         const { data, error: awardError } = await supabase
@@ -166,38 +198,30 @@ export default function LessonViewerPage() {
 
         if (awardError) {
           console.error('Failed to award achievements:', awardError);
-          // Continue even if achievement awarding fails
+          // Log error but continue - don't block lesson completion
+        } else if (data && data.length > 0) {
+          awardData = data[0];
+          console.log('Lesson award data:', awardData);
         } else {
-          awardData = data;
+          console.warn('No data returned from award_achievements_and_xp for lesson');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error calling award_achievements_and_xp:', err);
         // Continue even if achievement awarding fails
       }
 
-      // Show lesson completion notification if we have award data
-      if (awardData && awardData.length > 0) {
-        const result = awardData[0];
-        setNotification({
-          isOpen: true,
-          xpEarned: result.xp_earned || 0,
-          newAchievements: result.new_achievements || [],
-          leveledUp: result.leveled_up || false,
-          newLevel: result.new_level,
-          type: 'lesson',
-        });
-        // Don't navigate yet - wait for user to close notification
-        return;
-      } else {
-        // No notification, navigate immediately
-        if (module) {
-          navigate(`/child/modules/${module.id}`);
-        } else {
-          navigate('/child/modules');
-        }
-      }
+      // Create activity with XP earned
+      await supabase.from('activities').insert({
+        child_id: childSession.childId,
+        activity_type: 'lesson_complete',
+        module_id: lesson.module_id,
+        lesson_id: lesson.id,
+        quiz_score: quizScore,
+        xp_earned: awardData?.xp_earned || 0,
+      });
 
-      // Update module progress
+      // Update module progress BEFORE showing notification
+      // This ensures progress is always updated when lessons are completed
       if (module) {
         // First, check current module progress to see if it was already completed
         const { data: currentModuleProgress } = await supabase
@@ -239,6 +263,20 @@ export default function LessonViewerPage() {
             onConflict: 'child_id,module_id',
           });
 
+        // Show lesson completion notification if we have award data (after module progress is updated)
+        if (awardData) {
+          setNotification({
+            isOpen: true,
+            xpEarned: awardData.xp_earned || 0,
+            newAchievements: Array.isArray(awardData.new_achievements) ? awardData.new_achievements : [],
+            leveledUp: awardData.leveled_up || false,
+            newLevel: awardData.new_level,
+            type: 'lesson',
+          });
+          // Don't navigate yet - wait for user to close notification
+          return;
+        }
+
         // If module is complete AND wasn't already completed, create module completion activity and award achievements and XP
         if (isModuleComplete && !wasAlreadyCompleted) {
           // Get quiz score from the final quiz lesson in the module
@@ -272,16 +310,7 @@ export default function LessonViewerPage() {
             // Continue without quiz score
           }
 
-          // Create module completion activity
-          await supabase.from('activities').insert({
-            child_id: childSession.childId,
-            activity_type: 'module_complete',
-            module_id: module.id,
-            quiz_score: finalQuizScore,
-            xp_earned: 0, // Will be calculated by award function
-          });
-
-          // Award module completion achievements and XP
+          // Award module completion achievements and XP first
           let moduleAwardData = null;
           try {
             const { data, error: moduleAwardError } = await supabase
@@ -294,33 +323,45 @@ export default function LessonViewerPage() {
 
             if (moduleAwardError) {
               console.error('Failed to award module achievements:', moduleAwardError);
-              // Show error but continue
+              // Show error to user
+              alert('Failed to award achievements and XP: ' + (moduleAwardError.message || 'Unknown error'));
             } else if (data && data.length > 0) {
-              moduleAwardData = data;
+              moduleAwardData = data[0];
+              console.log('Module award data:', moduleAwardData);
+            } else {
+              console.warn('No data returned from award_achievements_and_xp');
             }
-          } catch (err) {
+          } catch (err: any) {
             console.error('Error calling award_achievements_and_xp for module:', err);
+            alert('Error awarding achievements and XP: ' + (err.message || 'Unknown error'));
           }
 
+          // Create module completion activity with XP earned
+          await supabase.from('activities').insert({
+            child_id: childSession.childId,
+            activity_type: 'module_complete',
+            module_id: module.id,
+            quiz_score: finalQuizScore,
+            xp_earned: moduleAwardData?.xp_earned || 0,
+          });
+
           // Show module completion notification
-          if (moduleAwardData && moduleAwardData.length > 0) {
-            const result = moduleAwardData[0];
-            
+          if (moduleAwardData) {
             // Update module progress with XP earned
             await supabase
               .from('child_module_progress')
               .update({
-                xp_earned: result.xp_earned || 0,
+                xp_earned: moduleAwardData.xp_earned || 0,
               })
               .eq('child_id', childSession.childId)
               .eq('module_id', module.id);
             
             setNotification({
               isOpen: true,
-              xpEarned: result.xp_earned || 0,
-              newAchievements: result.new_achievements || [],
-              leveledUp: result.leveled_up || false,
-              newLevel: result.new_level,
+              xpEarned: moduleAwardData.xp_earned || 0,
+              newAchievements: Array.isArray(moduleAwardData.new_achievements) ? moduleAwardData.new_achievements : [],
+              leveledUp: moduleAwardData.leveled_up || false,
+              newLevel: moduleAwardData.new_level,
               type: 'module',
             });
             // Don't navigate yet - wait for user to close notification
@@ -335,7 +376,20 @@ export default function LessonViewerPage() {
           navigate('/child/modules');
         }
       } else {
-        // No module, navigate back
+        // No module, but still show notification if we have award data
+        if (awardData) {
+          setNotification({
+            isOpen: true,
+            xpEarned: awardData.xp_earned || 0,
+            newAchievements: Array.isArray(awardData.new_achievements) ? awardData.new_achievements : [],
+            leveledUp: awardData.leveled_up || false,
+            newLevel: awardData.new_level,
+            type: 'lesson',
+          });
+          // Don't navigate yet - wait for user to close notification
+          return;
+        }
+        // No notification, navigate back
         navigate('/child/modules');
       }
     } catch (err: any) {
@@ -427,7 +481,15 @@ export default function LessonViewerPage() {
             )}
 
             <div className="flex gap-3">
-              {!showExplanation ? (
+              {lessonCompleted ? (
+                <div className="w-full bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-2xl">✓</span>
+                    <h3 className="text-lg font-bold text-green-800">Quiz Completed!</h3>
+                  </div>
+                  <p className="text-green-700 text-sm">You've already completed this quiz.</p>
+                </div>
+              ) : !showExplanation ? (
                 <button
                   onClick={handleQuizSubmit}
                   disabled={selectedAnswer === null}
@@ -438,8 +500,8 @@ export default function LessonViewerPage() {
               ) : (
                 <button
                   onClick={handleNextQuestion}
-                  disabled={completing}
-                  className="btn btn-primary flex-1"
+                  disabled={completing || lessonCompleted}
+                  className="btn btn-primary flex-1 disabled:opacity-50"
                 >
                   {isLastQuestion ? (completing ? 'Completing...' : 'Complete Quiz') : 'Next Question'}
                 </button>
@@ -660,6 +722,15 @@ export default function LessonViewerPage() {
             )}
 
             <div className="mt-6 pt-6 border-t border-gray-200">
+              {lessonCompleted ? (
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-3xl">✓</span>
+                    <h3 className="text-xl font-bold text-green-800">Lesson Completed!</h3>
+                  </div>
+                  <p className="text-green-700">You've already completed this lesson. Great job!</p>
+                </div>
+              ) : (
               <button
                 onClick={handleCompleteLesson}
                 disabled={completing}
@@ -674,6 +745,7 @@ export default function LessonViewerPage() {
                   '✨ Mark as Complete'
                 )}
               </button>
+              )}
             </div>
           </div>
         </div>

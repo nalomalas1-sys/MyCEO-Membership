@@ -111,24 +111,18 @@ BEGIN
   WHERE child_id = p_child_id AND status = 'completed';
   
   -- Count perfect quizzes (score = 100)
-  -- Check both activities table and child_lesson_progress for quiz scores
-  SELECT COUNT(*) INTO perfect_quizzes
-  FROM (
-    SELECT 1 FROM public.activities
-    WHERE child_id = p_child_id
-      AND activity_type IN ('quiz_attempt', 'lesson_complete')
-      AND quiz_score = 100
-    UNION
-    SELECT 1 FROM public.child_lesson_progress clp
-    INNER JOIN public.lessons l ON l.id = clp.lesson_id
-    WHERE clp.child_id = p_child_id
-      AND l.lesson_type = 'quiz'
-      AND clp.quiz_score = 100
-  ) AS perfect_quiz_scores;
+  -- Use child_lesson_progress as the source of truth for quiz completions
+  SELECT COUNT(DISTINCT clp.lesson_id) INTO perfect_quizzes
+  FROM public.child_lesson_progress clp
+  INNER JOIN public.lessons l ON l.id = clp.lesson_id
+  WHERE clp.child_id = p_child_id
+    AND l.lesson_type = 'quiz'
+    AND clp.quiz_score = 100
+    AND clp.is_completed = true;
   
-  SELECT current_streak INTO current_streak
-  FROM public.children
-  WHERE id = p_child_id;
+  SELECT c.current_streak INTO current_streak
+  FROM public.children c
+  WHERE c.id = p_child_id;
   
   SELECT COALESCE(total_revenue, 0) INTO company_revenue
   FROM public.companies

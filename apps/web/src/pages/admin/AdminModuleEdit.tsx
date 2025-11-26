@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical } from 'lucide-react';
+import { QuizBuilder } from '@/components/admin/QuizBuilder';
 import {
   DndContext,
   closestCenter,
@@ -548,6 +549,7 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [savedLessonId, setSavedLessonId] = useState<string | null>(lesson?.id || null);
   const [formData, setFormData] = useState({
     title: lesson?.title || '',
     lesson_type: lesson?.lesson_type || 'text' as 'video' | 'text' | 'quiz' | 'pdf' | 'presentation',
@@ -654,9 +656,10 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
           .eq('id', lesson.id);
 
         if (error) throw error;
+        setSavedLessonId(lesson.id);
       } else {
         // Create new lesson
-        const { error } = await supabase.from('lessons').insert({
+        const { data, error } = await supabase.from('lessons').insert({
           module_id: moduleId,
           title: formData.title,
           lesson_type: formData.lesson_type,
@@ -664,23 +667,29 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
           content_url: formData.content_url || null,
           order_index: formData.order_index,
           duration_minutes: formData.duration_minutes || null,
-        });
+        }).select().single();
 
         if (error) throw error;
+        setSavedLessonId(data.id);
       }
 
-      onSuccess();
+      // For quiz lessons, don't close immediately - let user add questions
+      if (formData.lesson_type === 'quiz') {
+        // Don't call onSuccess yet, keep modal open for quiz building
+        setLoading(false);
+      } else {
+        onSuccess();
+      }
     } catch (err: any) {
       console.error('Failed to save lesson:', err);
       setError(err.message || 'Failed to save lesson');
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className={`bg-white rounded-xl p-6 ${formData.lesson_type === 'quiz' ? 'max-w-5xl' : 'max-w-2xl'} w-full mx-4 max-h-[90vh] overflow-y-auto`}>
         <h2 className="text-2xl font-bold mb-4">
           {lesson ? 'Edit Lesson' : 'Add New Lesson'}
         </h2>
@@ -807,6 +816,24 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
                 placeholder="https://youtube.com/watch?v=..."
               />
             </div>
+          ) : formData.lesson_type === 'quiz' ? (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Quiz Questions
+              </label>
+              {savedLessonId ? (
+                <QuizBuilder lessonId={savedLessonId} />
+              ) : (
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 text-center">
+                  <p className="text-blue-800 font-medium mb-2">
+                    Save the lesson first to add quiz questions
+                  </p>
+                  <p className="text-blue-600 text-sm">
+                    Fill in the lesson details above and click "Create Lesson" to start building your quiz
+                  </p>
+                </div>
+              )}
+            </div>
           ) : (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -869,15 +896,25 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
               onClick={onClose}
               className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors"
             >
-              Cancel
+              {formData.lesson_type === 'quiz' && savedLessonId ? 'Done' : 'Cancel'}
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Saving...' : lesson ? 'Update Lesson' : 'Create Lesson'}
-            </button>
+            {formData.lesson_type === 'quiz' && savedLessonId ? (
+              <button
+                type="button"
+                onClick={onSuccess}
+                className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors"
+              >
+                Finish & Close
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Saving...' : lesson ? 'Update Lesson' : 'Create Lesson'}
+              </button>
+            )}
           </div>
         </form>
       </div>

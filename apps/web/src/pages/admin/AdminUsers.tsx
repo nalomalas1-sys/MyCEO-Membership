@@ -51,7 +51,7 @@ function AdminUsersContent() {
     try {
       setLoading(true);
       
-      // Build query
+      // Build query - admins can now see all parents thanks to RLS policies
       let query = supabase
         .from('parents')
         .select('id, user_id, stripe_customer_id, subscription_tier, subscription_status, trial_ends_at, created_at')
@@ -66,17 +66,17 @@ function AdminUsersContent() {
 
       if (error) throw error;
 
-      // Fetch user data for each parent
+      // Fetch user data and children counts for all parents in parallel
       const parentsWithCounts = await Promise.all(
         (parentsData || []).map(async (parent) => {
-          // Get user info
+          // Get user info - admins can now see all users thanks to RLS policies
           const { data: userData } = await supabase
             .from('users')
             .select('email, full_name')
             .eq('id', parent.user_id)
             .single();
 
-          // Get children count
+          // Get children count - admins can now see all children thanks to RLS policies
           const { count } = await supabase
             .from('children')
             .select('id', { count: 'exact', head: true })

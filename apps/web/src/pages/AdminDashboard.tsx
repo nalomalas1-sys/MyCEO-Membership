@@ -5,6 +5,7 @@ import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { Users, BookOpen, DollarSign, Activity } from 'lucide-react';
+import { formatCurrencyWithSeparators, usdToRm } from '@/utils/currency';
 
 interface DashboardStats {
   totalUsers: number;
@@ -56,8 +57,11 @@ function AdminDashboardContent() {
 
         // Calculate estimated revenue (this would come from Stripe in production)
         // For now, using placeholder calculations
-        const estimatedMonthlyRevenue = activeSubs * 29.99; // Assuming $29.99/month average
-        const estimatedTotalRevenue = activeSubs * 29.99 * 12; // Annual estimate
+        // Note: These are in USD from Stripe, but we display in RM
+        const estimatedMonthlyRevenueUSD = activeSubs * 29.99; // Assuming $29.99/month average
+        const estimatedTotalRevenueUSD = activeSubs * 29.99 * 12; // Annual estimate
+        const estimatedMonthlyRevenue = usdToRm(estimatedMonthlyRevenueUSD);
+        const estimatedTotalRevenue = usdToRm(estimatedTotalRevenueUSD);
 
         setStats({
           totalUsers: usersResult.count || 0,
@@ -131,7 +135,7 @@ function AdminDashboardContent() {
     },
     {
       title: 'Total Revenue',
-      value: `$${stats.totalRevenue.toLocaleString()}`,
+      value: formatCurrencyWithSeparators(stats.totalRevenue),
       icon: DollarSign,
       color: 'bg-emerald-500',
       textColor: 'text-emerald-600',
@@ -179,12 +183,12 @@ function AdminDashboardContent() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-blue-50 rounded-lg p-4">
               <p className="text-sm text-gray-600 mb-1">Monthly Recurring Revenue</p>
-              <p className="text-2xl font-bold text-blue-600">${stats.monthlyRevenue.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-blue-600">{formatCurrencyWithSeparators(stats.monthlyRevenue)}</p>
               <p className="text-xs text-gray-500 mt-1">Estimated</p>
             </div>
             <div className="bg-green-50 rounded-lg p-4">
               <p className="text-sm text-gray-600 mb-1">Total Revenue (Annual)</p>
-              <p className="text-2xl font-bold text-green-600">${stats.totalRevenue.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-green-600">{formatCurrencyWithSeparators(stats.totalRevenue)}</p>
               <p className="text-xs text-gray-500 mt-1">Estimated</p>
             </div>
             <div className="bg-yellow-50 rounded-lg p-4">

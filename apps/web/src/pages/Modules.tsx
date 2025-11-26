@@ -17,6 +17,12 @@ export default function ModulesPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Clear any existing Supabase auth session to ensure we use anon role
+    // This is important because child sessions use access codes, not Supabase Auth
+    supabase.auth.signOut().catch(() => {
+      // Ignore errors if already signed out
+    });
+
     const sessionStr = localStorage.getItem('child_session');
     if (!sessionStr) {
       navigate('/child/login');

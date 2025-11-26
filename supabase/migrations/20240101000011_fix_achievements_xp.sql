@@ -1,6 +1,95 @@
--- Function to award achievements and update XP
--- This function checks for new achievements, awards them, and updates child XP
+-- Fix achievements and XP functionality
+-- This migration fixes issues with achievement checking and XP calculation
 
+-- Fix: Ensure check_achievements properly handles NULL values
+CREATE OR REPLACE FUNCTION check_achievements(
+  p_child_id UUID,
+  p_activity_type TEXT
+)
+RETURNS TABLE(achievement_id UUID, achievement_name TEXT) AS $$
+DECLARE
+  modules_completed INTEGER;
+  perfect_quizzes INTEGER;
+  current_streak INTEGER;
+  company_revenue DECIMAL;
+BEGIN
+  -- Get child stats
+  SELECT COUNT(*) INTO modules_completed
+  FROM public.child_module_progress
+  WHERE child_id = p_child_id AND status = 'completed';
+  
+  -- Count perfect quizzes (score = 100)
+  -- Use child_lesson_progress as the source of truth for quiz completions
+  SELECT COUNT(DISTINCT clp.lesson_id) INTO perfect_quizzes
+  FROM public.child_lesson_progress clp
+  INNER JOIN public.lessons l ON l.id = clp.lesson_id
+  WHERE clp.child_id = p_child_id
+    AND l.lesson_type = 'quiz'
+    AND clp.quiz_score = 100
+    AND clp.is_completed = true;
+  
+  SELECT COALESCE(c.current_streak, 0) INTO current_streak
+  FROM public.children c
+  WHERE c.id = p_child_id;
+  
+  SELECT COALESCE(total_revenue, 0) INTO company_revenue
+  FROM public.companies
+  WHERE child_id = p_child_id;
+  
+  -- Check milestone achievements (only on module completion)
+  IF p_activity_type = 'module_complete' THEN
+    RETURN QUERY
+    SELECT a.id, a.name
+    FROM public.achievements a
+    WHERE a.achievement_type = 'milestone'
+      AND (a.criteria->>'modules_completed')::INTEGER <= modules_completed
+      AND NOT EXISTS (
+        SELECT 1 FROM public.child_achievements ca
+        WHERE ca.child_id = p_child_id AND ca.achievement_id = a.id
+      );
+  END IF;
+  
+  -- Check performance achievements (on quiz attempts or lesson completion with quiz)
+  IF p_activity_type IN ('quiz_attempt', 'lesson_complete') THEN
+    RETURN QUERY
+    SELECT a.id, a.name
+    FROM public.achievements a
+    WHERE a.achievement_type = 'performance'
+      AND (a.criteria->>'perfect_quizzes')::INTEGER IS NOT NULL
+      AND (a.criteria->>'perfect_quizzes')::INTEGER <= perfect_quizzes
+      AND NOT EXISTS (
+        SELECT 1 FROM public.child_achievements ca
+        WHERE ca.child_id = p_child_id AND ca.achievement_id = a.id
+      );
+  END IF;
+  
+  -- Check engagement achievements (streaks) - check on any activity
+  RETURN QUERY
+  SELECT a.id, a.name
+  FROM public.achievements a
+  WHERE a.achievement_type = 'engagement'
+    AND (a.criteria->>'streak_days')::INTEGER IS NOT NULL
+    AND (a.criteria->>'streak_days')::INTEGER <= current_streak
+    AND NOT EXISTS (
+      SELECT 1 FROM public.child_achievements ca
+      WHERE ca.child_id = p_child_id AND ca.achievement_id = a.id
+    );
+  
+  -- Check company achievements (on any activity, but typically triggered by company actions)
+  RETURN QUERY
+  SELECT a.id, a.name
+  FROM public.achievements a
+  WHERE a.achievement_type = 'company'
+    AND (a.criteria->>'revenue_threshold')::DECIMAL IS NOT NULL
+    AND (a.criteria->>'revenue_threshold')::DECIMAL <= company_revenue
+    AND NOT EXISTS (
+      SELECT 1 FROM public.child_achievements ca
+      WHERE ca.child_id = p_child_id AND ca.achievement_id = a.id
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Fix: Ensure award_achievements_and_xp properly handles all cases
 CREATE OR REPLACE FUNCTION award_achievements_and_xp(
   p_child_id UUID,
   p_activity_type TEXT,
@@ -39,18 +128,18 @@ BEGIN
   END IF;
 
   -- Get current child stats
-  SELECT total_xp, current_level, current_streak
+  SELECT COALESCE(c.total_xp, 0), COALESCE(c.current_level, 1), COALESCE(c.current_streak, 0)
   INTO v_current_xp, v_old_level, v_current_streak
-  FROM public.children
-  WHERE id = p_child_id;
+  FROM public.children c
+  WHERE c.id = p_child_id;
 
   -- Calculate base XP based on activity type
   IF p_activity_type = 'module_complete' AND p_module_id IS NOT NULL THEN
-    SELECT xp_reward INTO v_base_xp
+    SELECT COALESCE(xp_reward, 100) INTO v_base_xp
     FROM public.modules
     WHERE id = p_module_id;
     
-    v_xp_earned := COALESCE(v_base_xp, 100); -- Default 100 XP if module not found
+    v_xp_earned := v_base_xp;
   ELSIF p_activity_type = 'lesson_complete' THEN
     v_xp_earned := 50; -- Base XP for lesson completion
   ELSIF p_activity_type = 'quiz_attempt' THEN
@@ -60,7 +149,7 @@ BEGIN
   END IF;
 
   -- Perfect quiz bonus (+50 XP)
-  IF p_quiz_score = 100 THEN
+  IF p_quiz_score IS NOT NULL AND p_quiz_score = 100 THEN
     v_perfect_bonus := 50;
     v_xp_earned := v_xp_earned + v_perfect_bonus;
   END IF;
@@ -69,9 +158,9 @@ BEGIN
   PERFORM update_child_streak(p_child_id);
   
   -- Get updated streak after update
-  SELECT current_streak INTO v_current_streak
-  FROM public.children
-  WHERE id = p_child_id;
+  SELECT COALESCE(c.current_streak, 0) INTO v_current_streak
+  FROM public.children c
+  WHERE c.id = p_child_id;
 
   -- Streak bonus (+10 XP per day of streak)
   IF v_current_streak > 0 THEN
@@ -135,8 +224,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Grant execute permissions to authenticated and anonymous users
--- SECURITY DEFINER allows the function to bypass RLS while still being secure
--- The function validates child_id exists before making any updates
+-- Grant execute permissions
 GRANT EXECUTE ON FUNCTION award_achievements_and_xp(UUID, TEXT, UUID, INTEGER) TO authenticated, anon;
+GRANT EXECUTE ON FUNCTION check_achievements(UUID, TEXT) TO authenticated, anon;
 

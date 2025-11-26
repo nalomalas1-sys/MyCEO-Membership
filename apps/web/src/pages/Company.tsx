@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { AchievementNotification } from '@/components/child/AchievementNotification';
 import { supabase } from '@/lib/supabase';
-import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight } from 'lucide-react';
+import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight, Edit2, Save, X } from 'lucide-react';
+import { formatCurrency } from '@/utils/currency';
 
 interface ChildSession {
   childId: string;
@@ -15,6 +16,7 @@ interface Company {
   id: string;
   company_name: string;
   product_name: string | null;
+  specialty: string | null;
   logo_url: string | null;
   initial_capital: number;
   current_balance: number;
@@ -39,6 +41,7 @@ export default function CompanyPage() {
   const [loading, setLoading] = useState(true);
   const [showSetup, setShowSetup] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const [showEditCompany, setShowEditCompany] = useState(false);
   const [achievementNotification, setAchievementNotification] = useState<{
     isOpen: boolean;
     xpEarned: number;
@@ -113,6 +116,7 @@ export default function CompanyPage() {
     const formData = new FormData(e.currentTarget);
     const companyName = formData.get('companyName') as string;
     const productName = formData.get('productName') as string;
+    const specialty = formData.get('specialty') as string;
 
     try {
       const { data, error } = await supabase
@@ -121,8 +125,9 @@ export default function CompanyPage() {
           child_id: childSession.childId,
           company_name: companyName,
           product_name: productName || null,
-          initial_capital: 1000.00,
-          current_balance: 1000.00,
+          specialty: specialty || null,
+          initial_capital: 4750.00,
+          current_balance: 4750.00,
         })
         .select()
         .single();
@@ -191,9 +196,34 @@ export default function CompanyPage() {
                 />
               </div>
 
+              <div>
+                <label htmlFor="specialty" className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Specialty
+                </label>
+                <select
+                  id="specialty"
+                  name="specialty"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Select a specialty...</option>
+                  <option value="Technology">Technology</option>
+                  <option value="Food & Beverage">Food & Beverage</option>
+                  <option value="Fashion & Apparel">Fashion & Apparel</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Education">Education</option>
+                  <option value="Health & Wellness">Health & Wellness</option>
+                  <option value="Sports & Fitness">Sports & Fitness</option>
+                  <option value="Arts & Crafts">Arts & Crafts</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Services">Services</option>
+                  <option value="Other">Other</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">What industry is your company in?</p>
+              </div>
+
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  <strong>💰 Starting Capital:</strong> You'll begin with $1,000 to start your business!
+                  <strong>💰 Starting Capital:</strong> You'll begin with {formatCurrency(4750.00)} to start your business!
                 </p>
               </div>
 
@@ -221,12 +251,33 @@ export default function CompanyPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {company.company_name} 🏢
-          </h1>
-          {company.product_name && (
-            <p className="text-lg text-gray-600">Product: {company.product_name}</p>
-          )}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                {company.company_name} 🏢
+              </h1>
+              <div className="space-y-1">
+                {company.specialty && (
+                  <p className="text-lg text-gray-700">
+                    <span className="font-semibold">Specialty:</span> {company.specialty}
+                  </p>
+                )}
+                {company.product_name && (
+                  <p className="text-lg text-gray-600">
+                    <span className="font-semibold">Product:</span> {company.product_name}
+                  </p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => setShowEditCompany(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors"
+              title="Edit Company Details"
+            >
+              <Edit2 className="h-4 w-4" />
+              Edit
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -236,7 +287,7 @@ export default function CompanyPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Current Balance</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  ${company.current_balance.toFixed(2)}
+                  {formatCurrency(company.current_balance)}
                 </p>
               </div>
               <DollarSign className="h-12 w-12 text-green-600" />
@@ -248,7 +299,7 @@ export default function CompanyPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  ${company.total_revenue.toFixed(2)}
+                  {formatCurrency(company.total_revenue)}
                 </p>
               </div>
               <TrendingUp className="h-12 w-12 text-blue-600" />
@@ -260,7 +311,7 @@ export default function CompanyPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Expenses</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  ${company.total_expenses.toFixed(2)}
+                  {formatCurrency(company.total_expenses)}
                 </p>
               </div>
               <TrendingDown className="h-12 w-12 text-red-600" />
@@ -276,7 +327,7 @@ export default function CompanyPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Profit/Loss</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  ${profit.toFixed(2)}
+                  {formatCurrency(profit)}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
                   {profitPercentage}% margin
@@ -343,7 +394,7 @@ export default function CompanyPage() {
                         : 'text-red-700'
                     }`}>
                       {transaction.transaction_type === 'revenue' || transaction.transaction_type === 'sale' ? '+' : '-'}
-                      ${transaction.amount.toFixed(2)}
+                      {formatCurrency(transaction.amount)}
                     </div>
                   </div>
                 </div>
@@ -375,6 +426,24 @@ export default function CompanyPage() {
               .limit(20);
             if (transactionsData) setTransactions(transactionsData);
           }}
+          onAchievementNotification={setAchievementNotification}
+        />
+      )}
+
+      {/* Edit Company Modal */}
+      {showEditCompany && company && (
+        <EditCompanyModal
+          company={company}
+          onClose={() => setShowEditCompany(false)}
+          onSuccess={async () => {
+            // Refresh company data
+            const { data: companyData } = await supabase
+              .from('companies')
+              .select('*')
+              .eq('id', company.id)
+              .single();
+            if (companyData) setCompany(companyData);
+          }}
         />
       )}
 
@@ -398,9 +467,16 @@ interface AddTransactionModalProps {
   companyId: string;
   onClose: () => void;
   onSuccess: () => void;
+  onAchievementNotification?: (notification: {
+    isOpen: boolean;
+    xpEarned: number;
+    newAchievements: Array<{ id: string; name: string; xp_bonus?: number }>;
+    leveledUp: boolean;
+    newLevel?: number;
+  }) => void;
 }
 
-function AddTransactionModal({ companyId, onClose, onSuccess }: AddTransactionModalProps) {
+function AddTransactionModal({ companyId, onClose, onSuccess, onAchievementNotification }: AddTransactionModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -466,7 +542,7 @@ function AddTransactionModal({ companyId, onClose, onSuccess }: AddTransactionMo
       if (updateError) throw updateError;
 
       // Check for company achievement milestones when revenue increases
-      if (isRevenue && newRevenue > company.total_revenue) {
+      if (isRevenue && newRevenue > company.total_revenue && onAchievementNotification) {
         try {
           // Get child_id from company
           const { data: companyData } = await supabase
@@ -488,11 +564,12 @@ function AddTransactionModal({ companyId, onClose, onSuccess }: AddTransactionMo
             if (!awardError && awardData && awardData.length > 0) {
               const result = awardData[0];
               // Only show notification if there are new achievements or XP was earned
-              if ((result.new_achievements && result.new_achievements.length > 0) || result.xp_earned > 0) {
-                setAchievementNotification({
+              const newAchievements = Array.isArray(result.new_achievements) ? result.new_achievements : [];
+              if (newAchievements.length > 0 || (result.xp_earned && result.xp_earned > 0)) {
+                onAchievementNotification({
                   isOpen: true,
                   xpEarned: result.xp_earned || 0,
-                  newAchievements: result.new_achievements || [],
+                  newAchievements: newAchievements,
                   leveledUp: result.leveled_up || false,
                   newLevel: result.new_level,
                 });
@@ -539,7 +616,7 @@ function AddTransactionModal({ companyId, onClose, onSuccess }: AddTransactionMo
 
           <div>
             <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
-              Amount ($) *
+              Amount (RM) *
             </label>
             <input
               type="number"
@@ -595,5 +672,154 @@ function AddTransactionModal({ companyId, onClose, onSuccess }: AddTransactionMo
   );
 }
 
+interface EditCompanyModalProps {
+  company: Company;
+  onClose: () => void;
+  onSuccess: () => void;
+}
 
+function EditCompanyModal({ company, onClose, onSuccess }: EditCompanyModalProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const companyName = formData.get('companyName') as string;
+      const productName = formData.get('productName') as string;
+      const specialty = formData.get('specialty') as string;
+
+      if (!companyName || companyName.trim() === '') {
+        setError('Company name is required');
+        setLoading(false);
+        return;
+      }
+
+      const { error: updateError } = await supabase
+        .from('companies')
+        .update({
+          company_name: companyName.trim(),
+          product_name: productName?.trim() || null,
+          specialty: specialty || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', company.id);
+
+      if (updateError) throw updateError;
+
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update company');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Edit2 className="h-6 w-6" />
+            Edit Company Details
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            disabled={loading}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="editCompanyName" className="block text-sm font-medium text-gray-700 mb-2">
+              Company Name *
+            </label>
+            <input
+              type="text"
+              id="editCompanyName"
+              name="companyName"
+              required
+              defaultValue={company.company_name}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="e.g., Awesome Toys Inc."
+            />
+          </div>
+
+          <div>
+            <label htmlFor="editProductName" className="block text-sm font-medium text-gray-700 mb-2">
+              Product/Service Name
+            </label>
+            <input
+              type="text"
+              id="editProductName"
+              name="productName"
+              defaultValue={company.product_name || ''}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="e.g., Educational Board Games"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="editSpecialty" className="block text-sm font-medium text-gray-700 mb-2">
+              Company Specialty
+            </label>
+            <select
+              id="editSpecialty"
+              name="specialty"
+              defaultValue={company.specialty || ''}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              <option value="">Select a specialty...</option>
+              <option value="Technology">Technology</option>
+              <option value="Food & Beverage">Food & Beverage</option>
+              <option value="Fashion & Apparel">Fashion & Apparel</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Education">Education</option>
+              <option value="Health & Wellness">Health & Wellness</option>
+              <option value="Sports & Fitness">Sports & Fitness</option>
+              <option value="Arts & Crafts">Arts & Crafts</option>
+              <option value="Retail">Retail</option>
+              <option value="Services">Services</option>
+              <option value="Other">Other</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">What industry is your company in?</p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+              disabled={loading}
+            >
+              <X className="h-4 w-4" />
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 btn btn-primary flex items-center justify-center gap-2"
+              disabled={loading}
+            >
+              <Save className="h-4 w-4" />
+              {loading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

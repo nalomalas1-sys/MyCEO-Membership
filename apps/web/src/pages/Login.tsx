@@ -1,13 +1,34 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { ChildLoginForm } from '@/components/auth/ChildLoginForm';
-import { Sparkles, GraduationCap, TrendingUp, Award, Users, Shield, Baby } from 'lucide-react';
+import { Sparkles, GraduationCap, TrendingUp, Award, Users, Shield, Baby, Mail, CheckCircle2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 type LoginType = 'children' | 'parents' | 'admin';
 
 export default function LoginPage() {
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<LoginType>('parents');
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fromSignup = searchParams.get('from_signup');
+    const email = searchParams.get('email');
+    
+    if (fromSignup === 'true') {
+      setShowVerificationMessage(true);
+      if (email) {
+        setUserEmail(decodeURIComponent(email));
+      }
+      // Clear the query params from URL after reading them
+      window.history.replaceState({}, '', '/login');
+    }
+  }, [searchParams]);
 
   const tabs = [
     {
@@ -142,6 +163,79 @@ export default function LoginPage() {
               {tabs.find(t => t.id === activeTab)?.description}
             </p>
           </div>
+
+          {/* Email Verification Message */}
+          {showVerificationMessage && activeTab === 'parents' && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <h3 className="font-semibold text-blue-900 text-sm">
+                      Account Created Successfully!
+                    </h3>
+                  </div>
+                  <p className="text-sm text-blue-800 mb-2">
+                    We've sent a verification email to your inbox. Please check your email and click the verification link to activate your account.
+                  </p>
+                  {userEmail && (
+                    <p className="text-xs text-blue-700 font-medium mb-2">
+                      Email sent to: <span className="font-semibold">{userEmail}</span>
+                    </p>
+                  )}
+                  {resendSuccess && (
+                    <p className="text-xs text-green-700 font-medium mb-2">
+                      ✓ Verification email resent! Please check your inbox.
+                    </p>
+                  )}
+                  {resendError && (
+                    <p className="text-xs text-red-700 font-medium mb-2">
+                      ⚠ {resendError}
+                    </p>
+                  )}
+                  {userEmail && (
+                    <button
+                      onClick={async () => {
+                        setResendingEmail(true);
+                        setResendError(null);
+                        setResendSuccess(false);
+                        
+                        try {
+                          const { error } = await supabase.auth.resend({
+                            type: 'signup',
+                            email: userEmail,
+                            options: {
+                              emailRedirectTo: `${window.location.origin}/login?verified=true`,
+                            },
+                          });
+                          
+                          if (error) {
+                            setResendError(error.message);
+                          } else {
+                            setResendSuccess(true);
+                          }
+                        } catch (err) {
+                          setResendError(err instanceof Error ? err.message : 'Failed to resend email');
+                        } finally {
+                          setResendingEmail(false);
+                        }
+                      }}
+                      disabled={resendingEmail}
+                      className="text-xs text-blue-700 hover:text-blue-900 font-semibold underline disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {resendingEmail ? 'Sending...' : "Didn't receive the email? Resend verification email"}
+                    </button>
+                  )}
+                  <p className="text-xs text-blue-700 mt-2">
+                    Once you've verified your email, you can log in below.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Login Forms */}
           <div className="bg-white rounded-xl shadow-lg border-2 border-gray-200 p-6">

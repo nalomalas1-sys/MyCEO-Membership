@@ -10,7 +10,21 @@ interface ProfilePictureUploadProps {
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/jfif', 'image/pjpeg'];
+
+// Map file extensions to MIME types
+const getMimeTypeFromExtension = (extension: string): string => {
+  const ext = extension.toLowerCase();
+  const mimeMap: Record<string, string> = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'jfif': 'image/jpeg',
+    'pjpeg': 'image/jpeg',
+    'png': 'image/png',
+    'webp': 'image/webp',
+  };
+  return mimeMap[ext] || 'image/jpeg'; // Default to JPEG if unknown
+};
 
 export function ProfilePictureUpload({
   currentImageUrl,
@@ -27,8 +41,13 @@ export function ProfilePictureUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    // Validate file type (check MIME type and extension as fallback)
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'jfif'];
+    const isValidType = ALLOWED_TYPES.includes(file.type) || 
+                        (fileExt && allowedExtensions.includes(fileExt));
+
+    if (!isValidType) {
       setError('Please upload a JPEG, PNG, or WebP image');
       return;
     }
@@ -51,18 +70,49 @@ export function ProfilePictureUpload({
       reader.readAsDataURL(file);
 
       // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `profile-pictures/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-      supabase.storage
+      // Determine correct MIME type
+      // If the detected type is invalid or application/json, use extension-based detection
+      let contentType = file.type;
+      if (!contentType || 
+          contentType === 'application/json' || 
+          !ALLOWED_TYPES.includes(contentType)) {
+        // Use extension to determine MIME type
+        contentType = getMimeTypeFromExtension(fileExt || 'jpg');
+      } else if (contentType === 'image/jfif' || contentType === 'image/pjpeg') {
+        // Normalize JPEG variants
+        contentType = 'image/jpeg';
+      }
+
+      console.log('File upload details:', {
+        fileName,
+        originalType: file.type,
+        detectedType: contentType,
+        fileExt,
+        fileSize: file.size,
+      });
+
+      // Create a new Blob with the correct MIME type to ensure Supabase uses it
+      // This ensures the file object itself has the correct type, not just the upload option
+      const fileBlob = new Blob([file], { type: contentType });
+      const fileWithCorrectType = new File([fileBlob], file.name, {
+        type: contentType,
+        lastModified: file.lastModified,
+      });
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('profile-pictures')
-        .upload(fileName, file, {
+        .upload(fileName, fileWithCorrectType, {
           cacheControl: '3600',
           upsert: false,
-        })
-        .then(async ({ data: uploadData, error: uploadError }) => {
+          contentType: contentType,
+        });
+
           if (uploadError) {
-            throw uploadError;
+        console.error('Upload error details:', uploadError);
+        throw new Error(uploadError.message || 'Failed to upload image');
           }
 
           // Get public URL
@@ -75,20 +125,14 @@ export function ProfilePictureUpload({
           }
 
           onImageUploaded(urlData.publicUrl);
-        })
-        .catch((err) => {
+    } catch (err: any) {
           setError(err.message || 'Failed to upload image');
           setPreview(currentImageUrl || null);
-        })
-        .finally(() => {
+    } finally {
           setUploading(false);
           if (fileInputRef.current) {
             fileInputRef.current.value = '';
           }
-        });
-    } catch (err: any) {
-      setError(err.message || 'Failed to process image');
-      setUploading(false);
     }
   };
 
@@ -141,7 +185,7 @@ export function ProfilePictureUpload({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/jfif,image/pjpeg"
               onChange={handleFileSelect}
               disabled={uploading || disabled}
               className="hidden"

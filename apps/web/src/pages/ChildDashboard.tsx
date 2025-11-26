@@ -23,6 +23,12 @@ export default function ChildDashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Clear any existing Supabase auth session to ensure we use anon role
+    // This is important because child sessions use access codes, not Supabase Auth
+    supabase.auth.signOut().catch(() => {
+      // Ignore errors if already signed out
+    });
+
     // Get child session from localStorage
     const sessionStr = localStorage.getItem('child_session');
     if (!sessionStr) {
@@ -105,6 +111,17 @@ export default function ChildDashboardPage() {
               className="w-full py-3 bg-blue-400 text-gray-900 font-bold rounded-lg hover:bg-blue-500"
             >
               Start Learning
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-purple-300">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Marketplace 🛒</h2>
+            <p className="text-gray-600 mb-4">Promote your products and discover others!</p>
+            <button
+              onClick={() => navigate('/child/marketplace')}
+              className="w-full py-3 bg-purple-400 text-gray-900 font-bold rounded-lg hover:bg-purple-500"
+            >
+              Visit Marketplace
             </button>
           </div>
 

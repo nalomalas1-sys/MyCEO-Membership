@@ -19,6 +19,12 @@ export default function ModuleDetailPage() {
   const [startingModule, setStartingModule] = useState(false);
 
   useEffect(() => {
+    // Clear any existing Supabase auth session to ensure we use anon role
+    // This is important because child sessions use access codes, not Supabase Auth
+    supabase.auth.signOut().catch(() => {
+      // Ignore errors if already signed out
+    });
+
     const sessionStr = localStorage.getItem('child_session');
     if (!sessionStr) {
       navigate('/child/login');
@@ -146,6 +152,28 @@ export default function ModuleDetailPage() {
               <span>📊 Progress: {progress.progress_percentage}%</span>
             )}
           </div>
+
+          {/* Progress Bar */}
+          {progress && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <span>Module Progress</span>
+                <span className="font-semibold">{progress.progress_percentage}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    progress.progress_percentage === 100
+                      ? 'bg-green-500'
+                      : progress.progress_percentage > 0
+                      ? 'bg-primary-500'
+                      : 'bg-gray-300'
+                  }`}
+                  style={{ width: `${progress.progress_percentage}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {!isStarted && (
             <button

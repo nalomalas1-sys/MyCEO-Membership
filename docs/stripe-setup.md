@@ -87,8 +87,8 @@ Deploy the Stripe-related Edge Functions to Supabase:
 # Deploy checkout session creator
 supabase functions deploy create-checkout-session
 
-# Deploy webhook handler
-supabase functions deploy stripe-webhook
+# Deploy webhook handler (IMPORTANT: --no-verify-jwt is required because Stripe webhooks don't use JWT tokens)
+supabase functions deploy stripe-webhook --no-verify-jwt
 ```
 
 Or use the Supabase Dashboard:
@@ -97,6 +97,7 @@ Or use the Supabase Dashboard:
 3. Upload or paste the function code from:
    - `supabase/functions/create-checkout-session/index.ts`
    - `supabase/functions/stripe-webhook/index.ts`
+4. **IMPORTANT for `stripe-webhook`:** After deploying, go to the function settings and **disable JWT verification** (Stripe webhooks authenticate using signatures, not JWT tokens)
 
 ## Step 4: Configure Frontend Environment Variables
 

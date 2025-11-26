@@ -10,6 +10,26 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 };
 
+// Helper function to send welcome email (placeholder - implement with your email service)
+async function sendWelcomeEmail(
+  email: string,
+  password: string,
+  fullName: string,
+  plan: string
+): Promise<void> {
+  // TODO: Implement email sending using your email service (e.g., Resend, SendGrid, etc.)
+  // For now, just log the email details
+  console.log(`Welcome email would be sent to ${email} for ${fullName} with plan ${plan}`);
+  // Example implementation:
+  // const emailService = new EmailService();
+  // await emailService.send({
+  //   to: email,
+  //   subject: 'Welcome to MyCEO!',
+  //   template: 'welcome',
+  //   data: { fullName, plan, email, password }
+  // });
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -80,30 +100,70 @@ serve(async (req) => {
 
         if (!subscriptionId || !customerId) {
           console.error('Missing subscription or customer ID in checkout session');
-          break;
+          // Return error response so Stripe knows the webhook failed
+          return new Response(
+            JSON.stringify({ error: 'Missing subscription or customer ID in checkout session' }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
         }
 
         // Retrieve the subscription to get full details
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        const metadata = subscription.metadata;
+        // Check metadata from both subscription and session (subscription metadata takes precedence)
+        const subscriptionMetadata = subscription.metadata || {};
+        const sessionMetadata = session.metadata || {};
+        const metadata = { ...sessionMetadata, ...subscriptionMetadata }; // Merge with subscription taking precedence
         const isNewSignup = metadata?.is_new_signup === 'true';
 
         // Check if this is a new signup
         if (isNewSignup) {
-          const signupEmail = metadata?.signup_email || session.metadata?.signup_email;
-          const signupPassword = metadata?.signup_password || session.metadata?.signup_password;
-          const signupFullName = metadata?.signup_full_name || session.metadata?.signup_full_name;
+          // Get signup data from metadata (check both subscription and session)
+          let signupEmail = subscriptionMetadata?.signup_email || sessionMetadata?.signup_email;
+          const signupPassword = subscriptionMetadata?.signup_password || sessionMetadata?.signup_password;
+          const signupFullName = subscriptionMetadata?.signup_full_name || sessionMetadata?.signup_full_name;
 
-          if (!signupEmail || !signupPassword || !signupFullName) {
-            console.error('Missing signup data in metadata');
-            break;
+          // Also check customer metadata as fallback
+          if (!signupEmail && customerId) {
+            try {
+              const customer = await stripe.customers.retrieve(customerId);
+              if (typeof customer !== 'string' && !customer.deleted) {
+                signupEmail = customer.metadata?.signup_email || customer.email;
+              }
+            } catch (err) {
+              console.error('Error retrieving customer:', err);
+            }
           }
 
+          if (!signupEmail || !signupPassword || !signupFullName) {
+            console.error('Missing signup data in metadata:', {
+              email: !!signupEmail,
+              password: !!signupPassword,
+              fullName: !!signupFullName,
+              subscriptionMetadata: Object.keys(subscriptionMetadata),
+              sessionMetadata: Object.keys(sessionMetadata),
+            });
+            // Return error response so Stripe knows the webhook failed
+            return new Response(
+              JSON.stringify({ error: 'Missing signup data in metadata' }),
+              {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              }
+            );
+          }
+
+          // Normalize email (trim and lowercase) to prevent login issues
+          const normalizedEmail = signupEmail.trim().toLowerCase();
+
           // Create user account using Supabase Admin API
+          // User must verify their email before logging in
           const { data: authData, error: authError } = await supabaseClient.auth.admin.createUser({
-            email: signupEmail,
+            email: normalizedEmail,
             password: signupPassword,
-            email_confirm: true, // Auto-confirm email for paid signups
+            email_confirm: false, // Require email verification
             user_metadata: {
               full_name: signupFullName,
             },
@@ -111,8 +171,54 @@ serve(async (req) => {
 
           if (authError || !authData.user) {
             console.error('Error creating user account:', authError);
-            break;
+            // Return error response so Stripe knows the webhook failed
+            return new Response(
+              JSON.stringify({ error: `Failed to create user account: ${authError?.message || 'Unknown error'}` }),
+              {
+                status: 500,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              }
+            );
           }
+
+          // Generate verification link - Supabase should automatically send the email
+          // when email_confirm: false and email confirmations are enabled
+          const siteUrl = Deno.env.get('SITE_URL') || Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '') || 'http://localhost:3000';
+          const redirectTo = `${siteUrl}/login?verified=true`;
+          
+          // Generate link to verify email sending (this doesn't send the email, but helps with debugging)
+          const { data: linkData, error: linkError } = await supabaseClient.auth.admin.generateLink({
+            type: 'signup',
+            email: normalizedEmail,
+            options: {
+              redirectTo: redirectTo,
+            },
+          });
+
+          if (linkError) {
+            console.error('Error generating verification link:', linkError);
+          } else {
+            console.log('Verification link generated:', linkData?.properties?.action_link);
+          }
+
+          // IMPORTANT: When using admin.createUser with email_confirm: false,
+          // Supabase should automatically send the confirmation email IF:
+          // 1. Email confirmations are enabled in Supabase Dashboard → Authentication → Settings
+          // 2. SMTP is configured (for production) or Inbucket is running (for local dev)
+          // 
+          // If emails are not being sent, check:
+          // - Supabase Dashboard → Authentication → Settings → "Enable email confirmations"
+          // - For local dev: Check Inbucket at http://localhost:54324
+          // - For production: Configure SMTP in Supabase Dashboard → Settings → Auth
+
+          // Log user creation status
+          console.log('User created (email verification required):', {
+            userId: authData.user.id,
+            email: authData.user.email,
+            emailConfirmed: !!authData.user.email_confirmed_at,
+            verificationLinkAvailable: !!linkData?.properties?.action_link,
+            note: 'Check Supabase email settings if confirmation email is not received',
+          });
 
           // Ensure user record exists in public.users (triggers should create it, but fallback if needed)
           const { data: existingUser } = await supabaseClient
@@ -127,7 +233,7 @@ serve(async (req) => {
               .from('users')
               .insert({
                 id: authData.user.id,
-                email: signupEmail,
+                email: normalizedEmail,
                 full_name: signupFullName,
                 role: 'parent',
               });
@@ -269,7 +375,7 @@ serve(async (req) => {
               
               // Send welcome email with login credentials
               try {
-                await sendWelcomeEmail(signupEmail, signupPassword, signupFullName, plan);
+                await sendWelcomeEmail(normalizedEmail, signupPassword, signupFullName, plan);
               } catch (emailError) {
                 console.error('Error sending welcome email:', emailError);
                 // Don't fail the webhook if email fails
@@ -286,17 +392,24 @@ serve(async (req) => {
             .single();
 
           if (parentError || !parent) {
-            console.error('Parent not found for customer:', customerId);
-            break;
+            console.error('Parent not found for customer:', customerId, parentError);
+            // Return error response so Stripe knows the webhook failed
+            return new Response(
+              JSON.stringify({ error: `Parent not found for customer: ${customerId}` }),
+              {
+                status: 404,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              }
+            );
           }
 
-          // Determine plan from metadata or price
-          const plan = metadata?.plan || 'standard'; // Default to standard if not specified
+          // Determine plan from metadata or price (check both subscription and session)
+          const plan = subscriptionMetadata?.plan || sessionMetadata?.plan || 'standard'; // Default to standard if not specified
           const status = subscription.status === 'trialing' ? 'trialing' : 'active';
           const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null;
 
           // Update parent subscription
-          await supabaseClient
+          const { error: updateError } = await supabaseClient
             .from('parents')
             .update({
               subscription_tier: plan,
@@ -305,6 +418,17 @@ serve(async (req) => {
               trial_ends_at: trialEnd,
             })
             .eq('id', parent.id);
+
+          if (updateError) {
+            console.error('Error updating parent subscription:', updateError);
+            return new Response(
+              JSON.stringify({ error: `Failed to update parent subscription: ${updateError.message}` }),
+              {
+                status: 500,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              }
+            );
+          }
 
           console.log(`Subscription activated for parent ${parent.id}: ${plan} - ${status}`);
         }
@@ -317,12 +441,13 @@ serve(async (req) => {
         const subscriptionId = invoice.subscription as string;
 
         if (!subscriptionId || !customerId) {
+          console.error('Missing subscription or customer ID in invoice');
           break;
         }
 
         // Retrieve subscription
         const subscription = await stripe.subscriptions.retrieve(subscriptionId as string);
-        const metadata = subscription.metadata;
+        const metadata = subscription.metadata || {};
         const plan = metadata?.plan || 'standard';
 
         // Find parent
@@ -333,12 +458,12 @@ serve(async (req) => {
           .single();
 
         if (parentError || !parent) {
-          console.error('Parent not found for customer:', customerId);
+          console.error('Parent not found for customer:', customerId, parentError);
           break;
         }
 
         // Update subscription status to active
-        await supabaseClient
+        const { error: updateError } = await supabaseClient
           .from('parents')
           .update({
             subscription_status: 'active',
@@ -346,7 +471,11 @@ serve(async (req) => {
           })
           .eq('id', parent.id);
 
-        console.log(`Payment succeeded for parent ${parent.id}`);
+        if (updateError) {
+          console.error('Error updating parent subscription:', updateError);
+        } else {
+          console.log(`Payment succeeded for parent ${parent.id}`);
+        }
         break;
       }
 
@@ -385,11 +514,12 @@ serve(async (req) => {
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
-        const metadata = subscription.metadata;
+        const metadata = subscription.metadata || {};
         const plan = metadata?.plan || 'standard';
         const status = subscription.status;
 
         if (!customerId) {
+          console.error('Missing customer ID in subscription update');
           break;
         }
 
@@ -421,12 +551,12 @@ serve(async (req) => {
           .single();
 
         if (parentError || !parent) {
-          console.error('Parent not found for customer:', customerId);
+          console.error('Parent not found for customer:', customerId, parentError);
           break;
         }
 
         // Update subscription
-        await supabaseClient
+        const { error: updateError } = await supabaseClient
           .from('parents')
           .update({
             subscription_status: subscriptionStatus,
@@ -437,7 +567,11 @@ serve(async (req) => {
           })
           .eq('id', parent.id);
 
-        console.log(`Subscription updated for parent ${parent.id}: ${plan} - ${subscriptionStatus}`);
+        if (updateError) {
+          console.error('Error updating subscription:', updateError);
+        } else {
+          console.log(`Subscription updated for parent ${parent.id}: ${plan} - ${subscriptionStatus}`);
+        }
         break;
       }
 

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -16,6 +17,7 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setUser, setSession } = useAuthStore();
 
   const {
     register,
@@ -36,27 +38,30 @@ export function LoginForm() {
       });
 
       if (authError) {
-        setError(authError.message);
+        // Provide user-friendly error messages
+        let errorMessage = authError.message;
+        
+        if (authError.message.includes('Email not confirmed') || 
+            authError.message.includes('email_not_confirmed') ||
+            authError.message.includes('Email not verified')) {
+          errorMessage = 'Please verify your email address before logging in. Check your inbox for the verification link.';
+        } else if (authError.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (authError.message.includes('User not found')) {
+          errorMessage = 'Account not found. Please check your email address or sign up for a new account.';
+        }
+        
+        setError(errorMessage);
         setLoading(false);
         return;
       }
 
       if (authData.user) {
-        // Wait for the session to be confirmed
-        // This ensures the auth state is updated before navigation
-        let session = null;
-        let retries = 0;
-        const maxRetries = 5;
-        
-        while (!session && retries < maxRetries) {
-          const { data: { session: currentSession } } = await supabase.auth.getSession();
-          if (currentSession) {
-            session = currentSession;
-            break;
-          }
-          // Wait a bit before retrying
-          await new Promise(resolve => setTimeout(resolve, 200));
-          retries++;
+        // Get the session (it should be in the response, but fallback to getSession if needed)
+        let session: typeof authData.session | null = authData.session;
+        if (!session) {
+          const sessionResponse = await supabase.auth.getSession();
+          session = sessionResponse.data.session;
         }
         
         if (!session) {
@@ -64,14 +69,20 @@ export function LoginForm() {
           setLoading(false);
           return;
         }
-
+        
+        // Immediately update the auth store so ProtectedRoute can see the user
+        // This prevents the race condition where navigation happens before auth state updates
+        setSession(session);
+        setUser(authData.user);
+        
         // Wait a moment for RLS policies to recognize the session
         await new Promise(resolve => setTimeout(resolve, 300));
 
         // Check user role to determine redirect with retry logic
         let userData = null;
         let userError = null;
-        retries = 0;
+        let retries = 0;
+        const maxRetries = 5;
         
         while (!userData && retries < maxRetries) {
           const { data, error } = await supabase

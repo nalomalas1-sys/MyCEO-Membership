@@ -80,7 +80,7 @@ supabase link --project-ref your-project-ref
 
 # Deploy the functions
 supabase functions deploy create-checkout-session
-supabase functions deploy stripe-webhook
+supabase functions deploy stripe-webhook --no-verify-jwt
 ```
 
 **Option B: Using Supabase Dashboard**
@@ -92,6 +92,7 @@ supabase functions deploy stripe-webhook
 4. For `stripe-webhook`:
    - Copy code from `supabase/functions/stripe-webhook/index.ts`
    - Paste and deploy
+   - **IMPORTANT:** After deploying, disable JWT verification in the function settings (Stripe webhooks don't use JWT tokens)
 
 ## 3. Configure Stripe Webhook
 
@@ -214,6 +215,30 @@ Make sure all database migrations are applied:
 - Check that user was created in Supabase Auth
 - Verify password was set correctly
 - Check browser console for errors
+
+### Email Not Confirmed Error
+If you see "Email not confirmed" errors after subscribing:
+
+**Root Cause:** Supabase Auth has email confirmation enabled, which requires users to confirm their email before logging in. However, for paid subscriptions, we auto-confirm emails via the webhook.
+
+**Solution:**
+1. Go to your **Supabase Dashboard** → **Authentication** → **Settings**
+2. Scroll down to **Email Auth** section
+3. Find **"Enable email confirmations"** setting
+4. **Disable** this setting (toggle it off)
+   - This allows the webhook to auto-confirm emails for paid signups
+   - Users created via the webhook will be immediately confirmed
+5. Save the changes
+
+**Alternative (if you want to keep email confirmations enabled):**
+- The webhook already sets `email_confirm: true` when creating users
+- However, if email confirmations are required in settings, you may need to disable it
+- Check the webhook logs in Supabase Dashboard to see if email confirmation is working
+
+**Verify it's working:**
+- After disabling email confirmations, test a new signup
+- Check the webhook logs to see: `Email already confirmed for user: [user-id]`
+- Users should be able to log in immediately after signup
 
 ## Production Checklist
 

@@ -1,5 +1,5 @@
--- Function to award achievements and update XP
--- This function checks for new achievements, awards them, and updates child XP
+-- Update lesson XP calculation to use module XP divided by number of lessons
+-- This ensures the total XP from all lessons equals the module's predetermined XP
 
 CREATE OR REPLACE FUNCTION award_achievements_and_xp(
   p_child_id UUID,
@@ -31,6 +31,8 @@ DECLARE
   v_new_achievements JSONB := '[]'::JSONB;
   v_achievement_record RECORD;
   v_child_exists BOOLEAN;
+  v_module_xp INTEGER;
+  v_lesson_count INTEGER;
 BEGIN
   -- Validate that child exists
   SELECT EXISTS(SELECT 1 FROM public.children WHERE id = p_child_id) INTO v_child_exists;
@@ -39,20 +41,41 @@ BEGIN
   END IF;
 
   -- Get current child stats
-  SELECT total_xp, current_level, current_streak
+  SELECT COALESCE(c.total_xp, 0), COALESCE(c.current_level, 1), COALESCE(c.current_streak, 0)
   INTO v_current_xp, v_old_level, v_current_streak
-  FROM public.children
-  WHERE id = p_child_id;
+  FROM public.children c
+  WHERE c.id = p_child_id;
 
   -- Calculate base XP based on activity type
   IF p_activity_type = 'module_complete' AND p_module_id IS NOT NULL THEN
-    SELECT xp_reward INTO v_base_xp
-    FROM public.modules
-    WHERE id = p_module_id;
+    -- Module completion: award 0 base XP since lessons already gave the XP
+    -- (Lessons divide the module XP among them, so module completion doesn't need additional base XP)
+    -- Bonuses (perfect quiz, streak, achievements) are still applied below
+    v_base_xp := 0;
+    v_xp_earned := 0;
+  ELSIF p_activity_type = 'lesson_complete' AND p_module_id IS NOT NULL THEN
+    -- Lesson completion: calculate XP as module XP divided by number of lessons
+    SELECT COALESCE(m.xp_reward, 100) INTO v_module_xp
+    FROM public.modules m
+    WHERE m.id = p_module_id;
     
-    v_xp_earned := COALESCE(v_base_xp, 100); -- Default 100 XP if module not found
+    -- Count lessons in the module
+    SELECT COUNT(*) INTO v_lesson_count
+    FROM public.lessons
+    WHERE module_id = p_module_id;
+    
+    -- Calculate lesson XP: module XP / number of lessons
+    -- If no lessons found, default to 50 XP
+    IF v_lesson_count > 0 THEN
+      v_base_xp := v_module_xp / v_lesson_count;
+    ELSE
+      v_base_xp := 50; -- Default fallback if no lessons found
+    END IF;
+    
+    v_xp_earned := v_base_xp;
   ELSIF p_activity_type = 'lesson_complete' THEN
-    v_xp_earned := 50; -- Base XP for lesson completion
+    -- Lesson completion without module_id: default to 50 XP
+    v_xp_earned := 50;
   ELSIF p_activity_type = 'quiz_attempt' THEN
     v_xp_earned := 25; -- Base XP for quiz attempt
   ELSE
@@ -60,7 +83,7 @@ BEGIN
   END IF;
 
   -- Perfect quiz bonus (+50 XP)
-  IF p_quiz_score = 100 THEN
+  IF p_quiz_score IS NOT NULL AND p_quiz_score = 100 THEN
     v_perfect_bonus := 50;
     v_xp_earned := v_xp_earned + v_perfect_bonus;
   END IF;
@@ -69,9 +92,9 @@ BEGIN
   PERFORM update_child_streak(p_child_id);
   
   -- Get updated streak after update
-  SELECT current_streak INTO v_current_streak
-  FROM public.children
-  WHERE id = p_child_id;
+  SELECT COALESCE(c.current_streak, 0) INTO v_current_streak
+  FROM public.children c
+  WHERE c.id = p_child_id;
 
   -- Streak bonus (+10 XP per day of streak)
   IF v_current_streak > 0 THEN
@@ -135,8 +158,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Grant execute permissions to authenticated and anonymous users
--- SECURITY DEFINER allows the function to bypass RLS while still being secure
--- The function validates child_id exists before making any updates
+-- Grant execute permissions
 GRANT EXECUTE ON FUNCTION award_achievements_and_xp(UUID, TEXT, UUID, INTEGER) TO authenticated, anon;
 

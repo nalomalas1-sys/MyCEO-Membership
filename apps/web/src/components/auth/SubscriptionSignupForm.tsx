@@ -156,7 +156,7 @@ export function SubscriptionSignupForm() {
           plan: data.plan,
           billingPeriod: data.billingPeriod,
           userData: {
-            email: data.email,
+            email: data.email.trim().toLowerCase(), // Normalize email (trim + lowercase)
             password: data.password, // Will be hashed on server side
             fullName: data.fullName,
           },
@@ -173,8 +173,11 @@ export function SubscriptionSignupForm() {
       const { url } = await response.json();
 
       if (url) {
-        // Store email in sessionStorage for post-checkout login
-        sessionStorage.setItem('signup_email', data.email);
+        // Store email and password in sessionStorage for post-checkout auto-login
+        // Note: This is temporary and will be cleared after successful login
+        // Normalize email before storing (should already be normalized, but ensure consistency)
+        sessionStorage.setItem('signup_email', data.email.trim().toLowerCase());
+        sessionStorage.setItem('signup_password', data.password);
         // Redirect to Stripe Checkout
         window.location.href = url;
       } else {

@@ -58,6 +58,8 @@ serve(async (req) => {
           }
         );
       }
+      // Normalize email (trim and lowercase) to prevent login issues
+      userData.email = userData.email.trim().toLowerCase();
     } else {
       // Existing user flow - verify authentication
       const supabaseClient = createClient(
@@ -136,12 +138,13 @@ serve(async (req) => {
 
     // Create or get Stripe customer
     if (!stripeCustomerId) {
-      const customerEmail = userData?.email || user?.email;
+      // Normalize email for existing users too
+      const customerEmail = userData?.email || (user?.email ? user.email.trim().toLowerCase() : undefined);
       const customer = await stripe.customers.create({
         email: customerEmail,
         metadata: userData
           ? {
-              // New signup - store user data in customer metadata
+              // New signup - store user data in customer metadata (email already normalized)
               signup_email: userData.email,
               signup_password: userData.password, // Will be hashed in webhook
               signup_full_name: userData.fullName,
@@ -183,7 +186,8 @@ serve(async (req) => {
       customer: stripeCustomerId,
       mode: 'subscription',
       payment_method_types: ['card'],
-      locale: 'auto', // Auto-detect locale from browser, prevents module loading errors
+      // Note: Removing locale setting to use Stripe's default (English)
+      // Setting locale to 'auto' can cause module loading errors in some cases
       line_items: [
         {
           price: priceId,

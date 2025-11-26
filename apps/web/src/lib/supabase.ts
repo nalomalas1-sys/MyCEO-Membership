@@ -25,7 +25,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json',
+      // Note: Content-Type is set per-request by Supabase
+      // For file uploads, it's set via the contentType option in storage.upload()
     },
   },
 });

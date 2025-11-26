@@ -1,68 +1,88 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
-import { Sparkles, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { Sparkles, CheckCircle2, Loader2, Mail } from 'lucide-react';
 
 export default function SignupSuccessPage() {
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<'loading' | 'login' | 'success' | 'error'>('loading');
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [loggingIn, setLoggingIn] = useState(false);
   const navigate = useNavigate();
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    // Get email from sessionStorage
-    const storedEmail = sessionStorage.getItem('signup_email');
-    if (storedEmail) {
-      setEmail(storedEmail);
-      sessionStorage.removeItem('signup_email');
-    }
+    const verifyPayment = async () => {
+      // Get email from sessionStorage
+      const storedEmail = sessionStorage.getItem('signup_email');
+      
+      if (storedEmail) {
+        // Normalize email (trim + lowercase) for consistency
+        setEmail(storedEmail.trim().toLowerCase());
+      }
 
-    if (!sessionId) {
-      setError('No session ID provided');
-      setStatus('error');
-      return;
-    }
-
-    // Wait a moment for webhook to process, then show login form
-    const timer = setTimeout(() => {
-      setStatus('login');
-    }, 3000); // Give webhook 3 seconds to create account
-
-    return () => clearTimeout(timer);
-  }, [sessionId]);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoggingIn(true);
-    setError(null);
-
-    try {
-      const { data, error: loginError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (loginError) {
-        setError(loginError.message);
-        setLoggingIn(false);
+      if (!sessionId) {
+        setStatus('error');
         return;
       }
 
-      if (data.user) {
+      // Verify checkout session and get email
+      try {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        const functionUrl = `${supabaseUrl}/functions/v1/verify-checkout-session`;
+
+        // Wait a moment for webhook to process
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Verify the checkout session
+        const verifyResponse = await fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${anonKey}`,
+            'apikey': anonKey,
+          },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        if (!verifyResponse.ok) {
+          throw new Error('Failed to verify checkout session');
+        }
+
+        const verifyData = await verifyResponse.json();
+        
+        // Use email from verification if available, fallback to stored email
+        const userEmail = verifyData.email || storedEmail;
+        
+        if (userEmail && typeof userEmail === 'string' && userEmail.trim() !== '') {
+          setEmail(userEmail.trim().toLowerCase());
+        }
+
+        // Show success message, then redirect to login
+        setStatus('success');
+        
+        // Redirect to login page after 3 seconds with email verification message
+        setTimeout(() => {
+          // Clear stored credentials (they're no longer needed)
+          sessionStorage.removeItem('signup_email');
+          sessionStorage.removeItem('signup_password');
+          // Redirect to login with a flag to show email verification message
+          navigate('/login?from_signup=true&email=' + encodeURIComponent(userEmail || storedEmail || ''));
+        }, 3000);
+      } catch (err: any) {
+        console.error('Error verifying payment:', err);
+        // Still redirect to login even if verification fails
         setStatus('success');
         setTimeout(() => {
-          navigate('/dashboard');
-        }, 1500);
+          sessionStorage.removeItem('signup_email');
+          sessionStorage.removeItem('signup_password');
+          navigate('/login?from_signup=true');
+        }, 3000);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to log in. Please try again.');
-      setLoggingIn(false);
-    }
-  };
+    };
+
+    verifyPayment();
+  }, [sessionId, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-green-50 px-4">
@@ -76,78 +96,10 @@ export default function SignupSuccessPage() {
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             <Loader2 className="h-12 w-12 text-primary-600 animate-spin mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Creating Your Account
+              Verifying Payment
             </h1>
             <p className="text-gray-600">
-              Please wait while we set up your account. This should only take a moment...
-            </p>
-          </div>
-        )}
-
-        {status === 'login' && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="h-8 w-8 text-green-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Payment Successful!
-            </h1>
-            <p className="text-gray-600 mb-6">
-              Your account has been created. Please log in with your password to continue.
-            </p>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
-                  placeholder="Enter your password"
-                />
-              </div>
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  {error}
-                </div>
-              )}
-              <button
-                type="submit"
-                disabled={loggingIn}
-                className="w-full px-6 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {loggingIn ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Logging in...
-                  </>
-                ) : (
-                  'Log In & Continue'
-                )}
-              </button>
-            </form>
-            <p className="text-xs text-gray-500 text-center mt-4">
-              <Link to="/login" className="text-primary-600 hover:text-primary-700">
-                Having trouble? Try the login page
-              </Link>
+              Please wait while we verify your payment...
             </p>
           </div>
         )}
@@ -158,45 +110,43 @@ export default function SignupSuccessPage() {
               <CheckCircle2 className="h-8 w-8 text-green-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Welcome to MyCEO!
+              Payment Successful!
             </h1>
-            <p className="text-gray-600 mb-6">
-              Redirecting you to your dashboard...
+            <p className="text-gray-600 mb-4">
+              Your account is being created. You'll receive an email verification link shortly.
             </p>
+            {email && (
+              <p className="text-sm text-gray-500 mb-6">
+                Check your inbox at <strong>{email}</strong>
+              </p>
+            )}
+            <div className="flex items-center justify-center gap-2 text-primary-600 mb-6">
+              <Mail className="h-5 w-5" />
+              <span className="text-sm font-medium">Redirecting to login page...</span>
+            </div>
             <Link
-              to="/dashboard"
+              to="/login"
               className="inline-block px-6 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-all"
             >
-              Go to Dashboard
+              Go to Login Now
             </Link>
           </div>
         )}
 
         {status === 'error' && (
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-            <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="h-8 w-8 text-red-600" />
-            </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Account Setup Issue
+              Verification Issue
             </h1>
             <p className="text-gray-600 mb-6">
-              {error || 'There was an issue setting up your account. Please try logging in with your email and password.'}
+              There was an issue verifying your payment. Please try logging in.
             </p>
-            <div className="space-y-3">
-              <Link
-                to="/login"
-                className="block w-full px-6 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-all"
-              >
-                Try Logging In
-              </Link>
-              <Link
-                to="/signup"
-                className="block w-full px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all"
-              >
-                Start Over
-              </Link>
-            </div>
+            <Link
+              to="/login"
+              className="block w-full px-6 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-all"
+            >
+              Go to Login
+            </Link>
           </div>
         )}
       </div>

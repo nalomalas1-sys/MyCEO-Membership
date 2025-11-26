@@ -92,6 +92,10 @@ function DashboardContent() {
     setChildLoginError(null);
 
     try {
+      // Clear any existing Supabase auth session to ensure we use anon role
+      // This is important because child sessions use access codes, not Supabase Auth
+      await supabase.auth.signOut();
+
       // Format code (ensure uppercase, keep dashes as stored in DB)
       const formattedCode = childLoginCode.toUpperCase().trim();
       

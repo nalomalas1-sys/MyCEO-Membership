@@ -7,6 +7,7 @@ import { Child } from '@/types/child';
 import { ArrowLeft, Edit, Trophy, TrendingUp, BookOpen, Clock, Award } from 'lucide-react';
 import { EditChildModal } from '@/components/parent/EditChildModal';
 import { ChildCodeDisplay } from '@/components/parent/ChildCodeDisplay';
+import { formatCurrency } from '@/utils/currency';
 
 interface ChildProgress {
   total_modules: number;
@@ -324,20 +325,20 @@ function ChildDetailContent() {
                 <div>
                   <p className="text-sm text-gray-600">Current Balance</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${company.current_balance.toFixed(2)}
+                    {formatCurrency(company.current_balance)}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 pt-3 border-t">
                   <div>
                     <p className="text-sm text-gray-600">Total Revenue</p>
                     <p className="text-lg font-semibold text-green-600">
-                      ${company.total_revenue.toFixed(2)}
+                      {formatCurrency(company.total_revenue)}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total Expenses</p>
                     <p className="text-lg font-semibold text-red-600">
-                      ${company.total_expenses.toFixed(2)}
+                      {formatCurrency(company.total_expenses)}
                     </p>
                   </div>
                 </div>
