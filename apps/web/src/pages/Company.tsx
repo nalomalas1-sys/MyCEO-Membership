@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { AchievementNotification } from '@/components/child/AchievementNotification';
 import { supabase } from '@/lib/supabase';
-import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight, Edit2, Save, X } from 'lucide-react';
+import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight, Edit2, Save, X, Package, Rocket, Tag, Target } from 'lucide-react';
 import { formatCurrency } from '@/utils/currency';
 
 interface ChildSession {
@@ -42,6 +42,9 @@ export default function CompanyPage() {
   const [showSetup, setShowSetup] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [showEditCompany, setShowEditCompany] = useState(false);
+  const [showLaunchProduct, setShowLaunchProduct] = useState(false);
+  const [showSetPricing, setShowSetPricing] = useState(false);
+  const [marketplaceItems, setMarketplaceItems] = useState<any[]>([]);
   const [achievementNotification, setAchievementNotification] = useState<{
     isOpen: boolean;
     xpEarned: number;
@@ -99,6 +102,16 @@ export default function CompanyPage() {
 
         if (transactionsError) throw transactionsError;
         setTransactions(transactionsData || []);
+
+        // Fetch marketplace items (product catalog)
+        const { data: itemsData, error: itemsError } = await supabase
+          .from('marketplace_items')
+          .select('*')
+          .eq('seller_child_id', childSession.childId)
+          .order('created_at', { ascending: false });
+
+        if (itemsError) console.error('Failed to fetch marketplace items:', itemsError);
+        setMarketplaceItems(itemsData || []);
       } catch (err: any) {
         console.error('Failed to fetch company:', err);
       } finally {
@@ -343,7 +356,7 @@ export default function CompanyPage() {
         </div>
 
         {/* Actions */}
-        <div className="mb-8">
+        <div className="mb-8 flex flex-wrap gap-4">
           <button
             onClick={() => setShowAddTransaction(true)}
             className="btn btn-primary flex items-center gap-2"
@@ -351,6 +364,114 @@ export default function CompanyPage() {
             <Plus className="h-5 w-5" />
             Add Transaction
           </button>
+          {company.product_name && (
+            <>
+              <button
+                onClick={() => setShowLaunchProduct(true)}
+                className="btn bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold flex items-center gap-2 hover:from-yellow-500 hover:to-orange-500"
+              >
+                <Rocket className="h-5 w-5" />
+                Launch Product
+              </button>
+              {marketplaceItems.length > 0 && (
+                <button
+                  onClick={() => setShowSetPricing(true)}
+                  className="btn bg-gradient-to-r from-blue-400 to-purple-400 text-white font-semibold flex items-center gap-2 hover:from-blue-500 hover:to-purple-500"
+                >
+                  <Tag className="h-5 w-5" />
+                  Set Pricing
+                </button>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Product Catalog */}
+        {company.product_name && (
+          <div className="card mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <Package className="h-6 w-6" />
+              Product Catalog
+            </h2>
+            <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
+              <p className="text-lg font-semibold text-gray-900 mb-1">Main Product:</p>
+              <p className="text-xl text-gray-700">{company.product_name}</p>
+            </div>
+            {marketplaceItems.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {marketplaceItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 bg-gradient-to-br from-yellow-50 to-pink-50 rounded-lg border-2 border-yellow-200"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-bold text-gray-900">{item.item_name}</h3>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        item.status === 'available' ? 'bg-green-100 text-green-700' :
+                        item.status === 'sold' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </div>
+                    {item.description && (
+                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-bold text-yellow-600">
+                        {formatCurrency(item.price)}
+                      </span>
+                      {item.status === 'available' && (
+                        <p className="text-xs text-gray-600 flex items-center gap-1">
+                          <Package className="h-3 w-3" />
+                          <span className="font-semibold">{item.quantity || 0} left</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-600">
+                <Package className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                <p className="text-lg mb-2">No products launched yet!</p>
+                <p className="text-sm">Launch your product to start selling in the marketplace.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mini Sales Challenge */}
+        <div className="card mb-8 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Target className="h-6 w-6" />
+            Sales Challenge
+          </h2>
+          <div className="space-y-3">
+            <div className="p-4 bg-white rounded-lg border-2 border-green-200">
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-semibold text-gray-900">Sell 5 Items This Week</p>
+                <span className="text-sm text-gray-600">
+                  {marketplaceItems.filter(i => i.status === 'sold').length} / 5 sold
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                <div
+                  className="bg-green-500 h-3 rounded-full transition-all"
+                  style={{
+                    width: `${Math.min((marketplaceItems.filter(i => i.status === 'sold').length / 5) * 100, 100)}%`
+                  }}
+                />
+              </div>
+              {marketplaceItems.filter(i => i.status === 'sold').length >= 5 ? (
+                <p className="text-sm text-green-700 font-semibold">🎉 Challenge Complete! Great job!</p>
+              ) : (
+                <p className="text-sm text-gray-600">
+                  {5 - marketplaceItems.filter(i => i.status === 'sold').length} more sales needed
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Transactions */}
@@ -457,6 +578,43 @@ export default function CompanyPage() {
           leveledUp={achievementNotification.leveledUp}
           newLevel={achievementNotification.newLevel}
           type="lesson"
+        />
+      )}
+
+      {/* Launch Product Modal */}
+      {showLaunchProduct && company && childSession && (
+        <LaunchProductModal
+          company={company}
+          childSession={childSession}
+          onClose={() => setShowLaunchProduct(false)}
+          onSuccess={async () => {
+            // Refresh marketplace items
+            const { data: itemsData } = await supabase
+              .from('marketplace_items')
+              .select('*')
+              .eq('seller_child_id', childSession.childId)
+              .order('created_at', { ascending: false });
+            if (itemsData) setMarketplaceItems(itemsData);
+            setShowLaunchProduct(false);
+          }}
+        />
+      )}
+
+      {/* Set Pricing Modal */}
+      {showSetPricing && marketplaceItems.length > 0 && (
+        <SetPricingModal
+          items={marketplaceItems}
+          onClose={() => setShowSetPricing(false)}
+          onSuccess={async () => {
+            // Refresh marketplace items
+            const { data: itemsData } = await supabase
+              .from('marketplace_items')
+              .select('*')
+              .eq('seller_child_id', childSession!.childId)
+              .order('created_at', { ascending: false });
+            if (itemsData) setMarketplaceItems(itemsData);
+            setShowSetPricing(false);
+          }}
         />
       )}
     </div>
@@ -816,6 +974,325 @@ function EditCompanyModal({ company, onClose, onSuccess }: EditCompanyModalProps
             >
               <Save className="h-4 w-4" />
               {loading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+interface LaunchProductModalProps {
+  company: Company;
+  childSession: ChildSession;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function LaunchProductModal({ company, childSession, onClose, onSuccess }: LaunchProductModalProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [price, setPrice] = useState('');
+  const [quantity, setQuantity] = useState('1');
+  const [description, setDescription] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const priceNum = parseFloat(price);
+      if (isNaN(priceNum) || priceNum <= 0) {
+        setError('Please enter a valid price greater than 0');
+        setLoading(false);
+        return;
+      }
+
+      const quantityNum = parseInt(quantity);
+      if (isNaN(quantityNum) || quantityNum <= 0) {
+        setError('Please enter a valid quantity greater than 0');
+        setLoading(false);
+        return;
+      }
+
+      // Create marketplace listing
+      const { error: insertError } = await supabase
+        .from('marketplace_items')
+        .insert({
+          seller_child_id: childSession.childId,
+          item_name: company.product_name || 'Product',
+          description: description.trim() || null,
+          price: priceNum,
+          quantity: quantityNum,
+          status: 'available',
+        });
+
+      if (insertError) throw insertError;
+
+      // Create a transaction for "product launch" expense (optional - marketing cost)
+      const launchCost = 50.00; // Small marketing cost
+      const { data: companyData } = await supabase
+        .from('companies')
+        .select('current_balance, total_expenses')
+        .eq('id', company.id)
+        .single();
+
+      if (companyData && companyData.current_balance >= launchCost) {
+        // Add launch transaction
+        await supabase.from('company_transactions').insert({
+          company_id: company.id,
+          transaction_type: 'expense',
+          amount: launchCost,
+          description: `Product launch marketing: ${company.product_name}`,
+        });
+
+        // Update company balance
+        await supabase
+          .from('companies')
+          .update({
+            current_balance: companyData.current_balance - launchCost,
+            total_expenses: (companyData.total_expenses || 0) + launchCost,
+          })
+          .eq('id', company.id);
+      }
+
+      onSuccess();
+    } catch (err: any) {
+      setError(err.message || 'Failed to launch product');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Rocket className="h-6 w-6 text-yellow-600" />
+            Launch Product
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            disabled={loading}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-800">
+              <strong>Product:</strong> {company.product_name}
+            </p>
+            <p className="text-xs text-blue-600 mt-1">
+              💡 Launch cost: {formatCurrency(50.00)} (marketing expense)
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+              Price (RM) *
+            </label>
+            <input
+              type="number"
+              id="price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              required
+              min="0.01"
+              step="0.01"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+              Quantity *
+            </label>
+            <input
+              type="number"
+              id="quantity"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              required
+              min="1"
+              step="1"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="1"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="Describe your product..."
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 btn btn-primary flex items-center justify-center gap-2"
+              disabled={loading}
+            >
+              <Rocket className="h-4 w-4" />
+              {loading ? 'Launching...' : 'Launch Product'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+interface SetPricingModalProps {
+  items: Array<{ id: string; item_name: string; price: number; status: string }>;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function SetPricingModal({ items, onClose, onSuccess }: SetPricingModalProps) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [prices, setPrices] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    // Initialize prices from items
+    const initialPrices: Record<string, string> = {};
+    items.forEach((item) => {
+      if (item.status === 'available') {
+        initialPrices[item.id] = item.price.toString();
+      }
+    });
+    setPrices(initialPrices);
+  }, [items]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Update prices for all items
+      const updates = Object.entries(prices).map(async ([itemId, priceStr]) => {
+        const priceNum = parseFloat(priceStr);
+        if (isNaN(priceNum) || priceNum <= 0) {
+          throw new Error(`Invalid price for ${items.find(i => i.id === itemId)?.item_name}`);
+        }
+
+        const { error } = await supabase
+          .from('marketplace_items')
+          .update({ price: priceNum })
+          .eq('id', itemId);
+
+        if (error) throw error;
+      });
+
+      await Promise.all(updates);
+      onSuccess();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update prices');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const availableItems = items.filter((item) => item.status === 'available');
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Tag className="h-6 w-6 text-blue-600" />
+            Set Pricing
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            disabled={loading}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {availableItems.length === 0 ? (
+            <div className="text-center py-8 text-gray-600">
+              <p>No available products to update pricing.</p>
+            </div>
+          ) : (
+            availableItems.map((item) => (
+              <div key={item.id} className="p-4 bg-gray-50 rounded-lg">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {item.item_name}
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">RM</span>
+                  <input
+                    type="number"
+                    value={prices[item.id] || ''}
+                    onChange={(e) =>
+                      setPrices({ ...prices, [item.id]: e.target.value })
+                    }
+                    required
+                    min="0.01"
+                    step="0.01"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+            ))
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 btn btn-primary flex items-center justify-center gap-2"
+              disabled={loading || availableItems.length === 0}
+            >
+              <Save className="h-4 w-4" />
+              {loading ? 'Updating...' : 'Update Prices'}
             </button>
           </div>
         </form>

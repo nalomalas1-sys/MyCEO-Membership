@@ -135,6 +135,17 @@ export default function ChildDashboardPage() {
               View Badges
             </button>
           </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-orange-300">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Leaderboard 🏅</h2>
+            <p className="text-gray-600 mb-4">See who's on top in revenue, level, and sales!</p>
+            <button
+              onClick={() => navigate('/child/leaderboard')}
+              className="w-full py-3 bg-orange-400 text-gray-900 font-bold rounded-lg hover:bg-orange-500"
+            >
+              View Leaderboard
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg p-6">

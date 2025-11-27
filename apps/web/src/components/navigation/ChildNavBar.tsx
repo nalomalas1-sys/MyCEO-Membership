@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Home, BookOpen, Trophy, Building2, ShoppingBag, LogOut } from 'lucide-react';
+import { Sparkles, Home, BookOpen, Trophy, Building2, ShoppingBag, LogOut, Award } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface ChildSession {
@@ -80,6 +80,13 @@ export function ChildNavBar() {
               >
                 <Trophy className="h-4 w-4" />
                 <span>Achievements</span>
+              </Link>
+              <Link
+                to="/child/leaderboard"
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-white hover:bg-white/20 transition-colors font-medium"
+              >
+                <Award className="h-4 w-4" />
+                <span>Leaderboard</span>
               </Link>
             </div>
           </div>

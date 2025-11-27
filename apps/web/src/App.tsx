@@ -21,6 +21,7 @@ import LessonViewerPage from '@/pages/LessonViewer';
 import AchievementsPage from '@/pages/Achievements';
 import CompanyPage from '@/pages/Company';
 import MarketplacePage from '@/pages/Marketplace';
+import LeaderboardPage from '@/pages/Leaderboard';
 import LandingPage from '@/pages/Landing';
 import SettingsPage from '@/pages/Settings';
 import PricingPage from '@/pages/Pricing';
@@ -66,6 +67,7 @@ function App() {
           <Route path="/child/achievements" element={<AchievementsPage />} />
           <Route path="/child/company" element={<CompanyPage />} />
           <Route path="/child/marketplace" element={<MarketplacePage />} />
+          <Route path="/child/leaderboard" element={<LeaderboardPage />} />
         </Routes>
         <Toaster />
       </div>
