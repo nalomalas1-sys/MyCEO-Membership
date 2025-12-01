@@ -67,14 +67,20 @@ export default function MarketplacePage() {
         setLoading(true);
 
         // Fetch company info
-        const { data: companyData } = await supabase
+        // Use * to avoid 406 errors with specific column selection and RLS
+        const { data: companyData, error: companyError } = await supabase
           .from('companies')
-          .select('company_name, product_name')
+          .select('*')
           .eq('child_id', childSession.childId)
           .single();
 
-        if (companyData) {
-          setMyCompany(companyData);
+        if (companyError) {
+          console.error('Error fetching company:', companyError);
+        } else if (companyData) {
+          setMyCompany({
+            company_name: companyData.company_name,
+            product_name: companyData.product_name,
+          });
         }
 
         // Fetch all available marketplace items
@@ -345,7 +351,7 @@ function ProductCard({ item, isOwnItem, onRefresh }: ProductCardProps) {
         try {
           const { data, error } = await supabase
             .from('companies')
-            .select('id, current_balance, company_name')
+            .select('*')
             .eq('child_id', childSession!.childId)
             .single();
 
@@ -469,7 +475,7 @@ function ProductCard({ item, isOwnItem, onRefresh }: ProductCardProps) {
       // 4. Get seller's company
       const { data: sellerCompany, error: sellerCompanyError } = await supabase
         .from('companies')
-        .select('id, current_balance, total_revenue')
+        .select('*')
         .eq('child_id', item.seller_child_id)
         .single();
 
@@ -912,6 +918,10 @@ function AddProductModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent double submission
+    if (loading) return;
+    
     setLoading(true);
 
     try {
@@ -937,17 +947,54 @@ function AddProductModal({
         return;
       }
 
-      const { error } = await supabase.from('marketplace_items').insert({
+      if (!childSession?.childId) {
+        toast({
+          title: 'Error',
+          description: 'Session expired. Please log in again.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
+      const insertData: any = {
         seller_child_id: childSession.childId,
         item_name: itemName.trim(),
         description: description.trim() || null,
         price: priceNum,
-        quantity: quantityNum,
         image_url: imageUrl.trim() || null,
         status: 'available',
-      });
+      };
 
-      if (error) throw error;
+      // Only include quantity if the column exists (migration may not be applied)
+      // The database default will handle it if column doesn't exist
+      try {
+        insertData.quantity = quantityNum;
+      } catch (e) {
+        // Ignore if quantity field doesn't exist
+      }
+
+      const { error, data } = await supabase.from('marketplace_items').insert(insertData).select();
+
+      if (error) {
+        console.error('Marketplace insert error:', error);
+        // Check if it's a constraint violation
+        if (error.code === '23505' || error.message?.includes('duplicate') || error.message?.includes('unique')) {
+          throw new Error('This item already exists. Please try again.');
+        } else if (error.code === '23514' || error.message?.includes('check constraint')) {
+          throw new Error('Invalid data. Please check your input values.');
+        } else if (error.code === '42703' || (error.message?.includes('column') && error.message?.includes('quantity'))) {
+          // Column doesn't exist - retry without quantity
+          delete insertData.quantity;
+          const { error: retryError } = await supabase.from('marketplace_items').insert(insertData);
+          if (retryError) throw retryError;
+        } else if (error.code === 'PGRST301' || error.message?.includes('409')) {
+          // Conflict error - might be duplicate or constraint
+          throw new Error('Unable to add item. It may already exist or there was a conflict.');
+        } else {
+          throw error;
+        }
+      }
 
       toast({
         title: 'Success! 🎉',

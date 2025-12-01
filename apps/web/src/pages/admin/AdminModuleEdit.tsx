@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical, Image } from 'lucide-react';
 import { QuizBuilder } from '@/components/admin/QuizBuilder';
 import {
   DndContext,
@@ -58,6 +58,9 @@ function AdminModuleEditContent() {
   const [showLessonForm, setShowLessonForm] = useState(false);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [reordering, setReordering] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [selectedThumbnailFile, setSelectedThumbnailFile] = useState<File | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -105,6 +108,7 @@ function AdminModuleEditContent() {
       });
 
       setIsPublished(module.is_published);
+      setThumbnailUrl(module.thumbnail_url || null);
 
       // Fetch lessons
       const { data: lessonsData, error: lessonsError } = await supabase
@@ -123,6 +127,65 @@ function AdminModuleEditContent() {
     }
   }
 
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setError('Image size must be less than 5MB');
+      return;
+    }
+
+    setSelectedThumbnailFile(file);
+    setError(null);
+    setUploadingThumbnail(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `thumbnails/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('module-thumbnails')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('module-thumbnails')
+        .getPublicUrl(fileName);
+
+      if (!urlData?.publicUrl) {
+        throw new Error('Failed to get thumbnail URL');
+      }
+
+      setThumbnailUrl(urlData.publicUrl);
+    } catch (err: any) {
+      console.error('Failed to upload thumbnail:', err);
+      setError(err.message || 'Failed to upload thumbnail');
+      setSelectedThumbnailFile(null);
+    } finally {
+      setUploadingThumbnail(false);
+    }
+  };
+
+  const handleRemoveThumbnail = () => {
+    setThumbnailUrl(null);
+    setSelectedThumbnailFile(null);
+  };
+
   const onSubmit = async (data: ModuleFormData) => {
     if (!id) return;
 
@@ -139,6 +202,7 @@ function AdminModuleEditContent() {
           order_index: data.order_index,
           difficulty_level: data.difficulty_level,
           xp_reward: data.xp_reward,
+          thumbnail_url: thumbnailUrl,
         })
         .eq('id', id);
 
@@ -318,6 +382,67 @@ function AdminModuleEditContent() {
                     rows={4}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="thumbnail" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Thumbnail Image
+                  </label>
+                  <div className="space-y-3">
+                    {thumbnailUrl ? (
+                      <div className="relative">
+                        <img
+                          src={thumbnailUrl}
+                          alt="Module thumbnail"
+                          className="w-full h-48 object-cover rounded-xl border-2 border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveThumbnail}
+                          className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleThumbnailUpload}
+                          disabled={uploadingThumbnail}
+                          className="hidden"
+                          id="thumbnail-upload"
+                        />
+                        <label
+                          htmlFor="thumbnail-upload"
+                          className={`flex flex-col items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
+                            uploadingThumbnail
+                              ? 'border-primary-400 bg-primary-50'
+                              : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+                          }`}
+                        >
+                          {uploadingThumbnail ? (
+                            <>
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                              <span className="text-sm text-gray-600">Uploading...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Image className="h-8 w-8 text-gray-400" />
+                              <span className="text-sm text-gray-600">
+                                Click to upload thumbnail image
+                              </span>
+                              <span className="text-xs text-gray-500">Recommended: 800x600px, max 5MB</span>
+                            </>
+                          )}
+                        </label>
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Upload an image that represents this module. This will be displayed on module cards.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

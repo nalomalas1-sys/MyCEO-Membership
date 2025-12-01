@@ -136,16 +136,28 @@ export default function ModuleDetailPage() {
       <ChildNavBar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <div className="card mb-8">
-          <div className="mb-4">
-            <span className="px-3 py-1 text-sm font-medium rounded-full bg-primary-100 text-primary-800">
-              {module.track.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-            </span>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{module.title}</h1>
-          <p className="text-gray-600 mb-6">{module.description || 'No description available.'}</p>
+        <div className="card mb-8 overflow-hidden p-0">
+          {/* Thumbnail */}
+          {module.thumbnail_url ? (
+            <div className="w-full h-64 overflow-hidden bg-gray-100">
+              <img
+                src={module.thumbnail_url}
+                alt={module.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : null}
+          
+          <div className="p-6">
+            <div className="mb-4">
+              <span className="px-3 py-1 text-sm font-medium rounded-full bg-primary-100 text-primary-800">
+                {module.track.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+              </span>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">{module.title}</h1>
+            <p className="text-gray-600 mb-6">{module.description || 'No description available.'}</p>
 
-          <div className="flex items-center gap-6 text-sm text-gray-600 mb-6">
+            <div className="flex items-center gap-6 text-sm text-gray-600 mb-6">
             <span>⭐ Difficulty: {module.difficulty_level}/5</span>
             <span>🎁 Reward: {module.xp_reward} XP</span>
             {progress && (
@@ -193,6 +205,7 @@ export default function ModuleDetailPage() {
               </p>
             </div>
           )}
+          </div>
         </div>
 
         <div className="card">

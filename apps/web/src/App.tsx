@@ -26,6 +26,7 @@ import LandingPage from '@/pages/Landing';
 import SettingsPage from '@/pages/Settings';
 import PricingPage from '@/pages/Pricing';
 import SignupSuccessPage from '@/pages/SignupSuccess';
+import ManageChildrenPage from '@/pages/ManageChildren';
 import { useAuth } from '@/hooks/useAuth';
 
 function HomePage() {
@@ -50,6 +51,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard/children" element={<ManageChildrenPage />} />
           <Route path="/dashboard/children/:childId" element={<ChildDetailPage />} />
           <Route path="/dashboard/settings" element={<SettingsPage />} />
           <Route path="/pricing" element={<PricingPage />} />

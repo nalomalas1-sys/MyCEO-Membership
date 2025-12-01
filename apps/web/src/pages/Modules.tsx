@@ -337,55 +337,72 @@ export default function ModulesPage() {
                       return (
                         <div
                           key={module.id}
-                          className={`group relative bg-white rounded-xl shadow-md border-2 border-gray-200 p-6 cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${
+                          className={`group relative bg-white rounded-xl shadow-md border-2 border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${
                             isCompleted ? 'ring-2 ring-green-200' : ''
                           } animate-fade-in`}
                           style={{ animationDelay: `${(categoryIndex * 100) + (index * 50)}ms` }}
                           onClick={() => navigate(`/child/modules/${module.id}`)}
                         >
-                          {/* Completion Badge */}
-                          {isCompleted && (
-                            <div className="absolute top-4 right-4 bg-green-500 text-white rounded-full p-2 shadow-lg animate-bounce">
-                              ✓
+                          {/* Thumbnail */}
+                          {module.thumbnail_url ? (
+                            <div className="w-full h-48 overflow-hidden bg-gray-100">
+                              <img
+                                src={module.thumbnail_url}
+                                alt={module.title}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              />
+                            </div>
+                          ) : (
+                            <div className={`w-full h-48 bg-gradient-to-br ${getTrackGradient(module.track)} flex items-center justify-center`}>
+                              <span className="text-6xl">{getTrackIcon(module.track)}</span>
                             </div>
                           )}
 
-                          {/* Card Header */}
-                          <div className="flex items-start justify-between mb-4">
-                            <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getTrackColor(module.track)}`}>
-                              {getTrackName(module.track)}
-                            </span>
-                            {getStatusBadge(module)}
-                          </div>
+                          <div className="p-6">
+                            {/* Completion Badge */}
+                            {isCompleted && (
+                              <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-2 shadow-lg animate-bounce z-10">
+                                ✓
+                              </div>
+                            )}
 
-                          {/* Module Title */}
-                          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
-                            {module.title}
-                          </h3>
-
-                          {/* Description */}
-                          <p className="text-gray-600 mb-4 line-clamp-2 min-h-[3rem]">
-                            {module.description || 'No description available'}
-                          </p>
-
-                          {/* Progress Bar */}
-                          {getProgressBar(module)}
-
-                          {/* Footer Info */}
-                          <div className="flex items-center justify-between text-sm mt-4 pt-4 border-t border-gray-100">
-                            <div className="flex items-center gap-1 text-amber-500">
-                              <span className="text-base">⭐</span>
-                              <span className="font-semibold text-gray-700">Level {module.difficulty_level}</span>
+                            {/* Card Header */}
+                            <div className="flex items-start justify-between mb-4">
+                              <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getTrackColor(module.track)}`}>
+                                {getTrackName(module.track)}
+                              </span>
+                              {getStatusBadge(module)}
                             </div>
-                            <div className="flex items-center gap-1 text-purple-600">
-                              <span className="text-base">🎁</span>
-                              <span className="font-bold">{module.xp_reward} XP</span>
-                            </div>
-                          </div>
 
-                          {/* Hover Arrow */}
-                          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-2xl">→</span>
+                            {/* Module Title */}
+                            <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
+                              {module.title}
+                            </h3>
+
+                            {/* Description */}
+                            <p className="text-gray-600 mb-4 line-clamp-2 min-h-[3rem]">
+                              {module.description || 'No description available'}
+                            </p>
+
+                            {/* Progress Bar */}
+                            {getProgressBar(module)}
+
+                            {/* Footer Info */}
+                            <div className="flex items-center justify-between text-sm mt-4 pt-4 border-t border-gray-100">
+                              <div className="flex items-center gap-1 text-amber-500">
+                                <span className="text-base">⭐</span>
+                                <span className="font-semibold text-gray-700">Level {module.difficulty_level}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-purple-600">
+                                <span className="text-base">🎁</span>
+                                <span className="font-bold">{module.xp_reward} XP</span>
+                              </div>
+                            </div>
+
+                            {/* Hover Arrow */}
+                            <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <span className="text-2xl">→</span>
+                            </div>
                           </div>
                         </div>
                       );

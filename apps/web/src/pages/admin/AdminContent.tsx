@@ -16,6 +16,7 @@ interface Module {
   xp_reward: number;
   is_published: boolean;
   published_at: string | null;
+  thumbnail_url: string | null;
   created_at: string;
   lessons_count: number;
 }
@@ -233,6 +234,21 @@ function AdminContentContent() {
                 key={module.id}
                 className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow"
               >
+                {/* Thumbnail */}
+                {module.thumbnail_url ? (
+                  <div className="w-full h-40 overflow-hidden bg-gray-100">
+                    <img
+                      src={module.thumbnail_url}
+                      alt={module.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    <BookOpen className="h-12 w-12 text-gray-400" />
+                  </div>
+                )}
+                
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">

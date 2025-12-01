@@ -50,7 +50,7 @@ export function ParentNavBar() {
                 <span>Dashboard</span>
               </Link>
               <Link
-                to="/dashboard"
+                to="/dashboard/children"
                 className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
               >
                 <Users className="h-4 w-4" />
