@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install && pnpm build"
+  command = "pnpm install && pnpm --filter @myceo/web build"
   publish = "apps/web/dist"
 
 [[redirects]]
