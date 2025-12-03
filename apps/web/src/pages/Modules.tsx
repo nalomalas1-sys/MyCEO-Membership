@@ -68,6 +68,8 @@ export default function ModulesPage() {
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'advanced':
         return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'project_based':
+        return 'bg-green-100 text-green-800 border-green-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -81,6 +83,8 @@ export default function ModulesPage() {
         return 'from-purple-50 to-purple-100';
       case 'advanced':
         return 'from-orange-50 to-orange-100';
+      case 'project_based':
+        return 'from-green-50 to-green-100';
       default:
         return 'from-gray-50 to-gray-100';
     }
@@ -94,6 +98,8 @@ export default function ModulesPage() {
         return '🚀';
       case 'advanced':
         return '⭐';
+      case 'project_based':
+        return '🔨';
       default:
         return '📚';
     }
@@ -107,6 +113,8 @@ export default function ModulesPage() {
         return 'Entrepreneurship';
       case 'advanced':
         return 'Advanced';
+      case 'project_based':
+        return 'Project Based';
       default:
         return track;
     }
@@ -196,10 +204,11 @@ export default function ModulesPage() {
   }, {} as Record<string, Module[]>);
 
   // Define the order of categories
-  const categoryOrder: Array<'money_basics' | 'entrepreneurship' | 'advanced'> = [
+  const categoryOrder: Array<'money_basics' | 'entrepreneurship' | 'advanced' | 'project_based'> = [
     'money_basics',
     'entrepreneurship',
     'advanced',
+    'project_based',
   ];
 
   const totalModules = modules.length;

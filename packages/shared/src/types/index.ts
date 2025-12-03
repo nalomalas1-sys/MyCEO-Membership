@@ -10,7 +10,7 @@ export type SubscriptionStatus =
   | 'canceled'
   | 'unpaid';
 
-export type ModuleTrack = 'money_basics' | 'entrepreneurship' | 'advanced';
+export type ModuleTrack = 'money_basics' | 'entrepreneurship' | 'advanced' | 'project_based';
 
 export type LessonType = 'video' | 'text' | 'quiz';
 

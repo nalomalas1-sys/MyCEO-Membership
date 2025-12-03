@@ -5,7 +5,7 @@ export interface Module {
   id: string;
   title: string;
   description: string | null;
-  track: 'money_basics' | 'entrepreneurship' | 'advanced';
+  track: 'money_basics' | 'entrepreneurship' | 'advanced' | 'project_based';
   order_index: number;
   difficulty_level: number;
   xp_reward: number;

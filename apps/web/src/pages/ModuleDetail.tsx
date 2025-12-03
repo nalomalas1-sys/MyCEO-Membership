@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { useModule, useChildModuleProgress, Lesson } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
+import { TrackSubmissionUpload } from '@/components/child/TrackSubmissionUpload';
 
 interface ChildSession {
   childId: string;
@@ -198,12 +199,23 @@ export default function ModuleDetailPage() {
           )}
 
           {isCompleted && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-              <p className="text-green-800 font-semibold">🎉 Module Completed!</p>
-              <p className="text-green-700 text-sm mt-1">
-                You earned {progress?.xp_earned || module.xp_reward} XP
-              </p>
-            </div>
+            <>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <p className="text-green-800 font-semibold">🎉 Module Completed!</p>
+                <p className="text-green-700 text-sm mt-1">
+                  You earned {progress?.xp_earned || module.xp_reward} XP
+                </p>
+              </div>
+              {module.track === 'project_based' && childSession && (
+                <div className="mb-6">
+                  <TrackSubmissionUpload
+                    childId={childSession.childId}
+                    moduleId={module.id}
+                    moduleTitle={module.title}
+                  />
+                </div>
+              )}
+            </>
           )}
           </div>
         </div>

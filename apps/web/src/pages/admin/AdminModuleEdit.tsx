@@ -29,7 +29,7 @@ import { CSS } from '@dnd-kit/utilities';
 const moduleSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().optional(),
-  track: z.enum(['money_basics', 'entrepreneurship', 'advanced']),
+  track: z.enum(['money_basics', 'entrepreneurship', 'advanced', 'project_based']),
   order_index: z.number().min(1, 'Order index must be at least 1'),
   difficulty_level: z.number().min(1).max(5),
   xp_reward: z.number().min(0, 'XP reward must be non-negative'),
@@ -458,6 +458,7 @@ function AdminModuleEditContent() {
                       <option value="money_basics">Money Basics</option>
                       <option value="entrepreneurship">Entrepreneurship</option>
                       <option value="advanced">Advanced</option>
+                      <option value="project_based">Project Based</option>
                     </select>
                   </div>
 
