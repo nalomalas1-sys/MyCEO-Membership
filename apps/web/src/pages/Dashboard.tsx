@@ -11,6 +11,7 @@ import { RecentActivityFeed } from '@/components/parent/RecentActivityFeed';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
 import { CheckCircle2, X, Sparkles, Users, TrendingUp, Award, Zap } from 'lucide-react';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -148,11 +149,7 @@ function DashboardContent() {
   };
 
   if (parentLoading || childrenLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-yellow-50 to-pink-50 flex items-center justify-center">
-        <div className="text-2xl font-bold text-gray-700">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Preparing Your Dashboard! 🎡" />;
   }
 
   return (
@@ -164,7 +161,7 @@ function DashboardContent() {
             <Sparkles className="h-8 w-8 text-blue-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
               Welcome back, {user?.user_metadata?.full_name || 'Parent'}! 🎉
-            </h1>
+          </h1>
           </div>
           <p className="text-lg text-gray-700">Manage your children's learning journey at the Park</p>
         </div>

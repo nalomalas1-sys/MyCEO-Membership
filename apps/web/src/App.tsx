@@ -19,7 +19,7 @@ import ChildDetailPage from '@/pages/ChildDetail';
 import SettingsPage from '@/pages/Settings';
 
 // Admin pages
-import AdminDashboardPage from '@/pages/AdminDashboard'; 
+import AdminDashboardPage from '@/pages/AdminDashboard';
 import AdminUsersPage from '@/pages/admin/AdminUsers';
 import AdminContentPage from '@/pages/admin/AdminContent';
 import AdminModuleCreatePage from '@/pages/admin/AdminModuleCreate';
@@ -60,15 +60,15 @@ function App() {
   return (
     <ToastProvider>
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-        <Routes>
+      <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/signup-success" element={<SignupSuccessPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/signup-success" element={<SignupSuccessPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
           <Route path="/company" element={<CompanyPage />} />
 
           {/* Parent Protected Routes */}
@@ -127,7 +127,7 @@ function App() {
        
 
           {/* Child Routes */}
-          <Route path="/child/login" element={<ChildLoginPage />} />
+        <Route path="/child/login" element={<ChildLoginPage />} />
           <Route path="/child/dashboard" element={
             <ProtectedRoute requireRole="child">
               <ChildDashboardPage />
@@ -189,9 +189,9 @@ function App() {
               </div>
             </div>
           } />
-        </Routes>
-        <Toaster />
-      </div>
+      </Routes>
+      <Toaster />
+    </div>
     </ToastProvider>
   );
 }

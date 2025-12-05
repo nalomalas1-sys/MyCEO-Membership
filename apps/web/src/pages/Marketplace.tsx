@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { supabase } from '@/lib/supabase';
 import { ShoppingBag, Plus, Search, DollarSign, User, Package, X, Upload, Image as ImageIcon, ShoppingCart, Check, Edit2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/utils/currency';
+import { ProductDetailsModal } from '@/components/ProductDetailsModal';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 // Marketplace page component
 
@@ -43,6 +45,7 @@ export default function MarketplacePage() {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [myCompany, setMyCompany] = useState<Company | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   useEffect(() => {
     const sessionStr = localStorage.getItem('child_session');
@@ -261,6 +264,7 @@ export default function MarketplacePage() {
                   item={item}
                   isOwnItem={true}
                   onRefresh={handleRefresh}
+                  onProductClick={() => setSelectedProductId(item.id)}
                 />
               ))}
             </div>
@@ -273,9 +277,7 @@ export default function MarketplacePage() {
             Discover Products
           </h2>
           {loading ? (
-            <div className="text-center py-12">
-              <div className="text-2xl">Loading marketplace...</div>
-            </div>
+            <LoadingAnimation message="Loading amazing products..." variant="skeleton" />
           ) : filteredItems.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
               <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -294,6 +296,7 @@ export default function MarketplacePage() {
                   item={item}
                   isOwnItem={false}
                   onRefresh={handleRefresh}
+                  onProductClick={() => setSelectedProductId(item.id)}
                 />
               ))}
             </div>
@@ -313,6 +316,13 @@ export default function MarketplacePage() {
           }}
         />
       )}
+
+      {/* Product Details Modal */}
+      <ProductDetailsModal
+        productId={selectedProductId}
+        onClose={() => setSelectedProductId(null)}
+        onProductUpdate={handleRefresh}
+      />
     </div>
   );
 }
@@ -321,9 +331,10 @@ interface ProductCardProps {
   item: MarketplaceItem;
   isOwnItem: boolean;
   onRefresh: () => void;
+  onProductClick: () => void;
 }
 
-function ProductCard({ item, isOwnItem, onRefresh }: ProductCardProps) {
+function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCardProps) {
   const { toast } = useToast();
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false);
@@ -573,24 +584,30 @@ function ProductCard({ item, isOwnItem, onRefresh }: ProductCardProps) {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-4 border-yellow-300 hover:shadow-xl transition-shadow">
-      {/* Product Image */}
-      <div className="h-48 bg-gradient-to-br from-yellow-100 to-pink-100 flex items-center justify-center">
-        {item.image_url ? (
-          <img
-            src={item.image_url}
-            alt={item.item_name}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <Package className="h-20 w-20 text-gray-400" />
-        )}
+      {/* Product Image - Clickable */}
+      <div onClick={onProductClick} className="block cursor-pointer">
+        <div className="h-48 bg-gradient-to-br from-yellow-100 to-pink-100 flex items-center justify-center hover:opacity-90 transition-opacity">
+          {item.image_url ? (
+            <img
+              src={item.image_url}
+              alt={item.item_name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Package className="h-20 w-20 text-gray-400" />
+          )}
+        </div>
       </div>
 
       {/* Product Info */}
       <div className="p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">{item.item_name}</h3>
+        <div onClick={onProductClick} className="block cursor-pointer hover:text-yellow-600 transition-colors">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">{item.item_name}</h3>
+        </div>
         {item.description && (
-          <p className="text-gray-600 mb-4 line-clamp-2">{item.description}</p>
+          <div onClick={onProductClick} className="block cursor-pointer">
+            <p className="text-gray-600 mb-4 line-clamp-2 hover:text-gray-800 transition-colors">{item.description}</p>
+          </div>
         )}
 
         {/* Seller Info */}
