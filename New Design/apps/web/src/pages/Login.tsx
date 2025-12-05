@@ -43,7 +43,6 @@ import {
   TargetIcon
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useAuthStore } from '@/store/authStore';
 
 // --- Playful Background Effects ---
 const BackgroundEffects = () => (
@@ -212,37 +211,21 @@ export default function EnhancedLoginPage() {
         
       } else {
         // --- Parent/Admin Login Logic (PRESERVED) ---
-        const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (signInError) throw signInError;
 
-        if (!authData.user || !authData.session) {
-          throw new Error('Login failed: No user or session returned');
-        }
-
-        // Update auth store immediately to prevent double login
-        const { setUser, setSession } = useAuthStore.getState();
-        setSession(authData.session);
-        setUser(authData.user);
-
-        // Wait for auth state to propagate and RLS policies to recognize the session
+        // Fix: Add delay for auth context propagation
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Get user role to determine redirect
-        const { data: userData } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', authData.user.id)
-          .single();
-
-        // Redirection based on role
-        if (userData?.role === 'admin' || activeTab === 'admin') {
-          navigate('/admin/dashboard', { replace: true });
+        // Redirection
+        if (activeTab === 'admin') {
+          navigate('/admin/dashboard');
         } else {
-          navigate('/dashboard', { replace: true });
+          navigate('/dashboard');
         }
       }
     } catch (err: any) {
@@ -513,7 +496,7 @@ export default function EnhancedLoginPage() {
                       }}
                       maxLength={7}
                       placeholder="ABC-123"
-                      className="w-full pl-12 pr-4 py-4 bg-white border-2 border-blue-200 rounded-2xl text-blue-900 placeholder-blue-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all font-mono text-center text-xl tracking-[0.2em] outline-none shadow-inner"
+                      className="w-full pl-12 pr-4 py-4 bg-white border-3 border-blue-200 rounded-2xl text-blue-900 placeholder-blue-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all font-mono text-center text-xl tracking-[0.2em] outline-none shadow-inner"
                     />
                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                       <div className="text-xl">✨</div>
@@ -540,7 +523,7 @@ export default function EnhancedLoginPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="parent@example.com"
-                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-blue-200 rounded-2xl text-blue-900 placeholder-blue-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none shadow-inner"
+                        className="w-full pl-12 pr-4 py-4 bg-white border-3 border-blue-200 rounded-2xl text-blue-900 placeholder-blue-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none shadow-inner"
                       />
                     </div>
                   </div>
@@ -565,7 +548,7 @@ export default function EnhancedLoginPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full pl-12 pr-4 py-4 bg-white border-2 border-blue-200 rounded-2xl text-blue-900 placeholder-blue-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none shadow-inner"
+                        className="w-full pl-12 pr-4 py-4 bg-white border-3 border-blue-200 rounded-2xl text-blue-900 placeholder-blue-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 transition-all outline-none shadow-inner"
                       />
                     </div>
                   </div>

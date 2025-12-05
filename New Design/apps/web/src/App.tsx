@@ -14,7 +14,7 @@ import SignupSuccessPage from '@/pages/SignupSuccess';
 
 // Parent pages
 import DashboardPage from '@/pages/Dashboard';
-import ManageChildrenPage from '@/pages/ManageChildren';
+import ChildrenPage from '@/pages/Children';
 import ChildDetailPage from '@/pages/ChildDetail';
 import SettingsPage from '@/pages/Settings';
 
@@ -25,6 +25,7 @@ import AdminContentPage from '@/pages/admin/AdminContent';
 import AdminModuleCreatePage from '@/pages/admin/AdminModuleCreate';
 import AdminModuleEditPage from '@/pages/admin/AdminModuleEdit';
 import AdminAnalyticsPage from '@/pages/admin/AdminAnalytics';
+import AdminSystemPage from '@/pages/admin/AdminSystem';
 
 
 // Child pages
@@ -79,7 +80,7 @@ function App() {
           } />
           <Route path="/dashboard/children" element={
             <ProtectedRoute requireRole="parent">
-              <ManageChildrenPage />
+              <ChildrenPage />
             </ProtectedRoute>
           } />
           <Route path="/dashboard/children/:childId" element={
@@ -122,6 +123,11 @@ function App() {
           <Route path="/admin/analytics" element={
             <ProtectedRoute requireRole="admin">
               <AdminAnalyticsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/system" element={
+            <ProtectedRoute requireRole="admin">
+              <AdminSystemPage />
             </ProtectedRoute>
           } />
        
@@ -197,4 +203,3 @@ function App() {
 }
 
 export default App;
-

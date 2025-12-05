@@ -214,6 +214,3 @@ export function ParentNavBar() {
     </nav>
   );
 }
-
-
-

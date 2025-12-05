@@ -53,6 +53,25 @@ export function ProtectedRoute({
     }
   }, [user, requireRole]);
 
+  // For child routes, check localStorage FIRST before checking auth
+  // This allows child sessions (which don't use Supabase Auth) to work
+  if (requireRole === 'child') {
+    const childSession = localStorage.getItem('child_session');
+    if (childSession) {
+      try {
+        // Validate the session is valid JSON
+        JSON.parse(childSession);
+        return <>{children}</>;
+      } catch {
+        // Invalid session, continue to normal auth check
+      }
+    }
+    // No valid child session, redirect to child login (but wait for loading to finish)
+    if (!authLoading && !roleLoading) {
+      return <Navigate to="/child/login" replace />;
+    }
+  }
+
   if (authLoading || roleLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -61,20 +80,17 @@ export function ProtectedRoute({
     );
   }
 
+  // For child routes, if we get here without a child session, redirect
+  if (requireRole === 'child') {
+    return <Navigate to="/child/login" replace />;
+  }
+
   if (requireAuth && !user) {
     return <Navigate to="/login" replace />;
   }
 
   // Check role if required
   if (requireRole && userRole !== requireRole) {
-    // For child routes, check localStorage for child session
-    if (requireRole === 'child') {
-      const childSession = localStorage.getItem('child_session');
-      if (childSession) {
-        return <>{children}</>;
-      }
-    }
-    
     // Redirect to appropriate dashboard or login
     if (userRole === 'admin') {
       return <Navigate to="/admin/dashboard" replace />;

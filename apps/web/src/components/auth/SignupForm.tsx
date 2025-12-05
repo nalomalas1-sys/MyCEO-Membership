@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
 
 type PasswordStrength = 'weak' | 'medium' | 'strong';
 
@@ -47,6 +48,7 @@ export function SignupForm() {
   const [password, setPassword] = useState('');
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>('weak');
   const navigate = useNavigate();
+  const { setUser, setSession } = useAuthStore();
 
   const {
     register,
@@ -87,17 +89,24 @@ export function SignupForm() {
       }
 
       if (authData.user) {
+        // Update auth store immediately to prevent double signup
+        if (authData.session) {
+          setSession(authData.session);
+          setUser(authData.user);
+        }
+
         // Database triggers will automatically create user and parent records
         // The triggers use SECURITY DEFINER so they bypass RLS
-        // Wait a moment for triggers to complete, then navigate
+        // Wait a moment for triggers to complete and auth state to propagate
         setSuccess(true);
+        
+        // Wait for auth state to propagate and RLS policies to recognize the session
+        await new Promise(resolve => setTimeout(resolve, 800));
         
         // Navigate to dashboard (email verification is handled by Supabase)
         // If email confirmation is required, user will be redirected after verification
         // The useParent hook will handle any edge cases where records don't exist
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
+        navigate('/dashboard', { replace: true });
       }
     } catch (err) {
       console.error('Signup error:', err);

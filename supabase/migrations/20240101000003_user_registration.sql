@@ -56,7 +56,7 @@ BEGIN
     VALUES (
       NEW.id,
       'trialing',
-      NOW() + INTERVAL '1 day' -- 1-day trial
+      NOW() + INTERVAL '30 days' -- 30-day trial
     )
     ON CONFLICT (user_id) DO NOTHING; -- Prevent errors if record already exists
   END IF;

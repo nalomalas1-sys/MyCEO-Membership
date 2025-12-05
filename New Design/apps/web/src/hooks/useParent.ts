@@ -72,7 +72,7 @@ export function useParent() {
               .insert({
                 user_id: user.id,
                 subscription_status: 'trialing',
-                trial_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+                trial_ends_at: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day from now
               })
               .select()
               .single();
@@ -172,4 +172,3 @@ export function useChildren() {
 
   return { children, loading, error, refetch };
 }
-

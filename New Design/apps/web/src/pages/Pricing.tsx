@@ -272,7 +272,7 @@ function PricingContent() {
     setError(null);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseUrl = import.meta;
       const functionUrl = `${supabaseUrl}/functions/v1/create-checkout-session`;
 
       const { data: { session } } = await supabase.auth.getSession();

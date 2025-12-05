@@ -10,7 +10,7 @@ import { ParentNavBar } from '@/components/navigation/ParentNavBar';
 import { RecentActivityFeed } from '@/components/parent/RecentActivityFeed';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
-import { CheckCircle2, X } from 'lucide-react';
+import { CheckCircle2, X, Sparkles, Users, TrendingUp, Award, Zap } from 'lucide-react';
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -149,38 +149,43 @@ function DashboardContent() {
 
   if (parentLoading || childrenLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-yellow-50 to-pink-50 flex items-center justify-center">
+        <div className="text-2xl font-bold text-gray-700">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-yellow-50 to-pink-50">
       <ParentNavBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.user_metadata?.full_name || 'Parent'}!
-          </h1>
-          <p className="text-gray-600">Manage your children's learning journey</p>
+          <div className="flex items-center gap-3 mb-3">
+            <Sparkles className="h-8 w-8 text-blue-600" />
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
+              Welcome back, {user?.user_metadata?.full_name || 'Parent'}! 🎉
+            </h1>
+          </div>
+          <p className="text-lg text-gray-700">Manage your children's learning journey at the Park</p>
         </div>
 
         {/* Checkout Success Message */}
         {checkoutSuccess && (
-          <div className="mb-6 bg-green-50 border-2 border-green-200 rounded-lg p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
+          <div className="mb-6 bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 rounded-xl p-5 flex items-center justify-between shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 bg-green-500 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-white" />
+              </div>
               <div>
-                <p className="font-semibold text-green-900">Subscription Activated!</p>
-                <p className="text-sm text-green-700">
+                <p className="font-bold text-green-900 text-lg">🎉 Subscription Activated!</p>
+                <p className="text-sm text-green-800">
                   Your subscription is now active. You can start adding children and accessing all features.
                 </p>
               </div>
             </div>
             <button
               onClick={() => setCheckoutSuccess(false)}
-              className="text-green-600 hover:text-green-800"
+              className="text-green-600 hover:text-green-800 hover:bg-green-100 rounded-lg p-2 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -189,17 +194,19 @@ function DashboardContent() {
 
         {/* Checkout Error Message */}
         {checkoutError && (
-          <div className="mb-6 bg-red-50 border-2 border-red-200 rounded-lg p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <X className="h-5 w-5 text-red-600" />
+          <div className="mb-6 bg-gradient-to-r from-red-100 to-rose-100 border-2 border-red-300 rounded-xl p-5 flex items-center justify-between shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 bg-red-500 rounded-full flex items-center justify-center">
+                <X className="h-6 w-6 text-white" />
+              </div>
               <div>
-                <p className="font-semibold text-red-900">Checkout Failed</p>
-                <p className="text-sm text-red-700">{checkoutError}</p>
+                <p className="font-bold text-red-900 text-lg">Checkout Failed</p>
+                <p className="text-sm text-red-800">{checkoutError}</p>
               </div>
             </div>
             <button
               onClick={() => setCheckoutError(null)}
-              className="text-red-600 hover:text-red-800"
+              className="text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg p-2 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -208,21 +215,24 @@ function DashboardContent() {
 
         {/* Subscription Status Card */}
         {parent && (
-          <div className="card mb-8">
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-2xl p-6 mb-8 shadow-lg border-2 border-blue-200">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-semibold mb-2">Subscription Status</h2>
-                <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Award className="h-6 w-6 text-yellow-500" />
+                  Subscription Status
+                </h2>
+                <div className="flex flex-wrap items-center gap-3">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getSubscriptionStatusColor(
+                    className={`px-4 py-2 rounded-full text-sm font-bold ${getSubscriptionStatusColor(
                       parent.subscription_status
-                    )}`}
+                    )} shadow-md`}
                   >
                     {getSubscriptionTierName(parent.subscription_tier)} - {parent.subscription_status}
                   </span>
                   {parent.subscription_status === 'trialing' && parent.trial_ends_at && (
-                    <span className="text-sm text-gray-600">
-                      Trial ends: {new Date(parent.trial_ends_at).toLocaleDateString()}
+                    <span className="text-sm text-gray-700 font-medium">
+                      ⏰ Trial ends: {new Date(parent.trial_ends_at).toLocaleDateString()}
                     </span>
                   )}
                 </div>
@@ -231,14 +241,14 @@ function DashboardContent() {
                 {parent.subscription_status === 'trialing' || parent.subscription_status === 'active' ? (
                   <button
                     onClick={() => navigate('/pricing')}
-                    className="btn btn-secondary"
+                    className="px-6 py-3 bg-gray-100 text-gray-900 font-semibold rounded-xl hover:bg-gray-200 transition-all shadow-md hover:shadow-lg"
                   >
                     Change Plan
                   </button>
                 ) : (
                   <button
                     onClick={() => navigate('/pricing')}
-                    className="btn btn-primary"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     Subscribe Now
                   </button>
@@ -250,17 +260,20 @@ function DashboardContent() {
 
         {/* No Subscription - Show Upgrade Prompt */}
         {parent && (parent.subscription_status === 'unpaid' || !parent.subscription_tier) && (
-          <div className="card mb-8 bg-gradient-to-r from-primary-50 to-purple-50 border-2 border-primary-200">
+          <div className="bg-gradient-to-r from-blue-100 via-yellow-100 to-pink-100 rounded-2xl p-6 mb-8 border-2 border-blue-300 shadow-xl">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Upgrade to Unlock All Features</h2>
-                <p className="text-gray-600">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <Zap className="h-6 w-6 text-yellow-500" />
+                  Upgrade to Unlock All Features 🚀
+                </h2>
+                <p className="text-gray-700 text-lg">
                   Subscribe to add multiple children, access all modules, and unlock the virtual company builder.
                 </p>
               </div>
               <button
                 onClick={() => navigate('/pricing')}
-                className="btn btn-primary whitespace-nowrap"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 whitespace-nowrap"
               >
                 View Plans
               </button>
@@ -269,11 +282,14 @@ function DashboardContent() {
         )}
 
         {/* Child Login Section */}
-        <div className="card mb-8 bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50 border-2 border-primary-200">
+        <div className="bg-gradient-to-br from-yellow-100 via-pink-100 to-purple-100 rounded-2xl p-6 mb-8 border-2 border-yellow-300 shadow-xl">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Child Login</h2>
-              <p className="text-sm text-gray-600 mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <Users className="h-6 w-6 text-pink-500" />
+                Child Login Portal 🎮
+              </h2>
+              <p className="text-gray-700 mb-4 text-lg">
                 Let your child enter their access code to access their learning dashboard
               </p>
               <form onSubmit={handleChildLogin} className="flex flex-col sm:flex-row gap-3">
@@ -292,19 +308,19 @@ function DashboardContent() {
                     }}
                     placeholder="ABC-123"
                     maxLength={7}
-                    className="w-full px-4 py-3 text-xl text-center font-mono border-2 border-primary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                    className="w-full px-4 py-3 text-2xl text-center font-mono border-2 border-blue-400 rounded-xl focus:ring-4 focus:ring-blue-300 focus:border-blue-500 bg-white shadow-lg"
                     style={{ letterSpacing: '0.2em' }}
                   />
                   {childLoginError && (
-                    <p className="mt-2 text-sm text-red-600">{childLoginError}</p>
+                    <p className="mt-2 text-sm text-red-600 font-semibold">{childLoginError}</p>
                   )}
                 </div>
                 <button
                   type="submit"
                   disabled={childLoginLoading || childLoginCode.length < 7}
-                  className="px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap"
                 >
-                  {childLoginLoading ? 'Entering...' : 'Enter Dashboard'}
+                  {childLoginLoading ? 'Entering...' : 'Enter Dashboard 🚀'}
                 </button>
               </form>
             </div>
@@ -314,26 +330,31 @@ function DashboardContent() {
         {/* Children Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Your Children ({children.length})</h2>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent flex items-center gap-3">
+              <Users className="h-8 w-8 text-blue-600" />
+              Your Children ({children.length}) 👨‍👩‍👧‍👦
+            </h2>
             {parent && (
               <button
                 onClick={() => setIsAddChildModalOpen(true)}
-                className="btn btn-primary"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
               >
+                <Sparkles className="h-5 w-5" />
                 + Add Child
               </button>
             )}
           </div>
 
           {children.length === 0 ? (
-            <div className="card text-center py-12">
-              <p className="text-gray-600 mb-4">You haven't added any children yet.</p>
+            <div className="bg-white rounded-2xl p-12 text-center shadow-lg border-2 border-blue-200">
+              <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-xl text-gray-600 mb-6 font-semibold">You haven't added any children yet.</p>
               {parent && (
                 <button
                   onClick={() => setIsAddChildModalOpen(true)}
-                  className="btn btn-primary"
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
-                  Add Your First Child
+                  Add Your First Child 🎉
                 </button>
               )}
             </div>
@@ -349,7 +370,7 @@ function DashboardContent() {
                   <button
                     onClick={() => handleDeleteChild(child.id)}
                     disabled={deletingChildId === child.id}
-                    className="absolute top-2 right-2 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                    className="absolute top-2 right-2 p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 bg-white shadow-md"
                     title="Delete child"
                   >
                     {deletingChildId === child.id ? '...' : '×'}
@@ -365,33 +386,42 @@ function DashboardContent() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {/* Enhanced Progress Stats */}
             <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="card">
-                <h3 className="text-lg font-semibold mb-2">Total XP</h3>
-                <p className="text-3xl font-bold text-primary-600">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-200 hover:shadow-xl transition-all">
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="h-6 w-6 text-blue-600" />
+                  <h3 className="text-lg font-bold text-gray-900">Total XP</h3>
+                </div>
+                <p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-yellow-500 bg-clip-text text-transparent">
                   {children.reduce((sum, child) => sum + child.total_xp, 0).toLocaleString()}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-600 mt-2 font-medium">
                   Across {children.length} {children.length === 1 ? 'child' : 'children'}
                 </p>
               </div>
-              <div className="card">
-                <h3 className="text-lg font-semibold mb-2">Average Level</h3>
-                <p className="text-3xl font-bold text-primary-600">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-yellow-200 hover:shadow-xl transition-all">
+                <div className="flex items-center gap-2 mb-3">
+                  <Award className="h-6 w-6 text-yellow-600" />
+                  <h3 className="text-lg font-bold text-gray-900">Average Level</h3>
+                </div>
+                <p className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-pink-500 bg-clip-text text-transparent">
                   {Math.round(
                     children.reduce((sum, child) => sum + child.current_level, 0) / children.length
                   )}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-600 mt-2 font-medium">
                   {children.filter((c) => c.current_level > 1).length} above level 1
                 </p>
               </div>
-              <div className="card">
-                <h3 className="text-lg font-semibold mb-2">Active Streaks</h3>
-                <p className="text-3xl font-bold text-primary-600">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-pink-200 hover:shadow-xl transition-all">
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap className="h-6 w-6 text-pink-600" />
+                  <h3 className="text-lg font-bold text-gray-900">Active Streaks</h3>
+                </div>
+                <p className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
                   {children.filter((child) => child.current_streak > 0).length}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Longest: {Math.max(...children.map((c) => c.current_streak), 0)} days
+                <p className="text-sm text-gray-600 mt-2 font-medium">
+                  Longest: {Math.max(...children.map((c) => c.current_streak), 0)} days 🔥
                 </p>
               </div>
             </div>

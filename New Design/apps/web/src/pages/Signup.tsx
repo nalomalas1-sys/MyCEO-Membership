@@ -1,14 +1,47 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { SubscriptionSignupForm } from '@/components/auth/SubscriptionSignupForm';
 import { 
+  Sparkles, 
+  CheckCircle2, 
+  Star, 
+  Users, 
+  Zap, 
   AlertCircle, 
   ArrowLeft,
+  Rocket,
+  Shield,
+  Trophy,
+  Target,
+  Gem,
   Crown,
-  Lock,
+  Castle,
+  Coins,
   PartyPopper,
-  Star,
-  Check
+  IceCream,
+  Candy,
+  Pizza,
+  ShoppingCart,
+  Banknote,
+  ChartBar,
+  TrendingUp,
+  Home,
+  Building2,
+  Gamepad2,
+  BrainCircuit,
+  GraduationCap,
+  Heart,
+  Smile,
+  Check,
+  ChevronRight,
+  Gift,
+  Award,
+  Bell,
+  Lock,
+  Eye,
+  Globe,
+  UserPlus,
+  Users as UsersIcon
 } from 'lucide-react';
 
 // --- Playful Background Effects ---
@@ -238,12 +271,12 @@ export default function SignupPage() {
 
                 {/* Safety & Trust Badges - Bigger */}
                 <div className="mt-12 grid grid-cols-2 gap-6 relative z-10">
-                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-3xl p-6 border-2 border-blue-200 text-center shadow-sm">
+                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-3xl p-6 border-3 border-blue-200 text-center shadow-sm">
                     <div className="text-3xl mb-4">🔒</div>
                     <p className="text-lg font-black text-blue-800">100% Safe</p>
                     <p className="text-sm text-blue-600 font-bold">COPPA Friendly</p>
                   </div>
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-3xl p-6 border-2 border-green-200 text-center shadow-sm">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-3xl p-6 border-3 border-green-200 text-center shadow-sm">
                     <div className="text-3xl mb-4">👪</div>
                     <p className="text-lg font-black text-green-800">Parent Approved</p>
                     <p className="text-sm text-green-600 font-bold">No Ads Ever</p>
@@ -251,7 +284,7 @@ export default function SignupPage() {
                 </div>
 
                 {/* Money Back Guarantee */}
-                <div className="mt-10 p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-3xl border-2 border-blue-200 text-center relative z-10 shadow-sm">
+                <div className="mt-10 p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-3xl border-3 border-blue-200 text-center relative z-10 shadow-sm">
                   <div className="flex items-center justify-center gap-3 mb-3">
                     <div className="text-2xl">🎉</div>
                     <p className="text-lg font-black text-blue-800">Start with 1-day FREE trial!</p>
