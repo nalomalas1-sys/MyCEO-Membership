@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -73,11 +74,7 @@ export function ProtectedRoute({
   }
 
   if (authLoading || roleLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading..." variant="fullscreen" />;
   }
 
   // For child routes, if we get here without a child session, redirect

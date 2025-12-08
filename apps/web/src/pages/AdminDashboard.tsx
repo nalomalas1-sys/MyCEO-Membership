@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { Users, BookOpen, DollarSign, Activity } from 'lucide-react';
 import { formatCurrencyWithSeparators, usdToRm } from '@/utils/currency';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface DashboardStats {
   totalUsers: number;
@@ -85,11 +86,7 @@ function AdminDashboardContent() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading..." variant="fullscreen" />;
   }
 
   const statCards = [

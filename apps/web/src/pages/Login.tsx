@@ -342,12 +342,12 @@ export default function EnhancedLoginPage() {
                 </span>
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500">
-                  Back, CEO! 👑
+                  Back, CEO! 
                 </span>
               </h1>
               
               <p className="text-2xl text-blue-700/90 max-w-lg font-bold leading-relaxed bg-white/50 p-6 rounded-3xl border-2 border-dashed border-blue-300">
-                Your <span className="text-blue-600">treasure chest</span> is waiting! Log in to track coins, finish quests, and build your empire!
+                Your <span className="text-blue-600">entrepeneurship journey</span> is waiting! Log in to track coins, finish quests, and build your empire!
               </p>
             </div>
           </div>
@@ -370,28 +370,6 @@ export default function EnhancedLoginPage() {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Floating Achievement Badges */}
-          <div className="mt-8 flex gap-4">
-            <div className="bg-gradient-to-br from-yellow-200 to-amber-300 p-3 rounded-2xl border-2 border-yellow-400 shadow-lg animate-bounce-slow">
-              <div className="text-center">
-                <div className="text-2xl">💰</div>
-                <span className="text-xs font-black text-yellow-900">Coin Master</span>
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-200 to-cyan-300 p-3 rounded-2xl border-2 border-blue-400 shadow-lg animate-bounce-slow" style={{ animationDelay: '0.3s' }}>
-              <div className="text-center">
-                <div className="text-2xl">🍋</div>
-                <span className="text-xs font-black text-blue-900">Lemonade Pro</span>
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-200 to-cyan-300 p-3 rounded-2xl border-2 border-blue-400 shadow-lg animate-bounce-slow" style={{ animationDelay: '0.6s' }}>
-              <div className="text-center">
-                <div className="text-2xl">📈</div>
-                <span className="text-xs font-black text-blue-900">Growth Guru</span>
-              </div>
-            </div>
           </div>
         </div>
 

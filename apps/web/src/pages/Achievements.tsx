@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { AchievementBadge } from '@/components/child/AchievementBadge';
 import { supabase } from '@/lib/supabase';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface ChildSession {
   childId: string;
@@ -98,11 +99,7 @@ export default function AchievementsPage() {
   const totalCount = achievements.length;
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50 flex items-center justify-center">
-        <div className="text-2xl">Loading achievements...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading achievements..." variant="fullscreen" />;
   }
 
   if (!childSession) {

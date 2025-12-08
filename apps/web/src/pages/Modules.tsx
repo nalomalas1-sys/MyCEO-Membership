@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { useModules, Module } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 
@@ -169,15 +170,7 @@ export default function ModulesPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent mb-4"></div>
-          <div className="text-2xl font-semibold text-gray-700">Loading modules...</div>
-          <div className="text-sm text-gray-500 mt-2">Getting everything ready for you! 🎉</div>
-        </div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading modules..." variant="fullscreen" />;
   }
 
   if (!childSession) {

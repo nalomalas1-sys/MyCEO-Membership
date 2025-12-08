@@ -8,10 +8,11 @@ import { ChildCard } from '@/components/parent/ChildCard';
 import { EditChildModal } from '@/components/parent/EditChildModal';
 import { ParentNavBar } from '@/components/navigation/ParentNavBar';
 import { RecentActivityFeed } from '@/components/parent/RecentActivityFeed';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
 import { CheckCircle2, X, Sparkles, Users, TrendingUp, Award, Zap } from 'lucide-react';
-import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
+import { BackgroundEffects, FloatingCharacters, BusinessCharacter, FloatingBackgroundStyles } from '@/components/ui/FloatingBackground';
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -149,13 +150,18 @@ function DashboardContent() {
   };
 
   if (parentLoading || childrenLoading) {
-    return <LoadingAnimation message="Preparing Your Dashboard! 🎡" />;
+    return <LoadingAnimation message="Loading dashboard..." variant="fullscreen" />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-yellow-50 to-pink-50">
+    <div className="min-h-screen relative bg-gradient-to-b from-blue-100 via-yellow-50 to-amber-50 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
+      <BackgroundEffects />
+      <FloatingCharacters />
+      <BusinessCharacter />
+      <FloatingBackgroundStyles />
+      
       <ParentNavBar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
             <Sparkles className="h-8 w-8 text-blue-600" />

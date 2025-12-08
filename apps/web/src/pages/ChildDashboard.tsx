@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { XPProgressBar } from '@/components/child/XPProgressBar';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
+import { BackgroundEffects, FloatingCharacters, PiggyBankMascot, FloatingBackgroundStyles } from '@/components/ui/FloatingBackground';
 
 interface ChildSession {
   childId: string;
@@ -68,11 +70,7 @@ export default function ChildDashboardPage() {
   }, [childSession]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50">
-        <div className="text-2xl">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading..." variant="fullscreen" />;
   }
 
 
@@ -81,9 +79,14 @@ export default function ChildDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50">
+    <div className="min-h-screen relative bg-gradient-to-b from-blue-100 via-yellow-50 to-amber-50 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
+      <BackgroundEffects />
+      <FloatingCharacters />
+      <PiggyBankMascot />
+      <FloatingBackgroundStyles />
+      
       <ChildNavBar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Welcome, {childSession.childName}! 👋

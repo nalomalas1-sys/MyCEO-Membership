@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { ShoppingBag, Plus, Search, DollarSign, User, Package, X, Upload, Image as ImageIcon, ShoppingCart, Check, Edit2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/utils/currency';
 import { ProductDetailsModal } from '@/components/ProductDetailsModal';
-import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 // Marketplace page component
 
@@ -277,7 +277,7 @@ export default function MarketplacePage() {
             Discover Products
           </h2>
           {loading ? (
-            <LoadingAnimation message="Loading amazing products..." variant="skeleton" />
+            <LoadingAnimation message="Loading marketplace..." variant="inline" showSkeleton={true} skeletonCount={8} />
           ) : filteredItems.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-2xl shadow-lg">
               <ShoppingBag className="h-16 w-16 text-gray-400 mx-auto mb-4" />

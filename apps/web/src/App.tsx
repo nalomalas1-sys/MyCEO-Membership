@@ -25,6 +25,7 @@ import AdminContentPage from '@/pages/admin/AdminContent';
 import AdminModuleCreatePage from '@/pages/admin/AdminModuleCreate';
 import AdminModuleEditPage from '@/pages/admin/AdminModuleEdit';
 import AdminAnalyticsPage from '@/pages/admin/AdminAnalytics';
+import AdminSettingsPage from '@/pages/admin/AdminSettings';
 
 
 // Child pages
@@ -122,6 +123,11 @@ function App() {
           <Route path="/admin/analytics" element={
             <ProtectedRoute requireRole="admin">
               <AdminAnalyticsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/settings" element={
+            <ProtectedRoute requireRole="admin">
+              <AdminSettingsPage />
             </ProtectedRoute>
           } />
        

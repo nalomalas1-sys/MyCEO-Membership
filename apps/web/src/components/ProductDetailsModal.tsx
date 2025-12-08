@@ -13,6 +13,7 @@ import {
   X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface MarketplaceItem {
   id: string;
@@ -345,11 +346,7 @@ export function ProductDetailsModal({ productId, onClose, onProductUpdate }: Pro
         className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         onClick={handleBackdropClick}
       >
-        <div className="bg-white rounded-2xl p-8 max-w-md w-full">
-          <div className="text-center">
-            <div className="text-xl font-semibold">Loading product details...</div>
-          </div>
-        </div>
+        <LoadingAnimation message="Loading product details..." variant="modal" />
       </div>
     );
   }

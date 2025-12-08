@@ -4,6 +4,7 @@ import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { TrendingUp, Users, BookOpen, Award, DollarSign, Activity, BarChart3, Download } from 'lucide-react';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface AnalyticsData {
   totalUsers: number;
@@ -185,11 +186,7 @@ function AdminAnalyticsContent() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading..." variant="fullscreen" />;
   }
 
   const statCards = [

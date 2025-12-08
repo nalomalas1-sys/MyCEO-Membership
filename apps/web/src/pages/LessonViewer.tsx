@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { AchievementNotification } from '@/components/child/AchievementNotification';
 import { supabase } from '@/lib/supabase';
 import { useModule, Lesson } from '@/hooks/useModules';
@@ -410,11 +411,7 @@ export default function LessonViewerPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50 flex items-center justify-center">
-        <div className="text-2xl">Loading lesson...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading lesson..." variant="fullscreen" />;
   }
 
   if (!lesson || !childSession) {

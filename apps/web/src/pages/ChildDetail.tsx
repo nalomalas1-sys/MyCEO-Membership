@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ParentNavBar } from '@/components/navigation/ParentNavBar';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
 import { ArrowLeft, Edit, Trophy, TrendingUp, BookOpen, Clock, Award, File, Download, FileText } from 'lucide-react';
@@ -698,11 +699,7 @@ function ChildDetailContent() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading child details..." variant="fullscreen" />;
   }
 
   if (!child) {

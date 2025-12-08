@@ -6,6 +6,7 @@ import { AddChildModal } from '@/components/parent/AddChildModal';
 import { ChildCard } from '@/components/parent/ChildCard';
 import { EditChildModal } from '@/components/parent/EditChildModal';
 import { ParentNavBar } from '@/components/navigation/ParentNavBar';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
 import { Users, Plus, Search, Filter } from 'lucide-react';
@@ -85,11 +86,7 @@ function ManageChildrenContent() {
   ).sort((a, b) => a - b);
 
   if (parentLoading || childrenLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading children..." variant="fullscreen" />;
   }
 
   return (

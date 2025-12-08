@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { useModule, useChildModuleProgress, Lesson } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 import { TrackSubmissionUpload } from '@/components/child/TrackSubmissionUpload';
@@ -118,11 +119,7 @@ export default function ModuleDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50 flex items-center justify-center">
-        <div className="text-2xl">Loading module...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading module..." variant="fullscreen" />;
   }
 
   if (!module || !childSession) {

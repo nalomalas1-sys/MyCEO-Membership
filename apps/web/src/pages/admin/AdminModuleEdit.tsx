@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical, Image } from 'lucide-react';
 import { QuizBuilder } from '@/components/admin/QuizBuilder';
 import {
@@ -304,11 +305,7 @@ function AdminModuleEditContent() {
   };
 
   if (fetching) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading..." variant="fullscreen" />;
   }
 
   return (

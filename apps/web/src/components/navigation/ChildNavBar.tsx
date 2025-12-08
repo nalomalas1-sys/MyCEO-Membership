@@ -13,9 +13,12 @@ import {
   Menu,
   X,
   Gamepad2,
-  TrendingUp
+  TrendingUp,
+  Bell
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { NotificationInbox } from '@/components/child/NotificationInbox';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface ChildSession {
   childId: string;
@@ -29,6 +32,8 @@ export function ChildNavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [expCoins, setExpCoins] = useState<Array<{id: number; x: number; y: number}>>([]);
+  const [notificationInboxOpen, setNotificationInboxOpen] = useState(false);
+  const { unreadCount } = useNotifications(childSession?.childId || null);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -177,8 +182,27 @@ export function ChildNavBar() {
               </div>
             </div>
 
-            {/* Right Side - Logout */}
+            {/* Right Side - Notifications and Logout */}
             <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0 justify-end">
+                {/* Notification Button - Game Style */}
+                <button
+                  onClick={() => setNotificationInboxOpen(true)}
+                  className="group relative transform hover:scale-105 transition-all"
+                  aria-label="Notifications"
+                >
+                  <div className="absolute -inset-1 bg-yellow-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                  <div className="relative flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-yellow-400 rounded-xl border-3 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all pixel-font hover:brightness-110">
+                    <Bell className="h-5 w-5 lg:h-6 lg:w-6 text-blue-500" />
+                    {unreadCount > 0 && (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 lg:w-6 lg:h-6 bg-red-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg">
+                        <span className="text-white text-[10px] lg:text-xs font-bold pixel-font">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </button>
+
                 {/* Exit Button - Game Style */}
                 <button
                   onClick={handleLogout}
@@ -264,6 +288,15 @@ export function ChildNavBar() {
           border-width: 3px;
         }
       `}</style>
+
+      {/* Notification Inbox */}
+      {childSession && (
+        <NotificationInbox
+          childId={childSession.childId}
+          isOpen={notificationInboxOpen}
+          onClose={() => setNotificationInboxOpen(false)}
+        />
+      )}
     </>
   );
 }

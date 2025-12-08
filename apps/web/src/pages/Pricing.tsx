@@ -378,7 +378,7 @@ function PricingContent() {
                          <span className="text-6xl md:text-8xl bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-500">
                             Adventure!
                          </span>
-                      </h1>
+          </h1>
                     </div>
                     
                     <div className="flex items-center gap-4">
@@ -448,8 +448,8 @@ function PricingContent() {
                           width: 'calc(50% - 0.25rem)'
                        }}
                     />
-                    <button
-                       onClick={() => setBillingPeriod('monthly')}
+            <button
+              onClick={() => setBillingPeriod('monthly')}
                        className={`relative z-10 flex-1 py-4 text-sm font-black transition-all duration-300 text-center ${
                           billingPeriod === 'monthly' ? 'text-white' : 'text-blue-400'
                        } group/toggle`}
@@ -460,9 +460,9 @@ function PricingContent() {
                             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-blue-500 to-yellow-500 rounded-full"></span>
                           )}
                        </span>
-                    </button>
-                    <button
-                       onClick={() => setBillingPeriod('annual')}
+            </button>
+            <button
+              onClick={() => setBillingPeriod('annual')}
                        className={`relative z-10 flex-1 py-4 text-sm font-black transition-all duration-300 text-center ${
                           billingPeriod === 'annual' ? 'text-white' : 'text-yellow-400'
                        } group/toggle`}
@@ -472,8 +472,8 @@ function PricingContent() {
                           {billingPeriod === 'annual' && (
                             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></span>
                           )}
-                       </span>
-                    </button>
+              </span>
+            </button>
                  </div>
 
                  {/* Game Achievement Banner */}
@@ -502,7 +502,7 @@ function PricingContent() {
                     </div>
                  </div>
               </div>
-           </div>
+          </div>
         </div>
 
         {/* Error Alert */}
@@ -605,7 +605,7 @@ function PricingContent() {
                            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 bg-gradient-to-br ${plan.accentColor} text-white relative`}>
                               <div className="text-3xl">{plan.emoji}</div>
                               <div className="absolute inset-2 rounded-2xl bg-white/20 blur-sm"></div>
-                           </div>
+                  </div>
                            
                            {/* Game Progress - FIXED LAYOUT */}
                            <div className="flex flex-col items-end space-y-2 w-32">
@@ -642,9 +642,9 @@ function PricingContent() {
                                  <span className="text-4xl font-black text-blue-900 tracking-tighter">${price}</span>
                                  <div className="flex flex-col">
                                     <span className="text-blue-500 font-black text-xs uppercase tracking-wide">
-                                       /{billingPeriod === 'monthly' ? 'month' : 'year'}
-                                    </span>
-                                 </div>
+                        /{billingPeriod === 'monthly' ? 'month' : 'year'}
+                      </span>
+                    </div>
                               </div>
                               {billingPeriod === 'annual' && (
                                  <div className="text-right">
@@ -661,7 +661,7 @@ function PricingContent() {
                               </div>
                            )}
                         </div>
-                     </div>
+                  </div>
 
                      {/* Game Features */}
                      <div className="space-y-3 mb-8 flex-grow">
@@ -669,7 +669,7 @@ function PricingContent() {
                            <Puzzle className="w-4 h-4" />
                            Game Features
                         </div>
-                        {plan.features.map((feature, index) => (
+                    {plan.features.map((feature, index) => (
                            <div key={index} className="flex items-start gap-3 group/feature">
                               <div className={`mt-1 p-1.5 rounded-full flex-shrink-0 ${
                                 plan.colorTheme === 'blue' ? 'bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-600' :
@@ -684,9 +684,9 @@ function PricingContent() {
                      </div>
 
                      {/* Game CTA Button */}
-                     <button
-                        onClick={() => handleSelectPlan(plan.id)}
-                        disabled={loading !== null}
+                  <button
+                    onClick={() => handleSelectPlan(plan.id)}
+                    disabled={loading !== null}
                         className={`w-full py-4 rounded-2xl font-black transition-all duration-500 flex items-center justify-center gap-3 relative overflow-hidden group/btn
                            ${isPopular
                               ? 'bg-gradient-to-r from-blue-600 to-yellow-600 text-white shadow-2xl shadow-blue-500/40 hover:shadow-yellow-500/50 hover:-translate-y-1'
@@ -701,12 +701,12 @@ function PricingContent() {
                         )}
                         
                         <div className="relative z-10 flex items-center gap-2">
-                           {loading === plan.id ? (
-                              <>
+                    {loading === plan.id ? (
+                      <>
                                  <Loader2 className="w-5 h-5 animate-spin" />
                                  <span className="font-bold text-sm">Starting Adventure...</span>
-                              </>
-                           ) : (
+                      </>
+                    ) : (
                               <>
                                  <span className="font-bold text-sm">Start Level {plan.gameLevel}</span>
                                  {plan.gameLevel === 1 ? (
@@ -719,7 +719,7 @@ function PricingContent() {
                               </>
                            )}
                         </div>
-                     </button>
+                  </button>
                   </div>
                 </div>
               </div>
@@ -739,8 +739,8 @@ function PricingContent() {
                   <div className="flex items-center gap-5 mb-8">
                      <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-yellow-500 rounded-3xl flex items-center justify-center text-white text-2xl shadow-xl">
                         <HelpCircle className="w-8 h-8" />
-                     </div>
-                     <div>
+            </div>
+            <div>
                         <h3 className="text-2xl font-black text-blue-800">Game Questions ❓</h3>
                         <p className="text-blue-600 text-sm font-bold">Common questions from fellow adventurers</p>
                      </div>
@@ -810,8 +810,8 @@ function PricingContent() {
                      <div className="flex items-center gap-6">
                         <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-2 border-white/10 flex items-center justify-center shadow-2xl shadow-blue-500/10">
                            <div className="text-3xl">🏫</div>
-                        </div>
-                        <div>
+            </div>
+            <div>
                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/10 text-yellow-200 text-xs font-black uppercase tracking-widest mb-3">
                               <Target className="w-3 h-3" />
                               Classroom Edition
@@ -882,8 +882,8 @@ function PricingContent() {
                     <div className="text-2xl">✨</div>
                     <div className="text-sm font-black text-yellow-700">Fun</div>
                  </div>
-              </div>
-           </div>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { Search, Mail, Users, Calendar, CreditCard, ChevronDown, ChevronUp, Settings, Clock, DollarSign } from 'lucide-react';
+import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface ParentWithUser {
   id: string;
@@ -218,11 +219,7 @@ function AdminUsersContent() {
   });
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
+    return <LoadingAnimation message="Loading..." variant="fullscreen" />;
   }
 
   return (
