@@ -90,8 +90,9 @@ export default function LessonViewerPage() {
           if (qError) throw qError;
           setQuizQuestions(questions || []);
         }
-      } catch (err: any) {
-        console.error('Failed to fetch lesson:', err);
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error('Failed to fetch lesson:', error);
       } finally {
         setLoading(false);
       }
@@ -124,8 +125,9 @@ export default function LessonViewerPage() {
         if (data) {
           setLessonCompleted(data.is_completed || false);
         }
-      } catch (err: any) {
-        console.error('Error checking lesson progress:', err);
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error('Error checking lesson progress:', error);
       }
     }
 
@@ -202,12 +204,13 @@ export default function LessonViewerPage() {
           // Log error but continue - don't block lesson completion
         } else if (data && data.length > 0) {
           awardData = data[0];
-          console.log('Lesson award data:', awardData);
+          console.warn('Lesson award data:', awardData);
         } else {
           console.warn('No data returned from award_achievements_and_xp for lesson');
         }
-      } catch (err: any) {
-        console.error('Error calling award_achievements_and_xp:', err);
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error('Error calling award_achievements_and_xp:', error);
         // Continue even if achievement awarding fails
       }
 
@@ -328,13 +331,14 @@ export default function LessonViewerPage() {
               alert('Failed to award achievements and XP: ' + (moduleAwardError.message || 'Unknown error'));
             } else if (data && data.length > 0) {
               moduleAwardData = data[0];
-              console.log('Module award data:', moduleAwardData);
+              console.warn('Module award data:', moduleAwardData);
             } else {
               console.warn('No data returned from award_achievements_and_xp');
             }
-          } catch (err: any) {
-            console.error('Error calling award_achievements_and_xp for module:', err);
-            alert('Error awarding achievements and XP: ' + (err.message || 'Unknown error'));
+          } catch (err: unknown) {
+            const error = err instanceof Error ? err : new Error(String(err));
+            console.error('Error calling award_achievements_and_xp for module:', error);
+            alert('Error awarding achievements and XP: ' + (error.message || 'Unknown error'));
           }
 
           // Create module completion activity with XP earned
@@ -393,8 +397,9 @@ export default function LessonViewerPage() {
         // No notification, navigate back
         navigate('/child/modules');
       }
-    } catch (err: any) {
-      alert('Failed to complete lesson: ' + (err.message || 'Unknown error'));
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      alert('Failed to complete lesson: ' + (error.message || 'Unknown error'));
     } finally {
       setCompleting(false);
     }

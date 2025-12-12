@@ -17,7 +17,12 @@
       "@myceo/shared": ["./packages/shared/src"]
     }
   },
-  "include": [],
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "packages/**/*.ts",
+    "packages/**/*.tsx"
+  ],
   "exclude": ["node_modules", "dist", "build"]
 }
 

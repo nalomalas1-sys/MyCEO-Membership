@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export interface Notification {
@@ -20,7 +20,7 @@ export function useNotifications(childId: string | null) {
   const [error, setError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!childId) {
       setLoading(false);
       return;
@@ -41,13 +41,14 @@ export function useNotifications(childId: string | null) {
 
       setNotifications(data || []);
       setUnreadCount(data?.filter(n => !n.is_read).length || 0);
-    } catch (err: any) {
-      console.error('Failed to fetch notifications:', err);
-      setError(err.message || 'Failed to load notifications');
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error('Failed to fetch notifications:', error);
+      setError(error.message || 'Failed to load notifications');
     } finally {
       setLoading(false);
     }
-  };
+  }, [childId]);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -71,8 +72,9 @@ export function useNotifications(childId: string | null) {
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (err: any) {
-      console.error('Failed to mark notification as read:', err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error('Failed to mark notification as read:', error);
     }
   };
 
@@ -96,8 +98,9 @@ export function useNotifications(childId: string | null) {
         prev.map(n => ({ ...n, is_read: true, read_at: new Date().toISOString() }))
       );
       setUnreadCount(0);
-    } catch (err: any) {
-      console.error('Failed to mark all notifications as read:', err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error('Failed to mark all notifications as read:', error);
     }
   };
 
@@ -117,8 +120,9 @@ export function useNotifications(childId: string | null) {
         const deleted = notifications.find(n => n.id === notificationId);
         return deleted && !deleted.is_read ? Math.max(0, prev - 1) : prev;
       });
-    } catch (err: any) {
-      console.error('Failed to delete notification:', err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error('Failed to delete notification:', error);
     }
   };
 
@@ -171,7 +175,7 @@ export function useNotifications(childId: string | null) {
         supabase.removeChannel(channel);
       };
     }
-  }, [childId]);
+  }, [childId, fetchNotifications]);
 
   return {
     notifications,
@@ -184,5 +188,6 @@ export function useNotifications(childId: string | null) {
     refetch: fetchNotifications,
   };
 }
+
 
 

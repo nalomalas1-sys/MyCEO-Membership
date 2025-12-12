@@ -532,8 +532,8 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
             const newAchievements = Array.isArray(result.new_achievements) ? result.new_achievements : [];
             if (newAchievements.length > 0) {
               // Log for debugging - seller will see achievements when they check their profile
-              console.log(`Seller earned ${newAchievements.length} achievement(s):`, 
-                newAchievements.map((a: any) => a.name).join(', '));
+              console.warn(`Seller earned ${newAchievements.length} achievement(s):`, 
+                newAchievements.map((a: { name: string }) => a.name).join(', '));
             }
           }
         } catch (err) {
@@ -570,11 +570,12 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
 
       setShowPurchaseConfirm(false);
       onRefresh();
-    } catch (err: any) {
-      console.error('Failed to purchase item:', err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error('Failed to purchase item:', error);
       toast({
         title: 'Purchase Failed',
-        description: err.message || 'Failed to complete purchase. Please try again.',
+        description: error.message || 'Failed to complete purchase. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -905,8 +906,9 @@ function AddProductModal({
       }
 
       setImageUrl(urlData.publicUrl);
-    } catch (err: any) {
-      setImageError(err.message || 'Failed to upload image');
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setImageError(error.message || 'Failed to upload image');
       setImagePreview(null);
       setImageUrl('');
     } finally {
@@ -1018,11 +1020,12 @@ function AddProductModal({
         description: 'Your product has been added to the marketplace!',
       });
       onSuccess();
-    } catch (err: any) {
-      console.error('Failed to add product:', err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error('Failed to add product:', error);
       toast({
         title: 'Error',
-        description: err.message || 'Failed to add product to marketplace.',
+        description: error.message || 'Failed to add product to marketplace.',
         variant: 'destructive',
       });
     } finally {
@@ -1314,8 +1317,9 @@ function EditProductModal({
       }
 
       setImageUrl(urlData.publicUrl);
-    } catch (err: any) {
-      setImageError(err.message || 'Failed to upload image');
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setImageError(error.message || 'Failed to upload image');
       setImagePreview(null);
       setImageUrl('');
     } finally {
@@ -1384,11 +1388,12 @@ function EditProductModal({
         description: 'Your product has been updated!',
       });
       onSuccess();
-    } catch (err: any) {
-      console.error('Failed to update product:', err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error('Failed to update product:', error);
       toast({
         title: 'Error',
-        description: err.message || 'Failed to update product.',
+        description: error.message || 'Failed to update product.',
         variant: 'destructive',
       });
     } finally {

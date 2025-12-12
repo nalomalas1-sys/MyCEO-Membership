@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { SubscriptionSignupForm } from '@/components/auth/SubscriptionSignupForm';
+import { SignupForm } from '@/components/auth/SignupForm';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { 
   AlertCircle, 
   ArrowLeft,
@@ -8,7 +10,8 @@ import {
   Lock,
   PartyPopper,
   Star,
-  Check
+  Check,
+  Loader2
 } from 'lucide-react';
 
 // --- Playful Background Effects ---
@@ -68,6 +71,21 @@ const FloatingTreasure = () => {
 export default function SignupPage() {
   const [searchParams] = useSearchParams();
   const canceled = searchParams.get('canceled') === 'true';
+  const { isEnabled, loading: flagsLoading } = useFeatureFlags();
+  
+  const stripeRegistrationEnabled = isEnabled('stripe_registration');
+
+  // Show loading state while checking feature flags
+  if (flagsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-50 via-yellow-50/30 to-amber-50/30">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600 font-bold">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative flex bg-gradient-to-b from-blue-50 via-yellow-50/30 to-amber-50/30 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
@@ -136,32 +154,13 @@ export default function SignupPage() {
                 </span>
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-600 text-6xl">
-                  First Business! 🚀
+                  First Business! 
                 </span>
               </h1>
               
               <p className="text-xl text-blue-700/90 leading-relaxed font-bold bg-white/60 p-6 rounded-3xl border-2 border-dashed border-blue-300 shadow-sm">
                 Turn screen time into CEO time! Join thousands of kids learning entrepreneurship in a fun, safe environment.
               </p>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-4 mb-12">
-              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-4 border-2 border-blue-200 text-center">
-                <div className="text-2xl mb-2">👦</div>
-                <div className="text-xl font-black text-blue-700">50,000+</div>
-                <p className="text-xs text-blue-600 font-bold">Young CEOs</p>
-              </div>
-              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-4 border-2 border-blue-200 text-center">
-                <div className="text-2xl mb-2">🏆</div>
-                <div className="text-xl font-black text-blue-700">4.9/5</div>
-                <p className="text-xs text-blue-600 font-bold">Rating</p>
-              </div>
-              <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-4 border-2 border-yellow-200 text-center">
-                <div className="text-2xl mb-2">💰</div>
-                <div className="text-xl font-black text-yellow-700">$2M+</div>
-                <p className="text-xs text-yellow-600 font-bold">Earned</p>
-              </div>
             </div>
 
             {/* Feature Highlights */}
@@ -210,7 +209,9 @@ export default function SignupPage() {
                       Start Your Quest! 🗺️
                     </h2>
                     <p className="text-blue-600 font-bold text-lg mb-2">
-                      Choose your adventure plan:
+                      {stripeRegistrationEnabled 
+                        ? 'Choose your adventure plan:'
+                        : 'Create your account:'}
                     </p>
                     <p className="text-blue-500 text-center text-sm mb-6">
                       Already have an account?{' '}
@@ -231,9 +232,13 @@ export default function SignupPage() {
                   </div>
                 )}
                 
-                {/* BIGGER Wrapper for Subscription Form */}
+                {/* Conditionally render form based on feature flag */}
                 <div className="signup-form-wrapper relative z-10">
-                  <SubscriptionSignupForm />
+                  {stripeRegistrationEnabled ? (
+                    <SubscriptionSignupForm />
+                  ) : (
+                    <SignupForm />
+                  )}
                 </div>
 
                 {/* Safety & Trust Badges - Bigger */}

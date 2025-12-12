@@ -16,9 +16,10 @@ import {
   TrendingUp,
   Bell
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { NotificationInbox } from '@/components/child/NotificationInbox';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 interface ChildSession {
   childId: string;
@@ -34,24 +35,26 @@ export function ChildNavBar() {
   const [expCoins, setExpCoins] = useState<Array<{id: number; x: number; y: number}>>([]);
   const [notificationInboxOpen, setNotificationInboxOpen] = useState(false);
   const { unreadCount } = useNotifications(childSession?.childId || null);
+  const { isEnabled } = useFeatureFlags();
 
-  useEffect(() => {
-    const loadSession = async () => {
-      const sessionStr = localStorage.getItem('child_session');
-      if (sessionStr) {
-        try {
-          const session = JSON.parse(sessionStr);
-          setChildSession(session);
-        } catch (err) {
-          console.error('Failed to load child session:', err);
-        } finally {
-          setLoading(false);
-        }
-      } else {
+  const loadSession = useCallback(async () => {
+    const sessionStr = localStorage.getItem('child_session');
+    if (sessionStr) {
+      try {
+        const session = JSON.parse(sessionStr);
+        setChildSession(session);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error('Failed to load child session:', error);
+      } finally {
         setLoading(false);
       }
-    };
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     loadSession();
     
     // Listen for storage changes
@@ -61,7 +64,7 @@ export function ChildNavBar() {
     
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [loadSession]);
 
   // Create exploding coins effect
   const createExplodingCoins = () => {
@@ -104,14 +107,23 @@ export function ChildNavBar() {
     return null;
   }
 
-  const navLinks = [
-    { to: '/child/dashboard', icon: <Home className="h-5 w-5" />, label: 'Home', color: 'from-blue-400 to-cyan-400' },
-    { to: '/child/modules', icon: <BookOpen className="h-5 w-5" />, label: 'Learn', color: 'from-green-400 to-emerald-400' },
-    { to: '/child/company', icon: <Building2 className="h-5 w-5" />, label: 'My Company', color: 'from-yellow-400 to-orange-400' },
-    { to: '/child/marketplace', icon: <ShoppingBag className="h-5 w-5" />, label: 'Marketplace', color: 'from-purple-400 to-pink-400' },
-    { to: '/child/achievements', icon: <Trophy className="h-5 w-5" />, label: 'Achievements', color: 'from-amber-400 to-yellow-400' },
-    { to: '/child/leaderboard', icon: <TrendingUp className="h-5 w-5" />, label: 'Leaderboard', color: 'from-red-400 to-orange-400' },
+  // Define all possible nav links
+  const allNavLinks = [
+    { to: '/child/dashboard', icon: <Home className="h-5 w-5" />, label: 'Home', color: 'from-blue-400 to-cyan-400', featureFlag: null },
+    { to: '/child/modules', icon: <BookOpen className="h-5 w-5" />, label: 'Learn', color: 'from-green-400 to-emerald-400', featureFlag: null },
+    { to: '/child/company', icon: <Building2 className="h-5 w-5" />, label: 'My Company', color: 'from-yellow-400 to-orange-400', featureFlag: 'company' },
+    { to: '/child/marketplace', icon: <ShoppingBag className="h-5 w-5" />, label: 'Marketplace', color: 'from-purple-400 to-pink-400', featureFlag: 'marketplace' },
+    { to: '/child/achievements', icon: <Trophy className="h-5 w-5" />, label: 'Achievements', color: 'from-amber-400 to-yellow-400', featureFlag: null },
+    { to: '/child/leaderboard', icon: <TrendingUp className="h-5 w-5" />, label: 'Leaderboard', color: 'from-red-400 to-orange-400', featureFlag: null },
   ];
+
+  // Filter nav links based on feature flags
+  const navLinks = allNavLinks.filter(link => {
+    // If no feature flag is required, always show it
+    if (!link.featureFlag) return true;
+    // If feature flag is required, check if it's enabled
+    return isEnabled(link.featureFlag);
+  });
 
   return (
     <>

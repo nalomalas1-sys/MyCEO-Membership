@@ -4,9 +4,10 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { Users, BookOpen, DollarSign, Activity } from 'lucide-react';
+import { Users, BookOpen, DollarSign, Activity, ToggleLeft, CreditCard, UserPlus, Loader2 } from 'lucide-react';
 import { formatCurrencyWithSeparators, usdToRm } from '@/utils/currency';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 interface DashboardStats {
   totalUsers: number;
@@ -23,6 +24,7 @@ interface DashboardStats {
 function AdminDashboardContent() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isEnabled, refetch } = useFeatureFlags();
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalParents: 0,
@@ -35,6 +37,7 @@ function AdminDashboardContent() {
     canceledSubscriptions: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [toggling, setToggling] = useState(false);
 
   useEffect(() => {
     async function fetchStats() {
@@ -84,6 +87,48 @@ function AdminDashboardContent() {
 
     fetchStats();
   }, []);
+
+  const toggleStripeRegistration = async () => {
+    setToggling(true);
+    try {
+      // First, get the current flag
+      const { data: flags } = await supabase
+        .from('feature_flags')
+        .select('id, enabled')
+        .eq('name', 'stripe_registration')
+        .single();
+
+      if (flags) {
+        // Toggle the flag
+        const { error } = await supabase
+          .from('feature_flags')
+          .update({ enabled: !flags.enabled })
+          .eq('id', flags.id);
+
+        if (error) throw error;
+        await refetch();
+      } else {
+        // Create the flag if it doesn't exist
+        const { error } = await supabase
+          .from('feature_flags')
+          .insert({ 
+            name: 'stripe_registration', 
+            description: 'Require Stripe payment during signup',
+            enabled: true 
+          });
+
+        if (error) throw error;
+        await refetch();
+      }
+    } catch (error) {
+      console.error('Failed to toggle Stripe registration:', error);
+      alert('Failed to toggle registration mode. Please try again.');
+    } finally {
+      setToggling(false);
+    }
+  };
+
+  const stripeRegistrationEnabled = isEnabled('stripe_registration');
 
   if (loading) {
     return <LoadingAnimation message="Loading..." variant="fullscreen" />;
@@ -206,6 +251,50 @@ function AdminDashboardContent() {
           </div>
         </div>
 
+        {/* Registration Settings */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Registration Settings</h2>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-4">
+              {stripeRegistrationEnabled ? (
+                <CreditCard className="h-8 w-8 text-blue-600" />
+              ) : (
+                <UserPlus className="h-8 w-8 text-green-600" />
+              )}
+              <div>
+                <p className="font-semibold text-gray-900">
+                  {stripeRegistrationEnabled ? 'Stripe Registration' : 'Normal Registration'}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {stripeRegistrationEnabled 
+                    ? 'Users must complete payment during signup'
+                    : 'Users can sign up without payment'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={toggleStripeRegistration}
+              disabled={toggling}
+              className={`relative inline-flex h-12 w-24 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                stripeRegistrationEnabled
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 focus:ring-blue-500'
+                  : 'bg-gray-300 focus:ring-gray-400'
+              } ${toggling ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              <span
+                className={`inline-block h-10 w-10 transform rounded-full bg-white shadow-lg transition-transform ${
+                  stripeRegistrationEnabled ? 'translate-x-12' : 'translate-x-1'
+                }`}
+              />
+              {toggling && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-white" />
+                </div>
+              )}
+            </button>
+          </div>
+        </div>
+
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
@@ -228,6 +317,13 @@ function AdminDashboardContent() {
                 className="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium text-gray-700"
               >
                 View Analytics
+              </button>
+              <button
+                onClick={() => navigate('/admin/features')}
+                className="w-full text-left px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg transition-all font-medium flex items-center space-x-2 shadow-md hover:shadow-lg"
+              >
+                <ToggleLeft className="h-4 w-4" />
+                <span>Manage Feature Flags</span>
               </button>
             </div>
           </div>

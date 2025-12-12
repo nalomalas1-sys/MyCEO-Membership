@@ -9,7 +9,6 @@ import {
   Calendar,
   ShoppingCart,
   Check,
-  Edit2,
   X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -540,7 +539,10 @@ export function ProductDetailsModal({ productId, onClose, onProductUpdate }: Pro
               </button>
               <button
                 onClick={handlePurchase}
-                disabled={purchasing || (buyerCompany && buyerCompany.current_balance < product.price)}
+                disabled={
+                  purchasing ||
+                  !!(buyerCompany && buyerCompany.current_balance < product.price)
+                }
                 className="flex-1 py-2 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {purchasing ? (

@@ -81,8 +81,9 @@ export default function AchievementsPage() {
         });
 
         setAchievements(achievementsWithEarned);
-      } catch (err: any) {
-        console.error('Failed to fetch achievements:', err);
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error('Failed to fetch achievements:', error);
       } finally {
         setLoading(false);
       }

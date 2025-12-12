@@ -85,7 +85,8 @@ export function ProfilePictureUpload({
         contentType = 'image/jpeg';
       }
 
-      console.log('File upload details:', {
+      // File upload details logged for debugging
+      console.warn('File upload details:', {
         fileName,
         originalType: file.type,
         detectedType: contentType,

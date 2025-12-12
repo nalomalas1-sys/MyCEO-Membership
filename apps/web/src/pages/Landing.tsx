@@ -7,7 +7,6 @@ import {
   Award,
   CheckCircle2,
   ArrowRight,
-  Star,
   Twitter,
   Facebook,
   Instagram,
@@ -24,6 +23,11 @@ import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/utils/currency';
 import { ProductDetailsModal } from '@/components/ProductDetailsModal';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
+import logoImage from '../Logo-MyCeo-300x200.png';
+import poster1 from '../poster1.jpg';
+import poster2 from '../poster2.jpg';
+import poster3 from '../poster3.jpg';
+import poster4 from '../poster4.jpg';
 
 interface MarketplaceItem {
   id: string;
@@ -50,6 +54,11 @@ export default function LandingPage() {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 12;
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  
+  // Poster carousel state
+  const posters = [poster1, poster2, poster3, poster4];
+  const [currentPosterIndex, setCurrentPosterIndex] = useState(0);
+  const [selectedPosterIndex, setSelectedPosterIndex] = useState<number | null>(null);
 
   // Handle smooth scrolling to sections when navigating with hash
   useEffect(() => {
@@ -165,8 +174,12 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center space-x-2">
-              <Sparkles className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">MyCEO</span>
+              <img 
+                src={logoImage} 
+                alt="MyCEO Logo" 
+                className="h-16 w-auto object-contain"
+              />
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent"></span>
             </Link>
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/#features" onClick={(e) => handleSectionClick(e, '#features')} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Features</Link>
@@ -191,8 +204,6 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-r from-blue-100 to-yellow-100 text-blue-700 text-sm font-bold mb-6 border-2 border-blue-300 shadow-md">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Empowering Young Entrepreneurs 🚀
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
                 <span className="bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
@@ -219,14 +230,6 @@ export default function LandingPage() {
                 </Link>
               </div>
               <div className="mt-8 flex items-center space-x-8 text-sm text-gray-700 font-medium">
-                <div className="flex items-center">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
-                  No credit card required
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
-                  30-day free trial
-                </div>
               </div>
             </div>
             <div className="relative">
@@ -261,6 +264,158 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Posters Gallery Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 bg-clip-text text-transparent">
+                Featured Posters
+              </span>
+            </h2>
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto font-medium">
+              Explore our collection of inspiring posters
+            </p>
+          </div>
+          
+          {/* Carousel Container */}
+          <div className="relative">
+            {/* Left Navigation Button */}
+            <button
+              onClick={() => setCurrentPosterIndex((prev) => (prev === 0 ? posters.length - 1 : prev - 1))}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-lg rounded-full p-3 shadow-xl border-2 border-purple-200 hover:bg-white hover:border-purple-500 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Previous poster"
+            >
+              <ChevronLeft className="h-6 w-6 text-purple-600" />
+            </button>
+
+            {/* Carousel */}
+            <div className="mx-12 overflow-hidden">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentPosterIndex * 100}%)` }}
+              >
+                {posters.map((poster, index) => (
+                  <div
+                    key={index}
+                    className="min-w-full px-2"
+                  >
+                    <div 
+                      className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-purple-200 group cursor-pointer flex items-center justify-center"
+                      onClick={() => setSelectedPosterIndex(index)}
+                    >
+                      <div className="relative w-full overflow-hidden">
+                        <img
+                          src={poster}
+                          alt={`Poster ${index + 1}`}
+                          className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg font-bold text-purple-600">
+                            Click to View Full Size
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Navigation Button */}
+            <button
+              onClick={() => setCurrentPosterIndex((prev) => (prev === posters.length - 1 ? 0 : prev + 1))}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-lg rounded-full p-3 shadow-xl border-2 border-purple-200 hover:bg-white hover:border-purple-500 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Next poster"
+            >
+              <ChevronRight className="h-6 w-6 text-purple-600" />
+            </button>
+          </div>
+
+          {/* Poster Indicators */}
+          <div className="flex justify-center gap-2 mt-6">
+            {posters.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPosterIndex(index)}
+                className={`h-3 rounded-full transition-all ${
+                  index === currentPosterIndex
+                    ? 'w-8 bg-gradient-to-r from-purple-600 to-pink-500'
+                    : 'w-3 bg-purple-300 hover:bg-purple-400'
+                }`}
+                aria-label={`Go to poster ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Poster Modal/Popup */}
+      {selectedPosterIndex !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setSelectedPosterIndex(null)}
+        >
+          <div className="relative max-w-5xl max-h-[90vh] w-full">
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedPosterIndex(null)}
+              className="absolute -top-12 right-0 bg-white/90 backdrop-blur-lg rounded-full p-2 shadow-xl border-2 border-purple-200 hover:bg-white hover:border-purple-500 transition-all hover:scale-110 z-10"
+              aria-label="Close modal"
+            >
+              <X className="h-6 w-6 text-purple-600" />
+            </button>
+
+            {/* Navigation in Modal */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (selectedPosterIndex !== null) {
+                  setSelectedPosterIndex(selectedPosterIndex === 0 ? posters.length - 1 : selectedPosterIndex - 1);
+                }
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-lg rounded-full p-3 shadow-xl border-2 border-purple-200 hover:bg-white hover:border-purple-500 transition-all hover:scale-110 z-10"
+              aria-label="Previous poster"
+            >
+              <ChevronLeft className="h-6 w-6 text-purple-600" />
+            </button>
+
+            {/* Poster Image */}
+            <div
+              className="bg-white rounded-2xl overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={posters[selectedPosterIndex]}
+                alt={`Poster ${selectedPosterIndex + 1}`}
+                className="w-full h-auto max-h-[90vh] object-contain"
+              />
+            </div>
+
+            {/* Navigation in Modal */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (selectedPosterIndex !== null) {
+                  setSelectedPosterIndex(selectedPosterIndex === posters.length - 1 ? 0 : selectedPosterIndex + 1);
+                }
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-lg rounded-full p-3 shadow-xl border-2 border-purple-200 hover:bg-white hover:border-purple-500 transition-all hover:scale-110 z-10"
+              aria-label="Next poster"
+            >
+              <ChevronRight className="h-6 w-6 text-purple-600" />
+            </button>
+
+            {/* Poster Counter */}
+            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-lg px-4 py-2 rounded-full shadow-xl border-2 border-purple-200">
+              <span className="text-purple-600 font-bold">
+                {selectedPosterIndex !== null && `${selectedPosterIndex + 1} / ${posters.length}`}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Features Section */}
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
@@ -364,81 +519,6 @@ export default function LandingPage() {
               <p className="text-gray-700 leading-relaxed font-medium">
                 Watch your child grow their financial knowledge and business skills while earning achievements and leveling up.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
-              Loved by Parents & Kids
-              </span>
-            </h2>
-            <p className="text-xl text-gray-700 max-w-2xl mx-auto font-medium">
-              See what families are saying about MyCEO
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 shadow-xl border-2 border-blue-200 hover:shadow-2xl transition-all">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 leading-relaxed font-medium">
-                "My 10-year-old daughter absolutely loves MyCEO! She's learned so much about money management and is already planning her first real business. The gamification keeps her engaged."
-              </p>
-              <div className="flex items-center">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mr-4 shadow-lg">
-                  <span className="text-white font-bold">SM</span>
-                </div>
-                <div>
-                  <div className="font-bold text-gray-900">Sarah Martinez</div>
-                  <div className="text-sm text-gray-600 font-medium">Parent of 10-year-old</div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 shadow-xl border-2 border-green-200 hover:shadow-2xl transition-all">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 leading-relaxed font-medium">
-                "As a financial advisor, I'm impressed by how well MyCEO teaches complex concepts in an age-appropriate way. My son now understands budgeting better than most adults!"
-              </p>
-              <div className="flex items-center">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mr-4 shadow-lg">
-                  <span className="text-white font-bold">JD</span>
-                </div>
-                <div>
-                  <div className="font-bold text-gray-900">James Davis</div>
-                  <div className="text-sm text-gray-600 font-medium">Parent & Financial Advisor</div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 shadow-xl border-2 border-purple-200 hover:shadow-2xl transition-all">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 leading-relaxed font-medium">
-                "The virtual company feature is brilliant! My daughter runs her own business in the app and has learned so much about revenue, expenses, and customer service. Highly recommend!"
-              </p>
-              <div className="flex items-center">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mr-4 shadow-lg">
-                  <span className="text-white font-bold">EW</span>
-                </div>
-                <div>
-                  <div className="font-bold text-gray-900">Emily Wilson</div>
-                  <div className="text-sm text-gray-600 font-medium">Parent of 12-year-old</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { XPProgressBar } from '@/components/child/XPProgressBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { BackgroundEffects, FloatingCharacters, PiggyBankMascot, FloatingBackgroundStyles } from '@/components/ui/FloatingBackground';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 interface ChildSession {
   childId: string;
@@ -23,6 +24,7 @@ export default function ChildDashboardPage() {
   const [childData, setChildData] = useState<ChildData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { isEnabled } = useFeatureFlags();
 
   useEffect(() => {
     // Clear any existing Supabase auth session to ensure we use anon role
@@ -51,12 +53,14 @@ export default function ChildDashboardPage() {
   useEffect(() => {
     if (!childSession) return;
 
+    const sessionId = childSession.childId;
+
     async function fetchChildData() {
       try {
         const { data, error } = await supabase
           .from('children')
           .select('total_xp, current_level, current_streak')
-          .eq('id', childSession.childId)
+          .eq('id', sessionId)
           .single();
 
         if (error) throw error;
@@ -95,16 +99,18 @@ export default function ChildDashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-yellow-300">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">My Company 🏢</h2>
-            <p className="text-gray-600 mb-4">Build and manage your virtual company!</p>
-            <button
-              onClick={() => navigate('/child/company')}
-              className="w-full py-3 bg-yellow-400 text-gray-900 font-bold rounded-lg hover:bg-yellow-500"
-            >
-              View Company
-            </button>
-          </div>
+          {isEnabled('company') && (
+            <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-yellow-300">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">My Company 🏢</h2>
+              <p className="text-gray-600 mb-4">Build and manage your virtual company!</p>
+              <button
+                onClick={() => navigate('/child/company')}
+                className="w-full py-3 bg-yellow-400 text-gray-900 font-bold rounded-lg hover:bg-yellow-500"
+              >
+                View Company
+              </button>
+            </div>
+          )}
 
           <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-blue-300">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Learn 📚</h2>
@@ -117,16 +123,18 @@ export default function ChildDashboardPage() {
             </button>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-purple-300">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Marketplace 🛒</h2>
-            <p className="text-gray-600 mb-4">Promote your products and discover others!</p>
-            <button
-              onClick={() => navigate('/child/marketplace')}
-              className="w-full py-3 bg-purple-400 text-gray-900 font-bold rounded-lg hover:bg-purple-500"
-            >
-              Visit Marketplace
-            </button>
-          </div>
+          {isEnabled('marketplace') && (
+            <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-purple-300">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Marketplace 🛒</h2>
+              <p className="text-gray-600 mb-4">Promote your products and discover others!</p>
+              <button
+                onClick={() => navigate('/child/marketplace')}
+                className="w-full py-3 bg-purple-400 text-gray-900 font-bold rounded-lg hover:bg-purple-500"
+              >
+                Visit Marketplace
+              </button>
+            </div>
+          )}
 
           <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-green-300">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Achievements 🏆</h2>

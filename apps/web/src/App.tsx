@@ -26,6 +26,7 @@ import AdminModuleCreatePage from '@/pages/admin/AdminModuleCreate';
 import AdminModuleEditPage from '@/pages/admin/AdminModuleEdit';
 import AdminAnalyticsPage from '@/pages/admin/AdminAnalytics';
 import AdminSettingsPage from '@/pages/admin/AdminSettings';
+import AdminFeatureFlagsPage from '@/pages/admin/AdminFeatureFlags';
 
 
 // Child pages
@@ -41,6 +42,7 @@ import LeaderboardPage from '@/pages/Leaderboard';
 
 // Protected Route Wrapper
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { FeatureFlagRoute } from '@/components/auth/FeatureFlagRoute';
 
 function HomePage() {
   const { isAuthenticated, user } = useAuth();
@@ -130,6 +132,11 @@ function App() {
               <AdminSettingsPage />
             </ProtectedRoute>
           } />
+          <Route path="/admin/features" element={
+            <ProtectedRoute requireRole="admin">
+              <AdminFeatureFlagsPage />
+            </ProtectedRoute>
+          } />
        
 
           {/* Child Routes */}
@@ -161,12 +168,16 @@ function App() {
           } />
           <Route path="/child/company" element={
             <ProtectedRoute requireRole="child">
-              <CompanyPage />
+              <FeatureFlagRoute featureName="company">
+                <CompanyPage />
+              </FeatureFlagRoute>
             </ProtectedRoute>
           } />
           <Route path="/child/marketplace" element={
             <ProtectedRoute requireRole="child">
-              <MarketplacePage />
+              <FeatureFlagRoute featureName="marketplace">
+                <MarketplacePage />
+              </FeatureFlagRoute>
             </ProtectedRoute>
           } />
           <Route path="/child/leaderboard" element={

@@ -1,46 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { 
-  Sparkles, 
   Gamepad2, 
   Users, 
   Shield, 
   Mail, 
-  Lock, 
   AlertCircle, 
   Loader2,
   ArrowLeft,
   Rocket,
-  Star,
-  Trophy,
-  Zap,
-  Target,
-  Brain,
-  Coins,
-  Castle,
-  Crown,
-  Gem,
-  PartyPopper,
-  IceCream,
-  Candy,
-  Pizza,
-  Flag,
-  ShoppingCart,
-  Banknote,
-  ChartBar,
-  Megaphone,
-  Users2,
-  Globe2,
-  ZapIcon,
-  Home,
-  Building2,
-  Cloud,
-  Sun,
-  Moon,
-  Sparkle,
-  Map,
-  Compass,
-  TargetIcon
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
@@ -245,9 +213,10 @@ export default function EnhancedLoginPage() {
           navigate('/dashboard', { replace: true });
         }
       }
-    } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.message || 'Failed to sign in. Please check your credentials.');
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error('Login error:', error);
+      setError(error.message || 'Failed to sign in. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -266,8 +235,9 @@ export default function EnhancedLoginPage() {
       });
       if (error) throw error;
       setResendSuccess(true);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error.message);
     } finally {
       setResendingEmail(false);
     }
@@ -276,29 +246,28 @@ export default function EnhancedLoginPage() {
   const tabs = [
     {
       id: 'children' as LoginType,
-      label: 'Young CEO 👦👧',
+      label: 'Children',
       icon: Gamepad2,
       description: 'Enter your Magic Code to play!',
       color: 'from-blue-400 to-cyan-500',
-      emoji: '🎮',
+
       bgColor: 'bg-gradient-to-br from-blue-100 to-cyan-100'
     },
     {
       id: 'parents' as LoginType,
-      label: 'Parent 👨‍👩‍👧‍👦',
+      label: 'Parents',
       icon: Users,
       description: 'Help your little entrepreneur grow!',
       color: 'from-blue-500 to-blue-600',
-      emoji: '👨‍👩‍👧‍👦',
+
       bgColor: 'bg-gradient-to-br from-blue-100 to-blue-100'
     },
     {
       id: 'admin' as LoginType,
-      label: 'Admin 🧙‍♂️',
+      label: 'Admin',
       icon: Shield,
       description: 'Keep the playground fun and safe!',
       color: 'from-emerald-400 to-teal-500',
-      emoji: '🛡️',
       bgColor: 'bg-gradient-to-br from-emerald-100 to-teal-100'
     },
   ];
@@ -352,25 +321,6 @@ export default function EnhancedLoginPage() {
             </div>
           </div>
 
-          {/* Adventure Feature Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { icon: Trophy, label: "Collect XP", color: "text-yellow-500", emoji: "🏆" },
-              { icon: Zap, label: "Active Quests", color: "text-blue-500", emoji: "⚡" },
-              { icon: Target, label: "Set Goals", color: "text-red-500", emoji: "🎯" },
-              { icon: Brain, label: "AI Helper", color: "text-emerald-500", emoji: "🤖" }
-            ].map((item, i) => (
-              <div key={i} className="bg-white/70 backdrop-blur-sm border-2 border-white p-4 rounded-2xl flex items-center gap-4 shadow-lg hover:scale-105 transition-transform cursor-default">
-                <div className={`p-3 bg-gradient-to-br ${item.color.replace('text-', 'from-')} to-white rounded-xl text-white shadow-md`}>
-                  <item.icon className="w-6 h-6" />
-                </div>
-                <div className="flex-1">
-                  <span className="font-black text-slate-800">{item.label}</span>
-                  <div className="text-2xl">{item.emoji}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Right Side - Login Card */}
@@ -429,7 +379,6 @@ export default function EnhancedLoginPage() {
                     <span className={`text-xs font-black ${isActive ? 'text-blue-700' : 'text-blue-500'} mb-1`}>
                       {tab.label}
                     </span>
-                    <div className="text-lg">{tab.emoji}</div>
                   </button>
                 );
               })}
@@ -506,7 +455,7 @@ export default function EnhancedLoginPage() {
                   <div className="space-y-2">
                     <label className="text-sm font-black text-blue-700 uppercase tracking-wider ml-1 flex items-center gap-2">
                       <span>Email Address</span>
-                      <span className="text-lg">📧</span>
+                      <span className="text-lg"></span>
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -526,12 +475,12 @@ export default function EnhancedLoginPage() {
                   <div className="space-y-2">
                     <div className="flex justify-between items-center ml-1">
                       <label className="text-sm font-black text-blue-700 uppercase tracking-wider flex items-center gap-2">
-                        <span>Secret Password</span>
-                        <span className="text-lg">🤫</span>
+                        <span>Password</span>
+                        <span className="text-lg"></span>
                       </label>
-                      <a href="#" className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
-                        Forgot? 🔍
-                      </a>
+                      <Link to="/forgot-password" className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
+                        Forgot your password? 
+                      </Link>
                     </div>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -567,7 +516,7 @@ export default function EnhancedLoginPage() {
                 <span className="flex items-center gap-2">
                   {loading 
                     ? (activeTab === 'children' ? 'Launching Rocket...' : 'Opening Treasure...') 
-                    : (activeTab === 'children' ? 'Start Adventure! 🚀' : 'Open Dashboard! 🏰')
+                    : (activeTab === 'children' ? 'Start Adventure! 🚀' : 'Login')
                   }
                 </span>
                 

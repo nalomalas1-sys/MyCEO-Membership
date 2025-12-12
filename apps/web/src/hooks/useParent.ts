@@ -85,8 +85,9 @@ export function useParent() {
         } else {
           setParent(parentData);
         }
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch parent data');
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error.message || 'Failed to fetch parent data');
       } finally {
         setLoading(false);
       }
@@ -108,8 +109,9 @@ export function useParent() {
 
       if (parentError) throw parentError;
       setParent(parentData);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch parent data');
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error.message || 'Failed to fetch parent data');
     } finally {
       setLoading(false);
     }
@@ -141,8 +143,9 @@ export function useChildren() {
 
         if (fetchError) throw fetchError;
         setChildren(data || []);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch children');
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error.message || 'Failed to fetch children');
       } finally {
         setLoading(false);
       }
@@ -163,8 +166,9 @@ export function useChildren() {
 
       if (fetchError) throw fetchError;
       setChildren(data || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch children');
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error.message || 'Failed to fetch children');
     } finally {
       setLoading(false);
     }

@@ -41,8 +41,8 @@ serve(async (req) => {
     const { plan, billingPeriod = 'monthly', successUrl, cancelUrl, userData } = await req.json();
 
     // Check if this is a new signup (with userData) or existing user
-    let user = null;
-    let parent = null;
+    let user: { id: string; email?: string | null } | null = null;
+    let parent: { id: string; stripe_customer_id: string | null } | null = null;
     let stripeCustomerId: string | null = null;
 
     if (userData) {
@@ -89,6 +89,16 @@ serve(async (req) => {
 
       user = authUser;
 
+      if (!user) {
+        return new Response(
+          JSON.stringify({ error: 'User not found' }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       // Get parent record
       const { data: parentData } = await supabaseClient
         .from('parents')
@@ -107,6 +117,15 @@ serve(async (req) => {
       }
 
       parent = parentData;
+      if (!parent) {
+        return new Response(
+          JSON.stringify({ error: 'Parent record not found' }),
+          {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
       stripeCustomerId = parent.stripe_customer_id;
     }
 
@@ -152,8 +171,8 @@ serve(async (req) => {
             }
           : {
               // Existing user
-              supabase_user_id: user!.id,
-              parent_id: parent!.id,
+              supabase_user_id: user?.id || '',
+              parent_id: parent?.id || '',
               is_new_signup: 'false',
             },
       });
@@ -209,8 +228,8 @@ serve(async (req) => {
               }
             : {
                 // Existing user
-                parent_id: parent!.id,
-                supabase_user_id: user!.id,
+                parent_id: parent?.id || '',
+                supabase_user_id: user?.id || '',
                 is_new_signup: 'false',
               }),
         },
@@ -226,8 +245,8 @@ serve(async (req) => {
               is_new_signup: 'true',
             }
           : {
-              parent_id: parent!.id,
-              supabase_user_id: user!.id,
+              parent_id: parent?.id || '',
+              supabase_user_id: user?.id || '',
               is_new_signup: 'false',
             }),
         plan,

@@ -246,7 +246,7 @@ serve(async (req) => {
           }
 
           // Retry mechanism to find or create parent record
-          let parent = null;
+          let parent: { id: string } | null = null;
           let retries = 5;
           let parentError = null;
 

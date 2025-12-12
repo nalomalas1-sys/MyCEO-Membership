@@ -17,7 +17,8 @@ import {
   Crown,
   Globe,
   CheckCircle,
-  Server
+  Server,
+  ToggleLeft
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -65,6 +66,12 @@ export function AdminNavBar() {
       icon: Database, 
       label: 'System',
       color: 'from-rose-500 to-pink-500'
+    },
+    { 
+      path: '/admin/features', 
+      icon: ToggleLeft, 
+      label: 'Feature Flags',
+      color: 'from-indigo-500 to-purple-500'
     },
   ];
 
