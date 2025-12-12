@@ -4,7 +4,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { Save, User, Mail, Lock, Settings, Bell, Shield, Database, Globe, AlertCircle } from 'lucide-react';
+import { Save, User, Mail, Lock, Settings, Database, Globe, AlertCircle } from 'lucide-react';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 function AdminSettingsContent() {

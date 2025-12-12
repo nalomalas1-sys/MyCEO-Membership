@@ -44,6 +44,7 @@ export default function ModulesPage() {
     if (!childSession) return;
 
     async function fetchProgress() {
+      if (!childSession) return;
       const { data } = await supabase
         .from('child_module_progress')
         .select('*')
@@ -334,7 +335,6 @@ export default function ModulesPage() {
                     {trackModules.map((module, index) => {
                       const progress = childProgress[module.id];
                       const isCompleted = progress?.status === 'completed';
-                      const isInProgress = progress?.status === 'in_progress';
 
                       return (
                         <div

@@ -54,6 +54,9 @@ importers:
       '@radix-ui/react-toast':
         specifier: ^1.1.5
         version: 1.2.15(@types/react-dom@18.3.7)(@types/react@18.3.27)(react-dom@18.3.1)(react@18.3.1)
+      '@stripe/stripe-js':
+        specifier: ^8.5.3
+        version: 8.5.3
       '@supabase/supabase-js':
         specifier: ^2.39.0
         version: 2.83.0
@@ -1572,6 +1575,11 @@ packages:
   /@sinclair/typebox@0.27.8:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
     dev: true
+
+  /@stripe/stripe-js@8.5.3:
+    resolution: {integrity: sha512-UM0GHAxlTN7v0lCK2P6t0VOlvBIdApIQxhnM3yZ2kupQ4PpSrLsK/n/NyYKtw2NJGMaNRRD1IicWS7fSL2sFtA==}
+    engines: {node: '>=12.16'}
+    dev: false
 
   /@supabase/auth-js@2.83.0:
     resolution: {integrity: sha512-xmyFcglbAo6C2ox5T9FjZryqk50xU23QqoNKnEYn7mjgxghP/A13W64lL3/TF8HtbuCt3Esk9d3Jw5afXTO/ew==}

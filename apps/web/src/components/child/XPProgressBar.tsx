@@ -1,4 +1,4 @@
-import { xpProgressPercentage, xpForNextLevel } from '@myceo/shared/utils';
+import { xpProgressPercentage, xpForNextLevel } from '@myceo/shared';
 
 interface XPProgressBarProps {
   currentLevel: number;

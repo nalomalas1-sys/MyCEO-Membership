@@ -103,7 +103,7 @@ export function ProfilePictureUpload({
       });
 
       // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('profile-pictures')
         .upload(fileName, fileWithCorrectType, {
           cacheControl: '3600',

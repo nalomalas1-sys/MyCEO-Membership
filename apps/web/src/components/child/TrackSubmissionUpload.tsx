@@ -76,7 +76,7 @@ export function TrackSubmissionUpload({
       const fileName = `${childId}/${moduleId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       // Upload file to storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('track-submissions')
         .upload(fileName, file, {
           cacheControl: '3600',

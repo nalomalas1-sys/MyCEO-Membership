@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
-import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { Search, Mail, Users, Calendar, CreditCard, ChevronDown, ChevronUp, Settings, Clock, DollarSign } from 'lucide-react';
+import { Search, Mail, Users, Calendar, CreditCard, ChevronDown, ChevronUp, Settings, Clock } from 'lucide-react';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface ParentWithUser {
@@ -33,7 +32,6 @@ interface Child {
 }
 
 function AdminUsersContent() {
-  const { user } = useAuth();
   const [parents, setParents] = useState<ParentWithUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');

@@ -61,7 +61,6 @@ const sizeClasses = {
 
 export function AchievementBadge({
   name,
-  description,
   rarity,
   iconUrl,
   earned = false,

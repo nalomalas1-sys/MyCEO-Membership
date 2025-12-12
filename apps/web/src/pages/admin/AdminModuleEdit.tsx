@@ -61,7 +61,7 @@ function AdminModuleEditContent() {
   const [reordering, setReordering] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
-  const [selectedThumbnailFile, setSelectedThumbnailFile] = useState<File | null>(null);
+  const [_selectedThumbnailFile, setSelectedThumbnailFile] = useState<File | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -154,7 +154,7 @@ function AdminModuleEditContent() {
       const fileName = `thumbnails/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('module-thumbnails')
         .upload(fileName, file, {
           cacheControl: '3600',
@@ -723,7 +723,7 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
       const fileName = `${moduleId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('lesson-files')
         .upload(fileName, file, {
           cacheControl: '3600',
@@ -967,7 +967,7 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 rows={6}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                required={formData.lesson_type !== 'video'}
+                required={formData.lesson_type === 'text' || formData.lesson_type === 'quiz'}
               />
             </div>
           )}

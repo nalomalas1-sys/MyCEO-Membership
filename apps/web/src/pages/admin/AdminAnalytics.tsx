@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
-import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { TrendingUp, Users, BookOpen, Award, DollarSign, Activity, BarChart3, Download } from 'lucide-react';
+import { TrendingUp, Users, BookOpen, Award, Activity, BarChart3, Download } from 'lucide-react';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface AnalyticsData {
@@ -21,7 +20,6 @@ interface AnalyticsData {
 }
 
 function AdminAnalyticsContent() {
-  const { user } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalUsers: 0,
     totalParents: 0,

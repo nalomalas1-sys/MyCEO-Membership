@@ -61,6 +61,7 @@ export default function AchievementsPage() {
         if (achievementsError) throw achievementsError;
 
         // Fetch earned achievements
+        if (!childSession) return;
         const { data: earnedAchievements, error: earnedError } = await supabase
           .from('child_achievements')
           .select('achievement_id, earned_at')

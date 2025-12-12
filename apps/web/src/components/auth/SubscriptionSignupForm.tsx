@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Loader2, Sparkles } from 'lucide-react';
 
 type PasswordStrength = 'weak' | 'medium' | 'strong';
@@ -108,7 +107,6 @@ export function SubscriptionSignupForm() {
   const [step, setStep] = useState<'account' | 'plan'>('account');
   const [password, setPassword] = useState('');
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>('weak');
-  const navigate = useNavigate();
 
   const {
     register,

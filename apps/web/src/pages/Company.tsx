@@ -72,6 +72,7 @@ export default function CompanyPage() {
     if (!childSession) return;
 
     async function fetchCompany() {
+      if (!childSession) return;
       try {
         // Fetch company
         const { data: companyData, error: companyError } = await supabase
@@ -104,6 +105,7 @@ export default function CompanyPage() {
         setTransactions(transactionsData || []);
 
         // Fetch marketplace items (product catalog)
+        if (!childSession) return;
         const { data: itemsData, error: itemsError } = await supabase
           .from('marketplace_items')
           .select('*')
@@ -655,7 +657,7 @@ function AddTransactionModal({ companyId, onClose, onSuccess, onAchievementNotif
       }
 
       // Create transaction
-      const { data: transaction, error: transactionError } = await supabase
+      const { error: transactionError } = await supabase
         .from('company_transactions')
         .insert({
           company_id: companyId,

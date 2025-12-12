@@ -7,50 +7,24 @@ import {
   CheckCircle2, 
   Sparkles, 
   Loader2, 
-  Zap, 
   Shield, 
-  Star, 
   HelpCircle, 
-  Layout,
-  Globe,
   Trophy,
   Users,
   Rocket,
   ChevronDown,
-  Box,
   X,
   ArrowRight,
-  TrendingUp,
   ShieldCheck,
-  BadgeCheck,
-  Clock,
   Target,
-  ZapOff,
   Castle,
   Crown,
-  Gem,
-  Coins,
-  Heart,
-  PartyPopper,
-  Wand2,
-  Palette,
-  Sparkle,
-  IceCream,
-  Pizza,
-  Candy,
-  Gift,
-  TreePine,
-  Gamepad2,
-  Sword,
-  Shield as ShieldIcon,
   Puzzle,
   Dice5,
-  Joystick,
   Flag,
-  Mountain,
-  Compass,
   Award,
-  BarChart3
+  BarChart3,
+  Gamepad2
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -531,7 +505,6 @@ function PricingContent() {
           {plans.map((plan) => {
             const price = getPrice(plan);
             const isPopular = plan.popular;
-            const Icon = plan.icon;
             const isHovered = hoveredPlan === plan.id;
 
             return (

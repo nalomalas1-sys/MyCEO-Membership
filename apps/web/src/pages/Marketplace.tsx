@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
@@ -71,6 +71,8 @@ export default function MarketplacePage() {
 
         // Fetch company info
         // Use * to avoid 406 errors with specific column selection and RLS
+        if (!childSession) return;
+        
         const { data: companyData, error: companyError } = await supabase
           .from('companies')
           .select('*')
@@ -121,6 +123,7 @@ export default function MarketplacePage() {
         );
 
         // Filter out own items from marketplace
+        if (!childSession) return;
         const otherItems = itemsWithSellers.filter(
           (item) => item.seller_child_id !== childSession.childId
         );
@@ -753,7 +756,7 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
               </button>
               <button
                 onClick={handlePurchase}
-                disabled={purchasing || (buyerCompany && buyerCompany.current_balance < item.price)}
+                disabled={purchasing || !!(buyerCompany && buyerCompany.current_balance < item.price)}
                 className="flex-1 py-2 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {purchasing ? (
@@ -777,7 +780,6 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
       {showEditModal && (
         <EditProductModal
           item={item}
-          childSession={childSession!}
           onClose={() => setShowEditModal(false)}
           onSuccess={() => {
             setShowEditModal(false);
@@ -884,7 +886,7 @@ function AddProductModal({
       });
 
       // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('marketplace-images')
         .upload(fileName, fileWithCorrectType, {
           cacheControl: '3600',
@@ -993,7 +995,7 @@ function AddProductModal({
         // Ignore if quantity field doesn't exist
       }
 
-      const { error, data } = await supabase.from('marketplace_items').insert(insertData).select();
+      const { error } = await supabase.from('marketplace_items').insert(insertData).select();
 
       if (error) {
         console.error('Marketplace insert error:', error);
@@ -1202,14 +1204,12 @@ function AddProductModal({
 
 interface EditProductModalProps {
   item: MarketplaceItem;
-  childSession: ChildSession;
   onClose: () => void;
   onSuccess: () => void;
 }
 
 function EditProductModal({
   item,
-  childSession,
   onClose,
   onSuccess,
 }: EditProductModalProps) {
@@ -1295,7 +1295,7 @@ function EditProductModal({
       });
 
       // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('marketplace-images')
         .upload(fileName, fileWithCorrectType, {
           cacheControl: '3600',

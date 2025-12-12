@@ -2,19 +2,15 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useParent } from '@/hooks/useParent';
 import { 
-  Sparkles, 
   Home, 
   Users, 
   CreditCard, 
   LogOut, 
   Settings,
-  Gamepad2,
-  Crown,
-  Trophy,
-  Zap,
-  Bell,
   Menu,
-  X
+  X,
+  Crown,
+  Zap
 } from 'lucide-react';
 import { useState } from 'react';
 

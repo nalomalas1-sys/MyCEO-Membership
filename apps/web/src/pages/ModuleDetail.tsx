@@ -45,6 +45,7 @@ export default function ModuleDetailPage() {
     if (!childSession || !moduleId) return;
 
     async function fetchLessonProgress() {
+      if (!childSession) return;
       const { data } = await supabase
         .from('child_lesson_progress')
         .select('*')

@@ -25,10 +25,11 @@ export function useParent() {
     }
 
     async function fetchParent() {
+      if (!user) return;
+      
       try {
         // First get the user record
-        let userData;
-        const { data: existingUser, error: userError } = await supabase
+        const { error: userError } = await supabase
           .from('users')
           .select('id, email, full_name, role')
           .eq('id', user.id)
@@ -37,7 +38,7 @@ export function useParent() {
         if (userError) {
           // If user doesn't exist, create one (fallback if trigger didn't work)
           if (userError.code === 'PGRST116') {
-            const { data: newUser, error: createUserError } = await supabase
+            const { error: createUserError } = await supabase
               .from('users')
               .insert({
                 id: user.id,
@@ -49,12 +50,9 @@ export function useParent() {
               .single();
 
             if (createUserError) throw createUserError;
-            userData = newUser;
           } else {
             throw userError;
           }
-        } else {
-          userData = existingUser;
         }
 
         // Then get the parent record
@@ -134,6 +132,8 @@ export function useChildren() {
 
     async function fetchChildren() {
       try {
+        if (!parent) return;
+        
         const { data, error: fetchError } = await supabase
           .from('children')
           .select('*')

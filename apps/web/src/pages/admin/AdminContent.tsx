@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
-import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Plus, Edit, Eye, EyeOff, Search, Filter, Trash2, ExternalLink } from 'lucide-react';
+import { BookOpen, Plus, Edit, Eye, EyeOff, Search, Trash2, ExternalLink } from 'lucide-react';
 
 interface Module {
   id: string;
@@ -23,7 +22,6 @@ interface Module {
 }
 
 function AdminContentContent() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);

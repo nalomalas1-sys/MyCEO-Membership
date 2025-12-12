@@ -16,8 +16,6 @@ import {
   ChevronDown,
   Crown,
   Globe,
-  CheckCircle,
-  Server,
   ToggleLeft
 } from 'lucide-react';
 import { useState } from 'react';

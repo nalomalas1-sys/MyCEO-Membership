@@ -1,15 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Sparkles, 
   Home, 
   BookOpen, 
   Trophy, 
   Building2, 
   ShoppingBag, 
   LogOut, 
-  Award,
-  Wallet,
-  Target,
   Menu,
   X,
   Gamepad2,
