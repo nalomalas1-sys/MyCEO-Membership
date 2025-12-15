@@ -42,10 +42,54 @@ export default function ChildDashboardPage() {
 
     try {
       const session = JSON.parse(sessionStr);
-      setChildSession(session);
+      
+      // Check parent subscription status
+      async function checkSubscription() {
+        try {
+          const { data: result, error } = await supabase
+            .rpc('check_parent_subscription_for_child', {
+              p_child_id: session.childId
+            })
+            .single();
+
+          if (error || !result) {
+            // If we can't check subscription, clear session and redirect
+            localStorage.removeItem('child_session');
+            navigate('/child/login?error=subscription_check_failed');
+            return;
+          }
+
+          // Type assertion for RPC result
+          const subscriptionResult = result as {
+            child_id: string;
+            child_name: string;
+            access_code: string;
+            parent_subscription_status: string;
+            subscription_valid: boolean;
+          };
+
+          // Check if subscription is valid (active or trialing)
+          if (!subscriptionResult.subscription_valid) {
+            // Clear session and redirect with error message
+            localStorage.removeItem('child_session');
+            navigate('/child/login?error=subscription_expired');
+            return;
+          }
+
+          // Subscription is valid, set session
+          setChildSession(session);
+        } catch (err) {
+          console.error('Failed to check subscription:', err);
+          localStorage.removeItem('child_session');
+          navigate('/child/login?error=subscription_check_failed');
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      checkSubscription();
     } catch (err) {
       navigate('/child/login');
-    } finally {
       setLoading(false);
     }
   }, [navigate]);

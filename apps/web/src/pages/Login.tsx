@@ -158,22 +158,36 @@ export default function EnhancedLoginPage() {
         // Format code
         const formattedCode = accessCode.toUpperCase().trim();
         
-        // Query child
-        const { data: child, error: queryError } = await supabase
-          .from('children')
-          .select('id, name, access_code')
-          .eq('access_code', formattedCode)
+        // Check child and parent subscription status using database function
+        const { data: result, error: queryError } = await supabase
+          .rpc('check_parent_subscription_by_access_code', {
+            p_access_code: formattedCode
+          })
           .single();
 
-        if (queryError || !child) {
+        if (queryError || !result) {
           throw new Error('Invalid access code. Please try again.');
+        }
+
+        // Type assertion for RPC result
+        const subscriptionResult = result as {
+          child_id: string;
+          child_name: string;
+          access_code: string;
+          parent_subscription_status: string;
+          subscription_valid: boolean;
+        };
+
+        // Check if subscription is valid (active or trialing)
+        if (!subscriptionResult.subscription_valid) {
+          throw new Error('Access unavailable. Please ask your parent to renew their subscription.');
         }
 
         // Store child session
         localStorage.setItem('child_session', JSON.stringify({
-          childId: child.id,
-          childName: child.name,
-          accessCode: formattedCode,
+          childId: subscriptionResult.child_id,
+          childName: subscriptionResult.child_name,
+          accessCode: subscriptionResult.access_code,
         }));
 
         navigate('/child/dashboard');

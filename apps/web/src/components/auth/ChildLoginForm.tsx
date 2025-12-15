@@ -21,23 +21,38 @@ export function ChildLoginForm() {
       // Format code (ensure uppercase, keep dashes as stored in DB)
       const formattedCode = code.toUpperCase().trim();
       
-      // Query for child with this access code
-      const { data: child, error: queryError } = await supabase
-        .from('children')
-        .select('id, name, access_code')
-        .eq('access_code', formattedCode)
+      // Check child and parent subscription status using database function
+      const { data: result, error: queryError } = await supabase
+        .rpc('check_parent_subscription_by_access_code', {
+          p_access_code: formattedCode
+        })
         .single();
 
-      if (queryError || !child) {
+      if (queryError || !result) {
         setError('Invalid access code. Please try again.');
+        return;
+      }
+
+      // Type assertion for RPC result
+      const subscriptionResult = result as {
+        child_id: string;
+        child_name: string;
+        access_code: string;
+        parent_subscription_status: string;
+        subscription_valid: boolean;
+      };
+
+      // Check if subscription is valid (active or trialing)
+      if (!subscriptionResult.subscription_valid) {
+        setError('Access unavailable. Please ask your parent to renew their subscription.');
         return;
       }
 
       // Store child session in localStorage (for child sessions)
       localStorage.setItem('child_session', JSON.stringify({
-        childId: child.id,
-        childName: child.name,
-        accessCode: formattedCode,
+        childId: subscriptionResult.child_id,
+        childName: subscriptionResult.child_name,
+        accessCode: subscriptionResult.access_code,
       }));
 
       navigate('/child/dashboard');

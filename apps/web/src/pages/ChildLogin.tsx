@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 
@@ -7,6 +7,17 @@ export default function ChildLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Check for subscription error in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get('error');
+    if (errorParam === 'subscription_expired') {
+      setError('Access unavailable. Please ask your parent to renew their subscription.');
+    } else if (errorParam === 'subscription_check_failed') {
+      setError('Unable to verify subscription. Please try again.');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,24 +32,39 @@ export default function ChildLoginPage() {
       // Format code (ensure uppercase, keep dashes as stored in DB)
       const formattedCode = code.toUpperCase().trim();
       
-      // Query for child with this access code
-      const { data: children, error: queryError } = await supabase
-        .from('children')
-        .select('id, name, access_code')
-        .eq('access_code', formattedCode)
+      // Check child and parent subscription status using database function
+      const { data: result, error: queryError } = await supabase
+        .rpc('check_parent_subscription_by_access_code', {
+          p_access_code: formattedCode
+        })
         .single();
 
-      if (queryError || !children) {
+      if (queryError || !result) {
         setError('Invalid access code. Please try again.');
+        return;
+      }
+
+      // Type assertion for RPC result
+      const subscriptionResult = result as {
+        child_id: string;
+        child_name: string;
+        access_code: string;
+        parent_subscription_status: string;
+        subscription_valid: boolean;
+      };
+
+      // Check if subscription is valid (active or trialing)
+      if (!subscriptionResult.subscription_valid) {
+        setError('Access unavailable. Please ask your parent to renew their subscription.');
         return;
       }
 
       // Store child session in localStorage (for child sessions)
       // In production, you might want to use a more secure method
       localStorage.setItem('child_session', JSON.stringify({
-        childId: children.id,
-        childName: children.name,
-        accessCode: formattedCode,
+        childId: subscriptionResult.child_id,
+        childName: subscriptionResult.child_name,
+        accessCode: subscriptionResult.access_code,
       }));
 
       navigate('/child/dashboard');
