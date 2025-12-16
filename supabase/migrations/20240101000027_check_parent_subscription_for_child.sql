@@ -56,3 +56,5 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 GRANT EXECUTE ON FUNCTION public.check_parent_subscription_by_access_code(TEXT) TO anon;
 GRANT EXECUTE ON FUNCTION public.check_parent_subscription_by_access_code(TEXT) TO authenticated;
 
+
+

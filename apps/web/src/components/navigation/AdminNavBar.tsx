@@ -11,7 +11,6 @@ import {
   Menu,
   X,
   Activity,
-  Database,
   Bell,
   ChevronDown,
   Crown,
@@ -58,12 +57,6 @@ export function AdminNavBar() {
       icon: BarChart3, 
       label: 'Analytics',
       color: 'from-amber-500 to-orange-500'
-    },
-    { 
-      path: '/admin/system', 
-      icon: Database, 
-      label: 'System',
-      color: 'from-rose-500 to-pink-500'
     },
     { 
       path: '/admin/features', 
