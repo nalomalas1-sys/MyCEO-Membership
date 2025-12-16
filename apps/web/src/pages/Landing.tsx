@@ -226,7 +226,7 @@ export default function LandingPage() {
                   to="/login" 
                   className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 rounded-xl font-bold text-lg border-2 border-blue-300 hover:border-blue-500 transition-all hover:shadow-lg hover:bg-blue-50"
                 >
-                  Watch Demo
+                  Sign In
                 </Link>
               </div>
               <div className="mt-8 flex items-center space-x-8 text-sm text-gray-700 font-medium">
