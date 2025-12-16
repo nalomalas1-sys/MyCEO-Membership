@@ -10,7 +10,7 @@ import {
   X,
   Gamepad2,
   TrendingUp,
-  Bell
+  Bell,
 } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { NotificationInbox } from '@/components/child/NotificationInbox';

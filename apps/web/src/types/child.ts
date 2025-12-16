@@ -12,6 +12,7 @@ export interface Child {
   last_activity_at: string | null;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 }
 
 

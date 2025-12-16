@@ -162,6 +162,7 @@ export function useChildren() {
         .from('children')
         .select('*')
         .eq('parent_id', parent.id)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
@@ -175,5 +176,81 @@ export function useChildren() {
   };
 
   return { children, loading, error, refetch };
+}
+
+export function useDeletedChildren() {
+  const { parent } = useParent();
+  const [deletedChildren, setDeletedChildren] = useState<Child[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!parent) {
+      setLoading(false);
+      return;
+    }
+
+    async function fetchDeletedChildren() {
+      try {
+        if (!parent) return;
+        
+        const { data, error: fetchError } = await supabase
+          .from('children')
+          .select('*')
+          .eq('parent_id', parent.id)
+          .not('deleted_at', 'is', null)
+          .order('deleted_at', { ascending: false });
+
+        if (fetchError) throw fetchError;
+        setDeletedChildren(data || []);
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error.message || 'Failed to fetch deleted children');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDeletedChildren();
+  }, [parent]);
+
+  const refetch = async () => {
+    if (!parent) return;
+    setLoading(true);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('children')
+        .select('*')
+        .eq('parent_id', parent.id)
+        .not('deleted_at', 'is', null)
+        .order('deleted_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      setDeletedChildren(data || []);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error.message || 'Failed to fetch deleted children');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const restoreChild = async (childId: string) => {
+    try {
+      const { error: restoreError } = await supabase
+        .from('children')
+        .update({ deleted_at: null })
+        .eq('id', childId);
+
+      if (restoreError) throw restoreError;
+      await refetch();
+      return { success: true };
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      return { success: false, error: error.message || 'Failed to restore child' };
+    }
+  };
+
+  return { deletedChildren, loading, error, refetch, restoreChild };
 }
 

@@ -54,6 +54,29 @@ export function EditChildModal({ isOpen, onClose, onSuccess, child }: EditChildM
     setError(null);
 
     try {
+      // First verify the child exists and user has permission
+      const { data: childData, error: fetchError } = await supabase
+        .from('children')
+        .select('id, deleted_at')
+        .eq('id', child.id)
+        .single();
+
+      if (fetchError) {
+        if (fetchError.code === 'PGRST116') {
+          setError('Child not found. It may have been deleted.');
+        } else if (fetchError.code === '42501' || fetchError.message.includes('permission') || fetchError.message.includes('policy')) {
+          setError('You do not have permission to update this child. Please refresh the page and try again.');
+        } else {
+          setError(fetchError.message || 'Failed to verify child. Please try again.');
+        }
+        return;
+      }
+
+      if (childData?.deleted_at) {
+        setError('This child has been deleted and cannot be updated.');
+        return;
+      }
+
       const updateData: any = {
         name: data.name,
         age: data.age,
@@ -71,14 +94,18 @@ export function EditChildModal({ isOpen, onClose, onSuccess, child }: EditChildM
         .eq('id', child.id);
 
       if (updateError) {
-        setError(updateError.message);
+        if (updateError.code === '42501' || updateError.message.includes('permission') || updateError.message.includes('policy')) {
+          setError('Permission denied. Please refresh the page and try again.');
+        } else {
+          setError(updateError.message || 'Failed to update child. Please try again.');
+        }
         return;
       }
 
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError('An unexpected error occurred');
+      setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

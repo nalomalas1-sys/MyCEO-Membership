@@ -199,7 +199,16 @@ export default function EnhancedLoginPage() {
           password,
         });
 
-        if (signInError) throw signInError;
+        if (signInError) {
+          // Provide more specific error messages
+          if (signInError.message.includes('Email not confirmed') || signInError.message.includes('email_not_confirmed')) {
+            throw new Error('Please verify your email address before logging in. Check your inbox for the verification link.');
+          } else if (signInError.message.includes('Invalid login credentials') || signInError.message.includes('invalid_credentials')) {
+            throw new Error('Invalid email or password. Please check your credentials and try again.');
+          } else {
+            throw signInError;
+          }
+        }
 
         if (!authData.user || !authData.session) {
           throw new Error('Login failed: No user or session returned');

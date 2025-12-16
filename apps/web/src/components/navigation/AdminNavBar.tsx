@@ -10,14 +10,13 @@ import {
   Shield,
   Menu,
   X,
-  Activity,
   Bell,
   ChevronDown,
   Crown,
-  Globe,
-  ToggleLeft
+  ToggleLeft,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 
 export function AdminNavBar() {
   const { user, signOut } = useAuth();
@@ -25,6 +24,7 @@ export function AdminNavBar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { unreadCount: adminUnreadCount } = useAdminNotifications();
 
   const handleLogout = async () => {
     await signOut();
@@ -159,7 +159,11 @@ export function AdminNavBar() {
                 title="Notifications"
               >
                 <Bell className="h-5 w-5" />
-                <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+                {adminUnreadCount > 0 && (
+                  <div className="absolute -top-1 -right-1 px-1.5 min-w-[20px] h-5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg">
+                    {adminUnreadCount > 99 ? '99+' : adminUnreadCount}
+                  </div>
+                )}
               </button>
 
               {/* User Menu */}
@@ -216,29 +220,6 @@ export function AdminNavBar() {
                         <Settings className="h-4 w-4" />
                         <span>System Settings</span>
                       </button>
-                      
-                      <button
-                        onClick={() => {
-                          navigate('/admin/activity');
-                          setUserMenuOpen(false);
-                        }}
-                        className="flex items-center space-x-3 w-full px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-                      >
-                        <Activity className="h-4 w-4" />
-                        <span>Activity Logs</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => {
-                          navigate('/admin/support');
-                          setUserMenuOpen(false);
-                        }}
-                        className="flex items-center space-x-3 w-full px-4 py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-                      >
-                        <Globe className="h-4 w-4" />
-                        <span>Support Center</span>
-                      </button>
-                      
                       <div className="border-t border-gray-800 my-2"></div>
                       
                       <button

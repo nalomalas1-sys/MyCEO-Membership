@@ -3,6 +3,19 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
 import { TrendingUp, Users, BookOpen, Award, Activity, BarChart3, Download } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface AnalyticsData {
@@ -270,8 +283,23 @@ function AdminAnalyticsContent() {
     },
   ];
 
+  const engagementChartData = [
+    { name: 'Completions', value: analytics.moduleCompletions },
+    { name: 'Avg Progress', value: analytics.averageProgress },
+    { name: 'XP (k)', value: Math.round(analytics.totalXP / 1000) },
+    { name: 'Achievements', value: analytics.totalAchievements },
+  ];
+
+  const contentChartData = [
+    { name: 'Published', value: analytics.publishedModules },
+    { name: 'Draft', value: Math.max(analytics.totalModules - analytics.publishedModules, 0) },
+    { name: 'Lessons', value: analytics.totalLessons },
+  ];
+
+  const pieColors = ['#0ea5e9', '#22c55e', '#a855f7'];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors">
       <AdminNavBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex items-center justify-between">
@@ -320,59 +348,50 @@ function AdminAnalyticsContent() {
           })}
         </div>
 
-        {/* Additional Analytics Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
             <div className="flex items-center gap-2 mb-4">
               <BarChart3 className="h-5 w-5 text-gray-600" />
-              <h2 className="text-xl font-bold text-gray-900">Engagement Metrics</h2>
+              <h2 className="text-xl font-bold text-gray-900">Engagement Overview</h2>
             </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Module Completions</span>
-                <span className="font-semibold text-gray-900">{analytics.moduleCompletions}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Average Progress</span>
-                <span className="font-semibold text-gray-900">{analytics.averageProgress}%</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Total XP Earned</span>
-                <span className="font-semibold text-gray-900">
-                  {analytics.totalXP.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Achievements Unlocked</span>
-                <span className="font-semibold text-gray-900">{analytics.totalAchievements}</span>
-              </div>
+            <div className="h-72 min-h-[288px] w-full">
+              <ResponsiveContainer width="100%" height="100%" minHeight={288}>
+                <BarChart data={engagementChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen className="h-5 w-5 text-gray-600" />
-              <h2 className="text-xl font-bold text-gray-900">Content Metrics</h2>
+              <h2 className="text-xl font-bold text-gray-900">Content Mix</h2>
             </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Total Modules</span>
-                <span className="font-semibold text-gray-900">{analytics.totalModules}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Published Modules</span>
-                <span className="font-semibold text-gray-900">{analytics.publishedModules}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Draft Modules</span>
-                <span className="font-semibold text-gray-900">
-                  {analytics.totalModules - analytics.publishedModules}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Total Lessons</span>
-                <span className="font-semibold text-gray-900">{analytics.totalLessons}</span>
-              </div>
+            <div className="h-72 min-h-[288px] w-full">
+              <ResponsiveContainer width="100%" height="100%" minHeight={288}>
+                <PieChart>
+                  <Pie
+                    data={contentChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={50}
+                    outerRadius={90}
+                    paddingAngle={4}
+                  >
+                    {contentChartData.map((entry, index) => (
+                      <Cell key={entry.name} fill={pieColors[index % pieColors.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>

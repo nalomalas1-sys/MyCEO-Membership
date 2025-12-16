@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/hooks/useAuth';
-import { useParent, useChildren } from '@/hooks/useParent';
+import { useParent, useChildren, useDeletedChildren } from '@/hooks/useParent';
 import { AddChildModal } from '@/components/parent/AddChildModal';
 import { ChildCard } from '@/components/parent/ChildCard';
 import { EditChildModal } from '@/components/parent/EditChildModal';
@@ -11,7 +11,7 @@ import { RecentActivityFeed } from '@/components/parent/RecentActivityFeed';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
-import { CheckCircle2, X, Sparkles, Users, TrendingUp, Award, Zap } from 'lucide-react';
+import { CheckCircle2, X, Sparkles, Users, TrendingUp, Award, Zap, RotateCcw, Trash2 } from 'lucide-react';
 import { BackgroundEffects, FloatingCharacters, BusinessCharacter, FloatingBackgroundStyles } from '@/components/ui/FloatingBackground';
 
 function DashboardContent() {
@@ -20,6 +20,7 @@ function DashboardContent() {
   const [searchParams] = useSearchParams();
   const { parent, loading: parentLoading, refetch: refetchParent } = useParent();
   const { children, loading: childrenLoading, refetch } = useChildren();
+  const { deletedChildren, loading: deletedLoading, refetch: refetchDeleted, restoreChild } = useDeletedChildren();
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -77,10 +78,21 @@ function DashboardContent() {
 
       if (error) throw error;
       refetch();
+      refetchDeleted();
     } catch (err: any) {
       alert('Failed to delete child: ' + (err.message || 'Unknown error'));
     } finally {
       setDeletingChildId(null);
+    }
+  };
+
+  const handleRestoreChild = async (childId: string) => {
+    const result = await restoreChild(childId);
+    if (result.success) {
+      refetch();
+      refetchDeleted();
+    } else {
+      alert('Failed to restore child: ' + (result.error || 'Unknown error'));
     }
   };
 
@@ -398,6 +410,60 @@ function DashboardContent() {
             </div>
           )}
         </div>
+
+        {/* Deleted Children Section */}
+        {deletedChildren.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-3">
+                <Trash2 className="h-6 w-6 text-gray-500" />
+                Deleted Children ({deletedChildren.length})
+              </h2>
+              <p className="text-sm text-gray-500">
+                These children will be permanently deleted after 30 days
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {deletedChildren.map((child) => {
+                const deletedDate = child.deleted_at ? new Date(child.deleted_at) : null;
+                const daysUntilPermanent = deletedDate 
+                  ? Math.ceil((30 - (Date.now() - deletedDate.getTime()) / (1000 * 60 * 60 * 24)))
+                  : 0;
+                
+                return (
+                  <div key={child.id} className="relative bg-gray-100 rounded-2xl p-6 shadow-lg border-2 border-gray-300 opacity-75">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-700 mb-1">{child.name}</h3>
+                        <p className="text-sm text-gray-500">Access Code: {child.access_code}</p>
+                        {deletedDate && (
+                          <p className="text-xs text-gray-500 mt-2">
+                            Deleted: {deletedDate.toLocaleDateString()}
+                            {daysUntilPermanent > 0 && (
+                              <span className="ml-2 text-orange-600 font-semibold">
+                                ({daysUntilPermanent} days until permanent deletion)
+                              </span>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4">
+                      <button
+                        onClick={() => handleRestoreChild(child.id)}
+                        className="flex-1 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                        title="Restore child"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                        Restore
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Progress Overview & Recent Activity */}
         {children.length > 0 && parent && (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useParent, useChildren } from '@/hooks/useParent';
+import { useParent, useChildren, useDeletedChildren } from '@/hooks/useParent';
 import { AddChildModal } from '@/components/parent/AddChildModal';
 import { ChildCard } from '@/components/parent/ChildCard';
 import { EditChildModal } from '@/components/parent/EditChildModal';
@@ -9,12 +9,13 @@ import { ParentNavBar } from '@/components/navigation/ParentNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
-import { Users, Plus, Search, Filter } from 'lucide-react';
+import { Users, Plus, Search, Filter, RotateCcw, Trash2 } from 'lucide-react';
 
 function ManageChildrenContent() {
   const navigate = useNavigate();
   const { parent, loading: parentLoading } = useParent();
   const { children, loading: childrenLoading, refetch } = useChildren();
+  const { deletedChildren, loading: deletedLoading, refetch: refetchDeleted, restoreChild } = useDeletedChildren();
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -57,10 +58,21 @@ function ManageChildrenContent() {
 
       if (error) throw error;
       refetch();
+      refetchDeleted();
     } catch (err: any) {
       alert('Failed to delete child: ' + (err.message || 'Unknown error'));
     } finally {
       setDeletingChildId(null);
+    }
+  };
+
+  const handleRestoreChild = async (childId: string) => {
+    const result = await restoreChild(childId);
+    if (result.success) {
+      refetch();
+      refetchDeleted();
+    } else {
+      alert('Failed to restore child: ' + (result.error || 'Unknown error'));
     }
   };
 
@@ -244,6 +256,64 @@ function ManageChildrenContent() {
             </>
           )}
         </div>
+
+        {/* Deleted Children Section */}
+        {deletedChildren.length > 0 && (
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <Trash2 className="h-6 w-6 text-gray-500" />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Deleted Children</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    These children will be permanently deleted after 30 days
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {deletedChildren.map((child) => {
+                const deletedDate = child.deleted_at ? new Date(child.deleted_at) : null;
+                const daysUntilPermanent = deletedDate 
+                  ? Math.ceil((30 - (Date.now() - deletedDate.getTime()) / (1000 * 60 * 60 * 24)))
+                  : 0;
+                
+                return (
+                  <div key={child.id} className="card opacity-75 bg-gray-50 border-gray-300">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-700 mb-1">{child.name}</h3>
+                        <p className="text-sm text-gray-500 mb-2">Access Code: {child.access_code}</p>
+                        <div className="text-xs text-gray-500 space-y-1">
+                          <p>Level: {child.current_level}</p>
+                          <p>XP: {child.total_xp.toLocaleString()}</p>
+                          {deletedDate && (
+                            <>
+                              <p className="mt-2">Deleted: {deletedDate.toLocaleDateString()}</p>
+                              {daysUntilPermanent > 0 && (
+                                <p className="text-orange-600 font-semibold">
+                                  {daysUntilPermanent} days until permanent deletion
+                                </p>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleRestoreChild(child.id)}
+                      className="w-full btn btn-success flex items-center justify-center space-x-2"
+                      title="Restore child"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      <span>Restore</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Add Child Modal */}
         {parent && (
