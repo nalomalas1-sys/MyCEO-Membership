@@ -30,6 +30,15 @@ function DashboardContent() {
   const [childLoginLoading, setChildLoginLoading] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Track viewport size to trim heavy visuals on mobile and improve performance
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Handle checkout success
   useEffect(() => {
@@ -182,10 +191,14 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-b from-blue-100 via-yellow-50 to-amber-50 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
-      <BackgroundEffects />
-      <FloatingCharacters />
-      <BusinessCharacter />
-      <FloatingBackgroundStyles />
+      {!isMobile && (
+        <>
+          <BackgroundEffects />
+          <FloatingCharacters />
+          <BusinessCharacter />
+          <FloatingBackgroundStyles />
+        </>
+      )}
       
       <ParentNavBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
@@ -348,7 +361,7 @@ function DashboardContent() {
                 <button
                   type="submit"
                   disabled={childLoginLoading || childLoginCode.length < 7}
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap"
+                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap"
                 >
                   {childLoginLoading ? 'Entering...' : 'Enter Dashboard 🚀'}
                 </button>
