@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { AchievementNotification } from '@/components/child/AchievementNotification';
 import { supabase } from '@/lib/supabase';
-import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight, Edit2, Save, X, Package, Rocket, Tag, Target } from 'lucide-react';
+import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight, Edit2, Save, X, Package, Rocket, Tag } from 'lucide-react';
 import { formatCurrency } from '@/utils/currency';
 
 interface ChildSession {
@@ -442,39 +442,6 @@ export default function CompanyPage() {
             )}
           </div>
         )}
-
-        {/* Mini Sales Challenge */}
-        <div className="card mb-8 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Target className="h-6 w-6" />
-            Sales Challenge
-          </h2>
-          <div className="space-y-3">
-            <div className="p-4 bg-white rounded-lg border-2 border-green-200">
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-semibold text-gray-900">Sell 5 Items This Week</p>
-                <span className="text-sm text-gray-600">
-                  {marketplaceItems.filter(i => i.status === 'sold').length} / 5 sold
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                <div
-                  className="bg-green-500 h-3 rounded-full transition-all"
-                  style={{
-                    width: `${Math.min((marketplaceItems.filter(i => i.status === 'sold').length / 5) * 100, 100)}%`
-                  }}
-                />
-              </div>
-              {marketplaceItems.filter(i => i.status === 'sold').length >= 5 ? (
-                <p className="text-sm text-green-700 font-semibold">🎉 Challenge Complete! Great job!</p>
-              ) : (
-                <p className="text-sm text-gray-600">
-                  {5 - marketplaceItems.filter(i => i.status === 'sold').length} more sales needed
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
 
         {/* Transactions */}
         <div className="card">
