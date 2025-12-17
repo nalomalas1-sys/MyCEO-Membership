@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { ToastProvider } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // Public pages
 import LoginPage from '@/pages/Login';
@@ -214,6 +215,7 @@ function App() {
           } />
       </Routes>
       <Toaster />
+      <SpeedInsights />
     </div>
     </ToastProvider>
   );
