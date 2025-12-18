@@ -31,6 +31,10 @@ function DashboardContent() {
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [subscription, setSubscription] = useState<{
+    current_period_start: string | null;
+    current_period_end: string | null;
+  } | null>(null);
 
   // Track viewport size to trim heavy visuals on mobile and improve performance
   useEffect(() => {
@@ -52,6 +56,37 @@ function DashboardContent() {
       navigate('/dashboard', { replace: true });
     }
   }, [searchParams, navigate, refetchParent]);
+
+  // Fetch subscription billing period
+  useEffect(() => {
+    if (!parent) return;
+
+    async function fetchSubscription() {
+      try {
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .select('current_period_start, current_period_end')
+          .eq('parent_id', parent.id)
+          .in('status', ['active', 'trialing'])
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching subscription:', error);
+          return;
+        }
+
+        if (data) {
+          setSubscription(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch subscription:', err);
+      }
+    }
+
+    fetchSubscription();
+  }, [parent]);
 
   const handleAddChildSuccess = () => {
     refetch();
@@ -303,22 +338,61 @@ function DashboardContent() {
 
         {/* No Subscription - Show Upgrade Prompt */}
         {parent && (parent.subscription_status === 'unpaid' || !parent.subscription_tier) && (
-          <div className="bg-gradient-to-r from-blue-100 via-yellow-100 to-pink-100 rounded-2xl p-6 mb-8 border-2 border-blue-300 shadow-xl">
+          <div className="bg-white rounded-xl p-6 mb-8 border border-gray-200 shadow-sm">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <Zap className="h-6 w-6 text-yellow-500" />
-                  Upgrade to Unlock All Features 🚀
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  Upgrade Your Plan
                 </h2>
-                <p className="text-gray-700 text-lg">
-                  Subscribe to add multiple children, access all modules, and unlock the virtual company builder.
+                <p className="text-gray-600">
+                  Subscribe to unlock all features and add multiple children.
                 </p>
               </div>
               <button
                 onClick={() => navigate('/pricing')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 whitespace-nowrap"
+                className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
               >
                 View Plans
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Billing Period Info */}
+        {parent && (parent.subscription_status === 'active' || parent.subscription_status === 'trialing') && (
+          <div className="bg-white rounded-xl p-5 mb-8 border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Billing Period</h3>
+                {subscription?.current_period_start && subscription?.current_period_end ? (
+                  <p className="text-base text-gray-900">
+                    {new Date(subscription.current_period_start).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })} - {new Date(subscription.current_period_end).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </p>
+                ) : parent.trial_ends_at ? (
+                  <p className="text-base text-gray-900">
+                    Trial ends: {new Date(parent.trial_ends_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </p>
+                ) : (
+                  <p className="text-base text-gray-900">Active subscription</p>
+                )}
+              </div>
+              <button
+                onClick={() => navigate('/settings')}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Manage Billing
               </button>
             </div>
           </div>
