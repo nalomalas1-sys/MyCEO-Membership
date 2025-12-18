@@ -4,6 +4,7 @@ import { useParent } from '@/hooks/useParent';
 import { 
   Home, 
   Users, 
+  CreditCard, 
   LogOut, 
   Settings,
   Menu,
@@ -44,6 +45,7 @@ export function ParentNavBar() {
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Park HQ', color: 'from-blue-500 to-cyan-500' },
     { path: '/dashboard/children', icon: Users, label: 'Adventure Squad', color: 'from-blue-500 to-yellow-500' },
+    { path: '/pricing', icon: CreditCard, label: 'Upgrades', color: 'from-yellow-500 to-orange-500' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
