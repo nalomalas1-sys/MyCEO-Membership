@@ -20,7 +20,7 @@ function DashboardContent() {
   const [searchParams] = useSearchParams();
   const { parent, loading: parentLoading, refetch: refetchParent } = useParent();
   const { children, loading: childrenLoading, refetch } = useChildren();
-  const { deletedChildren, refetch: refetchDeleted, restoreChild } = useDeletedChildren();
+  const { deletedChildren, loading: deletedLoading, refetch: refetchDeleted, restoreChild } = useDeletedChildren();
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -66,7 +66,7 @@ function DashboardContent() {
         const { data, error } = await supabase
           .from('subscriptions')
           .select('current_period_start, current_period_end')
-          .eq('parent_id', parent!.id)
+          .eq('parent_id', parent.id)
           .in('status', ['active', 'trialing'])
           .order('created_at', { ascending: false })
           .limit(1)
