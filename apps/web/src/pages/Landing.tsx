@@ -17,7 +17,8 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Menu
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/utils/currency';
@@ -54,6 +55,7 @@ export default function LandingPage() {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 12;
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Poster carousel state
   const posters = [poster1, poster2, poster3, poster4];
@@ -181,6 +183,8 @@ export default function LandingPage() {
               />
               <span className="text-2xl font-bold text-blue-600"></span>
             </Link>
+            
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/#features" onClick={(e) => handleSectionClick(e, '#features')} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Features</Link>
               <Link to="/#how-it-works" onClick={(e) => handleSectionClick(e, '#how-it-works')} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">How It Works</Link>
@@ -194,7 +198,82 @@ export default function LandingPage() {
                 Get Started
               </Link>
             </div>
+
+            {/* Mobile Hamburger Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
           </div>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-blue-200 bg-white/95 backdrop-blur-lg">
+              <div className="px-4 pt-2 pb-4 space-y-1">
+                <Link
+                  to="/#features"
+                  onClick={(e) => {
+                    handleSectionClick(e, '#features');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors"
+                >
+                  Features
+                </Link>
+                <Link
+                  to="/#how-it-works"
+                  onClick={(e) => {
+                    handleSectionClick(e, '#how-it-works');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors"
+                >
+                  How It Works
+                </Link>
+                <Link
+                  to="/#marketplace"
+                  onClick={(e) => {
+                    handleSectionClick(e, '#marketplace');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors"
+                >
+                  Marketplace
+                </Link>
+                <Link
+                  to="/#pricing"
+                  onClick={(e) => {
+                    handleSectionClick(e, '#pricing');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors"
+                >
+                  Pricing
+                </Link>
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 font-bold text-center"
+                >
+                  Get Started
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
