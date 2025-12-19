@@ -225,7 +225,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-b from-blue-100 via-yellow-50 to-amber-50 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
+    <div className="min-h-screen relative bg-blue-50 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
       {!isMobile && (
         <>
           <BackgroundEffects />
@@ -240,7 +240,7 @@ function DashboardContent() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
             <Sparkles className="h-8 w-8 text-blue-600" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-blue-600">
               Welcome back, {user?.user_metadata?.full_name || 'Parent'}! 🎉
           </h1>
           </div>
@@ -249,7 +249,7 @@ function DashboardContent() {
 
         {/* Checkout Success Message */}
         {checkoutSuccess && (
-          <div className="mb-6 bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 rounded-xl p-5 flex items-center justify-between shadow-lg">
+          <div className="mb-6 bg-green-100 border-2 border-green-300 rounded-xl p-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-4">
               <div className="h-10 w-10 bg-green-500 rounded-full flex items-center justify-center">
                 <CheckCircle2 className="h-6 w-6 text-white" />
@@ -272,7 +272,7 @@ function DashboardContent() {
 
         {/* Checkout Error Message */}
         {checkoutError && (
-          <div className="mb-6 bg-gradient-to-r from-red-100 to-rose-100 border-2 border-red-300 rounded-xl p-5 flex items-center justify-between shadow-lg">
+          <div className="mb-6 bg-red-100 border-2 border-red-300 rounded-xl p-5 flex items-center justify-between shadow-lg">
             <div className="flex items-center gap-4">
               <div className="h-10 w-10 bg-red-500 rounded-full flex items-center justify-center">
                 <X className="h-6 w-6 text-white" />
@@ -326,7 +326,7 @@ function DashboardContent() {
                 ) : (
                   <button
                     onClick={() => navigate('/pricing')}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+                    className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     Subscribe Now
                   </button>
@@ -399,7 +399,7 @@ function DashboardContent() {
         )}
 
         {/* Child Login Section */}
-        <div className="bg-gradient-to-br from-yellow-100 via-pink-100 to-purple-100 rounded-2xl p-6 mb-8 border-2 border-yellow-300 shadow-xl">
+        <div className="bg-yellow-100 rounded-2xl p-6 mb-8 border-2 border-yellow-300 shadow-xl">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
@@ -435,7 +435,7 @@ function DashboardContent() {
                 <button
                   type="submit"
                   disabled={childLoginLoading || childLoginCode.length < 7}
-                  className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap"
+                  className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap"
                 >
                   {childLoginLoading ? 'Entering...' : 'Enter Dashboard 🚀'}
                 </button>
@@ -447,14 +447,14 @@ function DashboardContent() {
         {/* Children Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent flex items-center gap-3">
+            <h2 className="text-3xl font-bold text-blue-600 flex items-center gap-3">
               <Users className="h-8 w-8 text-blue-600" />
               Your Children ({children.length}) 👨‍👩‍👧‍👦
             </h2>
             {parent && (
               <button
                 onClick={() => setIsAddChildModalOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+                className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
               >
                 <Sparkles className="h-5 w-5" />
                 + Add Child
@@ -469,7 +469,7 @@ function DashboardContent() {
               {parent && (
                 <button
                   onClick={() => setIsAddChildModalOpen(true)}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-yellow-500 text-white font-bold rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   Add Your First Child 🎉
                 </button>
@@ -562,7 +562,7 @@ function DashboardContent() {
                   <TrendingUp className="h-6 w-6 text-blue-600" />
                   <h3 className="text-lg font-bold text-gray-900">Total XP</h3>
                 </div>
-                <p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-yellow-500 bg-clip-text text-transparent">
+                <p className="text-4xl font-bold text-blue-600">
                   {children.reduce((sum, child) => sum + child.total_xp, 0).toLocaleString()}
                 </p>
                 <p className="text-sm text-gray-600 mt-2 font-medium">
@@ -574,7 +574,7 @@ function DashboardContent() {
                   <Award className="h-6 w-6 text-yellow-600" />
                   <h3 className="text-lg font-bold text-gray-900">Average Level</h3>
                 </div>
-                <p className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-pink-500 bg-clip-text text-transparent">
+                <p className="text-4xl font-bold text-yellow-600">
                   {Math.round(
                     children.reduce((sum, child) => sum + child.current_level, 0) / children.length
                   )}
@@ -588,7 +588,7 @@ function DashboardContent() {
                   <Zap className="h-6 w-6 text-pink-600" />
                   <h3 className="text-lg font-bold text-gray-900">Active Streaks</h3>
                 </div>
-                <p className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+                <p className="text-4xl font-bold text-pink-600">
                   {children.filter((child) => child.current_streak > 0).length}
                 </p>
                 <p className="text-sm text-gray-600 mt-2 font-medium">
