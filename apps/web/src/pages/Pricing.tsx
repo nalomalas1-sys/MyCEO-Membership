@@ -363,4 +363,556 @@ function PricingContent() {
                     </div>
                  </div>
 
+                 {/* Game Stats */}
+                 <div className="grid grid-cols-3 gap-4 pt-4">
+                    <div className="p-4 bg-white/50 rounded-2xl border-2 border-blue-200 flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center">
+                         <CheckCircle2 className="w-5 h-5 text-white" />
+                       </div>
+                       <div>
+                         <div className="text-xs font-black text-blue-600 uppercase">Trusted By</div>
+                         <div className="font-black text-blue-800">Families</div>
+                       </div>
+                    </div>
+                    <div className="p-4 bg-white/50 rounded-2xl border-2 border-yellow-200 flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                         <ShieldCheck className="w-5 h-5 text-white" />
+                       </div>
+                       <div>
+                         <div className="text-xs font-black text-yellow-600 uppercase">100%</div>
+                         <div className="font-black text-yellow-800">Kid-Safe</div>
+                       </div>
+                    </div>
+                    <div className="p-4 bg-white/50 rounded-2xl border-2 border-cyan-200 flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+                         <Award className="w-5 h-5 text-white" />
+                       </div>
+                       <div>
+                         <div className="text-xs font-black text-cyan-600 uppercase">Amazing</div>
+                         <div className="font-black text-cyan-800">Deals</div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
 
+           {/* Game Settings Panel */}
+           <div className="lg:col-span-4 h-full">
+              <div className="h-full rounded-[3rem] bg-gradient-to-br from-blue-900/90 to-yellow-900/90 p-8 border-4 border-blue-700 shadow-2xl flex flex-col items-center justify-center gap-8 relative overflow-hidden group">
+                 {/* Game Grid Background */}
+                 <div className="absolute inset-0 opacity-10">
+                   <div className="absolute inset-0 bg-grid"></div>
+                 </div>
+                 
+                 <div className="relative z-10 text-center space-y-3">
+                    <div className="text-xs font-black text-blue-300 uppercase tracking-widest flex items-center justify-center gap-3">
+                       <Dice5 className="w-4 h-4" />
+                       Choose Adventure Mode
+                       <Dice5 className="w-4 h-4" />
+                    </div>
+                    <p className="text-sm text-blue-400 font-bold">Select your payment quest!</p>
+                 </div>
+                 
+                 {/* Game Toggle Switch */}
+                 <div className="relative p-2 bg-gradient-to-b from-blue-800 to-yellow-800 rounded-3xl flex items-center w-full max-w-xs shadow-inner border-2 border-blue-700">
+                    <div 
+                       className="absolute inset-1 rounded-2xl bg-gradient-to-r from-blue-500 to-yellow-500 shadow-lg transition-all duration-500 ease-out"
+                       style={{ 
+                          left: billingPeriod === 'monthly' ? '0.25rem' : '50%',
+                          width: 'calc(50% - 0.25rem)'
+                       }}
+                    />
+            <button
+              onClick={() => setBillingPeriod('monthly')}
+                       className={`relative z-10 flex-1 py-4 text-sm font-black transition-all duration-300 text-center ${
+                          billingPeriod === 'monthly' ? 'text-white' : 'text-blue-400'
+                       } group/toggle`}
+                    >
+                       <span className="relative inline-block">
+                          Monthly Quest
+                          {billingPeriod === 'monthly' && (
+                            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-blue-500 to-yellow-500 rounded-full"></span>
+                          )}
+                       </span>
+            </button>
+            <button
+              onClick={() => setBillingPeriod('annual')}
+                       className={`relative z-10 flex-1 py-4 text-sm font-black transition-all duration-300 text-center ${
+                          billingPeriod === 'annual' ? 'text-white' : 'text-yellow-400'
+                       } group/toggle`}
+                    >
+                       <span className="relative inline-block">
+                          Yearly Adventure
+                          {billingPeriod === 'annual' && (
+                            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></span>
+                          )}
+              </span>
+            </button>
+                 </div>
+
+                 {/* Game Achievement Banner */}
+                 <div className={`transition-all duration-700 transform ${billingPeriod === 'annual' ? 'opacity-100 translate-y-0 scale-100' : 'opacity-30 translate-y-4 scale-95'}`}>
+                    <div className="relative">
+                       <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl blur-md opacity-50"></div>
+                       <div className="relative bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-blue-900/20 flex items-center gap-4 group/hover border-2 border-blue-400">
+                          <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                             <Trophy className="w-5 h-5" />
+                          </div>
+                          <div className="text-left">
+                             <div className="text-xs font-black uppercase tracking-widest">✨ YEARLY ACHIEVEMENT ✨</div>
+                             <div className="text-sm font-black">Save 17% • 2 Months Free!</div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+                 {/* Game Currency */}
+                 <div className="flex items-center gap-3 pt-2">
+                    <div className="text-xs text-blue-300 font-bold">Game Payments:</div>
+                    <div className="flex items-center gap-2">
+                       <div className="w-8 h-5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-md flex items-center justify-center text-xs">💳</div>
+                       <div className="w-8 h-5 bg-gradient-to-r from-blue-500 to-yellow-500 rounded-md flex items-center justify-center text-xs">🎯</div>
+                       <div className="w-8 h-5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-md flex items-center justify-center text-xs">💰</div>
+                    </div>
+                 </div>
+              </div>
+          </div>
+        </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="max-w-3xl mx-auto animate-in slide-in-from-top-4 duration-500">
+             <div className="relative overflow-hidden rounded-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-yellow-500/5 blur-xl"></div>
+                <div className="relative bg-gradient-to-br from-white to-orange-50/50 border-4 border-orange-300 text-orange-800 px-8 py-6 rounded-3xl flex items-center gap-6 shadow-xl shadow-orange-200/30">
+                   <div className="p-4 bg-gradient-to-br from-orange-100 to-yellow-100 rounded-2xl shadow-lg border-2 border-orange-200">
+                      <Shield className="w-7 h-7 text-orange-500"/>
+                   </div>
+                   <div className="flex-1">
+                      <h4 className="font-black text-orange-900 text-lg mb-2">Game Error! 🎮</h4>
+                      <p className="text-orange-700 font-bold">{error}</p>
+                   </div>
+                   <button onClick={() => setError(null)} className="p-3 hover:bg-orange-100/50 rounded-2xl transition-colors">
+                      <X className="w-6 h-6 text-orange-400" />
+                   </button>
+                </div>
+             </div>
+          </div>
+        )}
+
+        {/* --- GAME-LEVEL PRICING CARDS --- */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          {plans.map((plan) => {
+            const price = getPrice(plan);
+            const isPopular = plan.popular;
+            const isHovered = hoveredPlan === plan.id;
+
+            return (
+              <div
+                key={plan.id}
+                className={`relative group transition-all duration-700 hover:scale-[1.02] ${
+                  isPopular ? 'md:-translate-y-6' : ''
+                }`}
+                onMouseEnter={() => setHoveredPlan(plan.id)}
+                onMouseLeave={() => setHoveredPlan(null)}
+              >
+                {/* Game Card Glow */}
+                <div className={`absolute -inset-4 rounded-[3.5rem] blur-xl transition-opacity duration-500 ${
+                  isPopular 
+                    ? 'bg-gradient-to-br from-blue-400/30 via-yellow-400/30 to-orange-400/30 opacity-70' 
+                    : 'bg-gradient-to-br from-blue-200/10 to-yellow-200/10 opacity-50'
+                } ${isHovered ? 'opacity-100' : 'opacity-0'}`}></div>
+                
+                {/* Game Card Border */}
+                <div className={`relative rounded-[3rem] p-[4px] transition-all duration-500 ${
+                  isPopular 
+                    ? 'bg-gradient-to-br from-blue-400 via-yellow-400 to-blue-400 shadow-2xl shadow-yellow-300/40' 
+                    : plan.colorTheme === 'gold'
+                      ? 'bg-gradient-to-br from-yellow-400 via-orange-400 to-yellow-400 shadow-xl shadow-yellow-200/20'
+                      : 'bg-gradient-to-br from-blue-300 via-yellow-300 to-blue-300 shadow-xl shadow-blue-200/20'
+                }`}>
+                  {/* Game Card Content */}
+                  <div className={`h-full rounded-[2.9rem] p-8 flex flex-col relative overflow-hidden backdrop-blur-sm
+                     ${isPopular ? 'bg-gradient-to-b from-white via-white to-yellow-50/50' : 
+                       plan.colorTheme === 'gold' ? 'bg-gradient-to-b from-white via-white to-yellow-50/30' :
+                       'bg-gradient-to-b from-white via-white to-blue-50/30'}
+                  `}>
+                     
+                     {/* Game Card Background Elements */}
+                     <div className="absolute inset-0 opacity-5">
+                        <div className="absolute top-0 right-0 w-48 h-48">
+                           <div className="text-6xl opacity-30">{plan.emoji}</div>
+                        </div>
+                        {/* Pixel Dots */}
+                        {Array.from({ length: 12 }).map((_, i) => (
+                          <div 
+                            key={i}
+                            className={`absolute w-2 h-2 rounded-full ${
+                              plan.colorTheme === 'blue' ? 'bg-blue-400' : 
+                              plan.colorTheme === 'yellow' ? 'bg-yellow-400' : 
+                              'bg-yellow-500'
+                            }`}
+                            style={{
+                              left: `${Math.random() * 100}%`,
+                              top: `${Math.random() * 100}%`,
+                            }}
+                          />
+                        ))}
+                     </div>
+
+                     {/* Game Level Badge - MOVED POSITION */}
+                     <div className="absolute top-6 right-6 z-20">
+                        <GameLevelBadge 
+                          level={plan.gameLevel} 
+                          label={plan.badge || ''}
+                          color={plan.colorTheme === 'blue' ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
+                                 plan.colorTheme === 'yellow' ? 'bg-gradient-to-r from-blue-500 to-yellow-500' :
+                                 'bg-gradient-to-r from-yellow-500 to-orange-500'}
+                        />
+                     </div>
+
+                     {/* Card Header */}
+                     <div className="mb-8 relative z-10">
+                        <div className="flex items-start justify-between mb-6">
+                           {/* Game Icon */}
+                           <div className={`w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 bg-gradient-to-br ${plan.accentColor} text-white relative`}>
+                              <div className="text-3xl">{plan.emoji}</div>
+                              <div className="absolute inset-2 rounded-2xl bg-white/20 blur-sm"></div>
+                  </div>
+                           
+                           {/* Game Progress - FIXED LAYOUT */}
+                           <div className="flex flex-col items-end space-y-2 w-32">
+                              <div className="text-xs font-black text-blue-500 uppercase tracking-widest whitespace-nowrap">
+                              </div>
+                              <GameProgressBar value={plan.progressValue || 0} color={plan.colorTheme} />
+                              <div className="text-xs text-blue-400 font-bold text-right leading-tight">
+                                 {plan.unlocks.join(' • ')}
+                              </div>
+                           </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className={`text-sm font-black uppercase tracking-widest bg-gradient-to-r ${plan.accentColor} text-transparent bg-clip-text whitespace-nowrap`}>
+                                🎮 {plan.rank}
+                            </span>
+                            <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-yellow-400 rounded-full animate-pulse"></div>
+                            <span className="text-sm font-black text-blue-600 whitespace-nowrap">
+                                {typeof plan.childLimit === 'number' ? `${plan.childLimit} Player${plan.childLimit > 1 ? 's' : ''}` : plan.childLimit}
+                            </span>
+                          </div>
+                          <h3 className="text-3xl font-black text-blue-900 tracking-tight">{plan.name}</h3>
+                          <p className="text-blue-700 text-sm font-bold leading-relaxed min-h-[60px]">{plan.description}</p>
+                        </div>
+                     </div>
+
+                     {/* Price Section - FIXED LAYOUT */}
+                     <div className="mb-8 p-5 bg-gradient-to-br from-white to-blue-50/50 rounded-3xl border-2 border-blue-200 shadow-lg group-hover:shadow-xl group-hover:border-yellow-300 transition-all duration-300 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        <div className="relative z-10">
+                           <div className="flex items-baseline justify-between mb-2">
+                              <div className="flex items-baseline gap-2">
+                                 <span className="text-4xl font-black text-blue-900 tracking-tighter">${price}</span>
+                                 <div className="flex flex-col">
+                                    <span className="text-blue-500 font-black text-xs uppercase tracking-wide">
+                        /{billingPeriod === 'monthly' ? 'month' : 'year'}
+                      </span>
+                    </div>
+                              </div>
+                              {billingPeriod === 'annual' && (
+                                 <div className="text-right">
+                                    <div className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                                       BEST DEAL
+                                    </div>
+                                 </div>
+                              )}
+                           </div>
+                           {billingPeriod === 'annual' && (
+                              <div className="text-sm font-black text-blue-600 flex items-center gap-2">
+                                 <span className="line-through text-blue-400">${(plan.monthlyPrice * 12).toFixed(2)}</span>
+                                 <span className="text-blue-600">Save ${(plan.monthlyPrice * 12 - plan.annualPrice).toFixed(2)}!</span>
+                              </div>
+                           )}
+                        </div>
+                  </div>
+
+                     {/* Game Features */}
+                     <div className="space-y-3 mb-8 flex-grow">
+                        <div className="text-xs font-black text-blue-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                           <Puzzle className="w-4 h-4" />
+                           Game Features
+                        </div>
+                    {plan.features.map((feature, index) => (
+                           <div key={index} className="flex items-start gap-3 group/feature">
+                              <div className={`mt-1 p-1.5 rounded-full flex-shrink-0 ${
+                                plan.colorTheme === 'blue' ? 'bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-600' :
+                                plan.colorTheme === 'yellow' ? 'bg-gradient-to-br from-yellow-100 to-orange-100 text-yellow-600' :
+                                'bg-gradient-to-br from-yellow-100 to-orange-100 text-yellow-600'
+                              }`}>
+                                 <CheckCircle2 className="w-3 h-3" />
+                              </div>
+                              <span className="text-sm text-blue-700 font-medium leading-tight">{feature}</span>
+                           </div>
+                        ))}
+                     </div>
+
+                     {/* Game CTA Button */}
+                  <button
+                    onClick={() => handleSelectPlan(plan.id)}
+                    disabled={loading !== null}
+                        className={`w-full py-4 rounded-2xl font-black transition-all duration-500 flex items-center justify-center gap-3 relative overflow-hidden group/btn
+                           ${isPopular
+                              ? 'bg-gradient-to-r from-blue-600 to-yellow-600 text-white shadow-2xl shadow-blue-500/40 hover:shadow-yellow-500/50 hover:-translate-y-1'
+                              : plan.colorTheme === 'gold'
+                                ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-2xl shadow-yellow-500/40 hover:shadow-orange-500/50 hover:-translate-y-1'
+                                : 'bg-gradient-to-r from-white to-blue-50 text-blue-700 border-4 border-blue-300 hover:border-yellow-400 hover:text-yellow-600 shadow-xl hover:-translate-y-1'
+                           } disabled:opacity-50 disabled:cursor-not-allowed
+                        `}
+                     >
+                        {isPopular && (
+                           <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/0 via-yellow-500/20 to-yellow-500/0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
+                        )}
+                        
+                        <div className="relative z-10 flex items-center gap-2">
+                    {loading === plan.id ? (
+                      <>
+                                 <Loader2 className="w-5 h-5 animate-spin" />
+                                 <span className="font-bold text-sm">Starting Adventure...</span>
+                      </>
+                    ) : (
+                              <>
+                                 <span className="font-bold text-sm">Start Level {plan.gameLevel}</span>
+                                 {plan.gameLevel === 1 ? (
+                                    <Rocket className="w-4 h-4" />
+                                 ) : plan.gameLevel === 2 ? (
+                                    <Gamepad2 className="w-4 h-4" />
+                                 ) : (
+                                    <Crown className="w-4 h-4" />
+                                 )}
+                              </>
+                           )}
+                        </div>
+                  </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* --- GAME FAQ SECTION --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+           {/* Game FAQ */}
+           <div className="rounded-[3rem] bg-gradient-to-br from-white to-blue-50/50 p-8 border-4 border-yellow-300 shadow-xl relative overflow-hidden group">
+               <div className="absolute top-0 right-0 w-64 h-64 opacity-5">
+                  <div className="text-8xl opacity-10">❓</div>
+               </div>
+               
+               <div className="relative z-10">
+                  <div className="flex items-center gap-5 mb-8">
+                     <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-yellow-500 rounded-3xl flex items-center justify-center text-white text-2xl shadow-xl">
+                        <HelpCircle className="w-8 h-8" />
+            </div>
+            <div>
+                        <h3 className="text-2xl font-black text-blue-800">Game Questions ❓</h3>
+                        <p className="text-blue-600 text-sm font-bold">Common questions from fellow adventurers</p>
+                     </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                     {[
+                       { 
+                         q: "Can I upgrade my game level?", 
+                         a: "Yes! Upgrades are instant. New game features unlock immediately!",
+                         emoji: "🚀"
+                       },
+                       { 
+                         q: "Is my game progress safe?", 
+                         a: "Absolutely! We use bank-level encryption. All data is securely saved in our game servers.",
+                         emoji: "🏰"
+                       },
+                       { 
+                         q: "What happens after trial ends?", 
+                         a: "You'll return to Level 1 features. All game progress is saved for 90 days!",
+                         emoji: "⏰"
+                       },
+                       { 
+                         q: "Can I change game modes?", 
+                         a: "Yes! Switch between monthly/yearly anytime. Changes apply to next adventure.",
+                         emoji: "✨"
+                       }
+                     ].map((item, idx) => (
+                       <div 
+                         key={idx} 
+                         className={`p-5 rounded-3xl border-2 transition-all duration-300 cursor-pointer group/faq bg-gradient-to-br from-white to-blue-50/50 hover:border-yellow-400 hover:shadow-lg ${
+                           faqOpen === idx ? 'border-yellow-400 shadow-lg' : 'border-blue-200'
+                         }`}
+                         onClick={() => setFaqOpen(faqOpen === idx ? null : idx)}
+                       >
+                         <div className="flex items-center justify-between gap-4">
+                           <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-100 to-yellow-100 text-blue-600 flex items-center justify-center text-lg">
+                                  {item.emoji}
+                              </div>
+                              <h4 className="font-black text-blue-800 text-sm group-hover/faq:text-yellow-700 transition-colors">{item.q}</h4>
+                           </div>
+                           <ChevronDown className={`w-5 h-5 text-blue-400 transition-transform duration-300 ${faqOpen === idx ? 'rotate-180 text-yellow-500' : ''}`} />
+                         </div>
+                         {faqOpen === idx && (
+                           <p className="text-blue-600 text-xs mt-4 pl-14 pr-4 animate-in fade-in slide-in-from-top-2 leading-relaxed font-medium bg-gradient-to-r from-blue-50 to-yellow-50 p-3 rounded-2xl">
+                             {item.a}
+                           </p>
+                         )}
+                       </div>
+                     ))}
+                  </div>
+               </div>
+           </div>
+
+           {/* Classroom Edition */}
+           <div className="relative overflow-hidden rounded-[3rem] shadow-2xl border-4 border-yellow-400">
+               <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-yellow-900 to-blue-900"></div>
+               
+               {/* Game Grid Overlay */}
+               <div className="absolute inset-0 opacity-10">
+                 <div className="absolute inset-0 bg-grid-white/10"></div>
+               </div>
+               
+               <div className="relative z-10 p-8 text-white h-full flex flex-col justify-between">
+                  <div className="space-y-8">
+                     <div className="flex items-center gap-6">
+                        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-2 border-white/10 flex items-center justify-center shadow-2xl shadow-blue-500/10">
+                           <div className="text-3xl">🏫</div>
+            </div>
+            <div>
+                           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/10 text-yellow-200 text-xs font-black uppercase tracking-widest mb-3">
+                              <Target className="w-3 h-3" />
+                              Classroom Edition
+                           </div>
+                           <h3 className="text-3xl font-black mb-3">Multiplayer Mode! 👨‍🏫</h3>
+                           <p className="text-blue-200/80 text-sm leading-relaxed max-w-md">
+                              Need game licenses for classrooms or schools? Contact our wizard team for custom adventures, group discounts, and teacher tools!
+                           </p>
+                        </div>
+                     </div>
+                     
+                     <div className="grid grid-cols-2 gap-3 pt-2">
+                        <div className="flex items-center gap-2">
+                           <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                              <Gamepad2 className="w-3 h-3" />
+                           </div>
+                           <span className="text-xs font-bold">Group Discounts</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                              <Users className="w-3 h-3" />
+                           </div>
+                           <span className="text-xs font-bold">Teacher Tools</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                              <BarChart3 className="w-3 h-3" />
+                           </div>
+                           <span className="text-xs font-bold">Progress Tracking</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                              <Flag className="w-3 h-3" />
+                           </div>
+                           <span className="text-xs font-bold">School Quests</span>
+                        </div>
+                     </div>
+                  </div>
+                  
+                  <button className="group/enterprise inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-yellow-300 to-orange-400 text-yellow-900 rounded-2xl font-black text-sm hover:bg-gradient-to-r hover:from-yellow-400 hover:to-orange-500 transition-all duration-300 shadow-2xl shadow-yellow-900/20 hover:shadow-yellow-900/30 mt-8 w-fit">
+                     <span>Contact Game Masters</span>
+                     <div className="relative w-5 h-5">
+                        <ArrowRight className="w-5 h-5 transition-transform group-hover/enterprise:translate-x-1" />
+                     </div>
+                  </button>
+               </div>
+           </div>
+        </div>
+
+        {/* Game Trust Badges */}
+        <div className="text-center pt-12">
+           <div className="inline-flex flex-col items-center gap-6">
+              <div className="text-sm font-black text-blue-500 uppercase tracking-widest">Trusted Everywhere</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                 <div className="p-5 bg-gradient-to-br from-blue-50 to-yellow-50 rounded-3xl border-2 border-blue-200 shadow-lg flex flex-col items-center gap-3">
+                    <div className="text-2xl">🎮</div>
+                    <div className="text-sm font-black text-blue-700">Fun Learning</div>
+                 </div>
+                 <div className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl border-2 border-blue-200 shadow-lg flex flex-col items-center gap-3">
+                    <div className="text-2xl">🏆</div>
+                    <div className="text-sm font-black text-blue-700">Amazing Deals</div>
+                 </div>
+                 <div className="p-5 bg-gradient-to-br from-blue-50 to-green-50 rounded-3xl border-2 border-blue-200 shadow-lg flex flex-col items-center gap-3">
+                    <div className="text-2xl">👨‍👩‍👧‍👦</div>
+                    <div className="text-sm font-black text-blue-700">Family Friendly</div>
+                 </div>
+                 <div className="p-5 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl border-2 border-yellow-200 shadow-lg flex flex-col items-center gap-3">
+                    <div className="text-2xl">✨</div>
+                    <div className="text-sm font-black text-yellow-700">Fun</div>
+                 </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Game Animation styles */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          25% { transform: translateY(-15px) rotate(90deg); }
+          50% { transform: translateY(-25px) rotate(180deg); }
+          75% { transform: translateY(-15px) rotate(270deg); }
+        }
+        @keyframes dash {
+          to { stroke-dashoffset: -1000; }
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        .animate-float-slow {
+          animation: float-slow 15s ease-in-out infinite;
+        }
+        .animate-dash {
+          animation: dash 30s linear infinite;
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .bg-grid {
+          background-image: linear-gradient(to right, currentColor 1px, transparent 1px),
+                            linear-gradient(to bottom, currentColor 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+        .bg-grid-white\\/10 {
+          background-image: linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <ProtectedRoute>
+      <PricingContent />
+    </ProtectedRoute>
+  );
+}

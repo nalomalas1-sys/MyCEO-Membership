@@ -865,7 +865,7 @@ export default function LandingPage() {
               Simple, Transparent Pricing
               </span>
             </h2>
-            <p className="text-xl text-gray-700 max-ww-2xl mx-auto font-medium">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto font-medium">
               Choose the plan that works best for your family
             </p>
           </div>
