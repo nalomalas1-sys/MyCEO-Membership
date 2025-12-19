@@ -15,7 +15,7 @@ function ManageChildrenContent() {
   const navigate = useNavigate();
   const { parent, loading: parentLoading } = useParent();
   const { children, loading: childrenLoading, refetch } = useChildren();
-  const { deletedChildren, loading: deletedLoading, refetch: refetchDeleted, restoreChild } = useDeletedChildren();
+  const { deletedChildren, refetch: refetchDeleted, restoreChild } = useDeletedChildren();
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

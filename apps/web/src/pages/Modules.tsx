@@ -80,23 +80,6 @@ export default function ModulesPage() {
     }
   };
 
-  const getTrackGradient = (track: string) => {
-    switch (track) {
-      case 'money_basics':
-        return 'from-blue-50 to-blue-100';
-      case 'entrepreneurship':
-        return 'from-purple-50 to-purple-100';
-      case 'advanced':
-        return 'from-orange-50 to-orange-100';
-      case 'project_based':
-        return 'from-green-50 to-green-100';
-      case 'online_class':
-        return 'from-cyan-50 to-cyan-100';
-      default:
-        return 'from-gray-50 to-gray-100';
-    }
-  };
-
   const getTrackIcon = (track: string) => {
     switch (track) {
       case 'money_basics':
