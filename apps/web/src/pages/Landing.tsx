@@ -168,7 +168,7 @@ export default function LandingPage() {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-yellow-50 to-pink-50">
+    <div className="min-h-screen bg-blue-50">
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-lg border-b-2 border-blue-200 z-50 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -179,7 +179,7 @@ export default function LandingPage() {
                 alt="MyCEO Logo" 
                 className="h-16 w-auto object-contain"
               />
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent"></span>
+              <span className="text-2xl font-bold text-blue-600"></span>
             </Link>
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/#features" onClick={(e) => handleSectionClick(e, '#features')} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Features</Link>
@@ -189,7 +189,7 @@ export default function LandingPage() {
               <Link to="/login" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Sign In</Link>
               <Link 
                 to="/signup" 
-                className="bg-gradient-to-r from-blue-600 to-yellow-500 text-white px-6 py-2 rounded-xl hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg shadow-blue-500/30 font-bold transform hover:scale-105"
+                className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 font-bold transform hover:scale-105"
               >
                 Get Started
               </Link>
@@ -203,10 +203,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center px-5 py-2 rounded-full bg-gradient-to-r from-blue-100 to-yellow-100 text-blue-700 text-sm font-bold mb-6 border-2 border-blue-300 shadow-md">
+              <div className="inline-flex items-center px-5 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-bold mb-6 border-2 border-blue-300 shadow-md">
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-                <span className="bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="text-blue-600">
                   Teach Kids Money & Entrepreneurship
                 </span>
               </h1>
@@ -217,7 +217,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
                   to="/signup" 
-                  className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-yellow-500 text-white rounded-xl font-bold text-lg hover:from-blue-700 hover:to-yellow-600 transition-all shadow-xl shadow-blue-500/40 hover:shadow-2xl hover:scale-105"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/40 hover:shadow-2xl hover:scale-105"
                 >
                   Start Free Trial
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -233,31 +233,31 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="relative">
-              <div className="relative bg-gradient-to-br from-blue-200 via-yellow-200 to-pink-200 rounded-3xl p-8 shadow-2xl border-4 border-blue-300">
+              <div className="relative bg-blue-200 rounded-3xl p-8 shadow-2xl border-4 border-blue-300">
                 <div className="bg-white rounded-2xl p-6 shadow-xl">
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-100 to-yellow-100 flex items-center justify-center border-2 border-blue-300">
+                      <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center border-2 border-blue-300">
                         <GraduationCap className="h-6 w-6 text-blue-600" />
                       </div>
                       <div>
-                        <div className="h-4 bg-gradient-to-r from-blue-200 to-yellow-200 rounded w-32 mb-2"></div>
-                        <div className="h-3 bg-gradient-to-r from-pink-100 to-purple-100 rounded w-24"></div>
+                        <div className="h-4 bg-blue-200 rounded w-32 mb-2"></div>
+                        <div className="h-3 bg-pink-100 rounded w-24"></div>
                       </div>
                     </div>
-                    <div className="h-32 bg-gradient-to-br from-blue-50 via-yellow-50 to-pink-50 rounded-xl border-2 border-blue-200"></div>
+                    <div className="h-32 bg-blue-50 rounded-xl border-2 border-blue-200"></div>
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="h-16 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg border-2 border-blue-200"></div>
-                      <div className="h-16 bg-gradient-to-br from-yellow-100 to-yellow-50 rounded-lg border-2 border-yellow-200"></div>
-                      <div className="h-16 bg-gradient-to-br from-pink-100 to-pink-50 rounded-lg border-2 border-pink-200"></div>
+                      <div className="h-16 bg-blue-100 rounded-lg border-2 border-blue-200"></div>
+                      <div className="h-16 bg-yellow-100 rounded-lg border-2 border-yellow-200"></div>
+                      <div className="h-16 bg-pink-100 rounded-lg border-2 border-pink-200"></div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="absolute -top-4 -right-4 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl p-4 shadow-xl border-2 border-yellow-600 transform rotate-12 hover:rotate-6 transition-transform">
+              <div className="absolute -top-4 -right-4 bg-yellow-500 rounded-2xl p-4 shadow-xl border-2 border-yellow-600 transform rotate-12 hover:rotate-6 transition-transform">
                 <TrendingUp className="h-8 w-8 text-yellow-900" />
               </div>
-              <div className="absolute -bottom-4 -left-4 bg-gradient-to-br from-green-400 to-green-500 rounded-2xl p-4 shadow-xl border-2 border-green-600 transform -rotate-12 hover:-rotate-6 transition-transform">
+              <div className="absolute -bottom-4 -left-4 bg-green-500 rounded-2xl p-4 shadow-xl border-2 border-green-600 transform -rotate-12 hover:-rotate-6 transition-transform">
                 <Award className="h-8 w-8 text-green-900" />
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function LandingPage() {
       </section>
 
       {/* Posters Gallery Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-purple-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -341,7 +341,7 @@ export default function LandingPage() {
                 onClick={() => setCurrentPosterIndex(index)}
                 className={`h-3 rounded-full transition-all ${
                   index === currentPosterIndex
-                    ? 'w-8 bg-gradient-to-r from-purple-600 to-pink-500'
+                    ? 'w-8 bg-purple-600'
                     : 'w-3 bg-purple-300 hover:bg-purple-400'
                 }`}
                 aria-label={`Go to poster ${index + 1}`}
@@ -422,7 +422,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
+              <span className="text-blue-600">
               Everything Your Child Needs to Succeed
               </span>
             </h2>
@@ -431,8 +431,8 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-blue-200">
-              <div className="h-14 w-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
+            <div className="bg-blue-50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-blue-200">
+              <div className="h-14 w-14 bg-blue-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                 <GraduationCap className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Interactive Lessons</h3>
@@ -440,8 +440,8 @@ export default function LandingPage() {
                 Engaging video and text-based lessons that make learning about money management enjoyable and memorable.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-green-200">
-              <div className="h-14 w-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
+            <div className="bg-green-50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-green-200">
+              <div className="h-14 w-14 bg-green-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                 <TrendingUp className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Virtual Companies</h3>
@@ -449,8 +449,8 @@ export default function LandingPage() {
                 Kids create and manage their own virtual businesses, learning real-world entrepreneurship skills.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-yellow-200">
-              <div className="h-14 w-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
+            <div className="bg-yellow-50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-yellow-200">
+              <div className="h-14 w-14 bg-yellow-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                 <Award className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Gamification</h3>
@@ -458,8 +458,8 @@ export default function LandingPage() {
                 Earn XP, unlock achievements, and level up as your child progresses through their financial journey.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-purple-200">
-              <div className="h-14 w-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
+            <div className="bg-purple-50 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-purple-200">
+              <div className="h-14 w-14 bg-purple-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                 <Sparkles className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Progress Tracking</h3>
@@ -472,11 +472,11 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-yellow-50 to-pink-50">
+      <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-blue-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
+              <span className="text-blue-600">
               How It Works
               </span>
             </h2>
@@ -487,10 +487,10 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center bg-white rounded-2xl p-8 shadow-xl border-2 border-blue-200 hover:shadow-2xl transition-all">
               <div className="relative inline-block mb-6">
-                <div className="h-20 w-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                <div className="h-20 w-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                   <span className="text-3xl font-bold text-white">1</span>
                 </div>
-                <div className="hidden md:block absolute top-1/2 left-full w-full h-1 bg-gradient-to-r from-blue-300 to-transparent transform -translate-y-1/2"></div>
+                <div className="hidden md:block absolute top-1/2 left-full w-full h-1 bg-blue-300 transform -translate-y-1/2"></div>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Sign Up</h3>
               <p className="text-gray-700 leading-relaxed font-medium">
@@ -499,10 +499,10 @@ export default function LandingPage() {
             </div>
             <div className="text-center bg-white rounded-2xl p-8 shadow-xl border-2 border-green-200 hover:shadow-2xl transition-all">
               <div className="relative inline-block mb-6">
-                <div className="h-20 w-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                <div className="h-20 w-20 bg-green-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                   <span className="text-3xl font-bold text-white">2</span>
                 </div>
-                <div className="hidden md:block absolute top-1/2 left-full w-full h-1 bg-gradient-to-r from-green-300 to-transparent transform -translate-y-1/2"></div>
+                <div className="hidden md:block absolute top-1/2 left-full w-full h-1 bg-green-300 transform -translate-y-1/2"></div>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Start Learning</h3>
               <p className="text-gray-700 leading-relaxed font-medium">
@@ -511,7 +511,7 @@ export default function LandingPage() {
             </div>
             <div className="text-center bg-white rounded-2xl p-8 shadow-xl border-2 border-yellow-200 hover:shadow-2xl transition-all">
               <div className="relative inline-block mb-6">
-                <div className="h-20 w-20 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                <div className="h-20 w-20 bg-yellow-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                   <span className="text-3xl font-bold text-white">3</span>
                 </div>
               </div>
@@ -525,10 +525,10 @@ export default function LandingPage() {
       </section>
 
       {/* Marketplace Section */}
-      <section id="marketplace" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
+      <section id="marketplace" className="py-20 px-4 sm:px-6 lg:px-8 bg-purple-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-6 shadow-lg">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-2xl mb-6 shadow-lg">
               <ShoppingBag className="h-8 w-8 text-white" />
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -641,7 +641,7 @@ export default function LandingPage() {
               {!searchQuery && priceFilter === 'all' && (
                 <Link 
                   to="/signup"
-                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-bold hover:from-purple-700 hover:to-pink-600 transition-all shadow-lg"
+                  className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all shadow-lg"
                 >
                   Get Started
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -658,7 +658,7 @@ export default function LandingPage() {
                     className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-purple-200 group cursor-pointer block"
                   >
                     {/* Product Image */}
-                    <div className="relative h-48 bg-gradient-to-br from-purple-100 to-pink-100 overflow-hidden">
+                    <div className="relative h-48 bg-purple-100 overflow-hidden">
                       {item.image_url ? (
                         <img
                           src={item.image_url}
@@ -739,7 +739,7 @@ export default function LandingPage() {
                           onClick={() => setCurrentPage(pageNum)}
                           className={`px-4 py-2 rounded-xl border-2 font-bold transition-all ${
                             currentPage === pageNum
-                              ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white border-purple-500 shadow-lg'
+                              ? 'bg-purple-600 text-white border-purple-500 shadow-lg'
                               : 'bg-white text-gray-700 border-purple-200 hover:bg-purple-50 hover:border-purple-500'
                           }`}
                         >
@@ -762,7 +762,7 @@ export default function LandingPage() {
               <div className="text-center">
                 <Link
                   to="/signup"
-                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-bold text-lg hover:from-purple-700 hover:to-pink-600 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105"
+                  className="inline-flex items-center px-8 py-4 bg-purple-600 text-white rounded-xl font-bold text-lg hover:bg-purple-700 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105"
                 >
                   Join to Create Your Own Products
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -780,11 +780,11 @@ export default function LandingPage() {
       />
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-yellow-50 to-pink-50">
+      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-blue-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-blue-600 via-yellow-500 to-pink-500 bg-clip-text text-transparent">
+              <span className="text-blue-600">
               Simple, Transparent Pricing
               </span>
             </h2>
@@ -825,7 +825,7 @@ export default function LandingPage() {
             </div>
 
             {/* Standard Plan - Recommended */}
-            <div className="bg-gradient-to-br from-blue-600 to-yellow-500 rounded-2xl p-8 shadow-2xl transform scale-105 relative border-4 border-yellow-300">
+            <div className="bg-blue-600 rounded-2xl p-8 shadow-2xl transform scale-105 relative border-4 border-yellow-300">
               <div className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 px-4 py-1 rounded-bl-2xl rounded-tr-2xl text-sm font-bold shadow-lg">
                 Most Popular ⭐
               </div>
@@ -899,7 +899,7 @@ export default function LandingPage() {
               </ul>
               <Link 
                 to="/signup"
-                className="block w-full text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-yellow-500 text-white rounded-xl font-bold hover:from-blue-700 hover:to-yellow-600 transition-all shadow-lg"
+                className="block w-full text-center px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg"
               >
                 Start Free Trial
               </Link>
@@ -909,13 +909,13 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-gray-300 py-12 px-4 sm:px-6 lg:px-8 border-t-2 border-blue-500">
+      <footer className="bg-gray-900 text-gray-300 py-12 px-4 sm:px-6 lg:px-8 border-t-2 border-blue-500">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <Link to="/" className="flex items-center space-x-2 mb-4">
                 <Sparkles className="h-6 w-6 text-blue-400" />
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-yellow-400 bg-clip-text text-transparent">MyCEO</span>
+                <span className="text-xl font-bold text-blue-400">MyCEO</span>
               </Link>
               <p className="text-gray-400 text-sm font-medium">
                 Empowering the next generation of entrepreneurs through interactive financial education.
@@ -973,6 +973,5 @@ export default function LandingPage() {
     </div>
   );
 }
-
 
 

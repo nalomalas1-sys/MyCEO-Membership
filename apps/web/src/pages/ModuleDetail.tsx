@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
+import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { useModule, useChildModuleProgress, Lesson } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 import { TrackSubmissionUpload } from '@/components/child/TrackSubmissionUpload';
@@ -131,7 +132,7 @@ export default function ModuleDetailPage() {
   const isCompleted = progress?.status === 'completed';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       <ChildNavBar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
@@ -154,7 +155,13 @@ export default function ModuleDetailPage() {
               </span>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{module.title}</h1>
-            <p className="text-gray-600 mb-6">{module.description || 'No description available.'}</p>
+            <p className="text-gray-600 mb-6">
+              {module.description ? (
+                <LinkifiedText text={module.description} />
+              ) : (
+                'No description available.'
+              )}
+            </p>
 
             <div className="flex items-center gap-6 text-sm text-gray-600 mb-6">
             <span>⭐ Difficulty: {module.difficulty_level}/5</span>

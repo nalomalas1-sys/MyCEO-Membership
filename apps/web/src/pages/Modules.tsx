@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
+import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { useModules, Module } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 
@@ -72,6 +73,8 @@ export default function ModulesPage() {
         return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'project_based':
         return 'bg-green-100 text-green-800 border-green-200';
+      case 'online_class':
+        return 'bg-cyan-100 text-cyan-800 border-cyan-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -87,6 +90,8 @@ export default function ModulesPage() {
         return 'from-orange-50 to-orange-100';
       case 'project_based':
         return 'from-green-50 to-green-100';
+      case 'online_class':
+        return 'from-cyan-50 to-cyan-100';
       default:
         return 'from-gray-50 to-gray-100';
     }
@@ -102,6 +107,8 @@ export default function ModulesPage() {
         return '⭐';
       case 'project_based':
         return '🔨';
+      case 'online_class':
+        return '💻';
       default:
         return '📚';
     }
@@ -117,6 +124,8 @@ export default function ModulesPage() {
         return 'Advanced';
       case 'project_based':
         return 'Project Based';
+      case 'online_class':
+        return 'Online Class';
       default:
         return track;
     }
@@ -135,13 +144,13 @@ export default function ModulesPage() {
     switch (progress.status) {
       case 'completed':
         return (
-          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-md transform transition-transform hover:scale-105">
+          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white shadow-md transform transition-transform hover:scale-105">
             ✓ Completed
           </span>
         );
       case 'in_progress':
         return (
-          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-blue-400 to-cyan-500 text-white shadow-md">
+          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-500 text-white shadow-md">
             🔄 {progress.progress_percentage}%
           </span>
         );
@@ -163,7 +172,7 @@ export default function ModulesPage() {
     return (
       <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mt-3">
         <div
-          className="h-full bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full transition-all duration-500 ease-out shadow-sm"
+          className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out shadow-sm"
           style={{ width: `${progress.progress_percentage}%` }}
         />
       </div>
@@ -198,11 +207,12 @@ export default function ModulesPage() {
   }, {} as Record<string, Module[]>);
 
   // Define the order of categories
-  const categoryOrder: Array<'money_basics' | 'entrepreneurship' | 'advanced' | 'project_based'> = [
+  const categoryOrder: Array<'money_basics' | 'entrepreneurship' | 'advanced' | 'project_based' | 'online_class'> = [
     'money_basics',
     'entrepreneurship',
     'advanced',
     'project_based',
+    'online_class',
   ];
 
   const totalModules = modules.length;
@@ -211,14 +221,14 @@ export default function ModulesPage() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-pink-50 to-purple-50">
+    <div className="min-h-screen bg-gray-50">
       <ChildNavBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8 animate-fade-in">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-5xl font-bold text-purple-600 mb-2">
                 Learning Modules 📚
               </h1>
               <p className="text-lg text-gray-600">Choose a module to start your learning journey!</p>
@@ -314,7 +324,7 @@ export default function ModulesPage() {
                 >
                   {/* Category Header */}
                   <div className="flex items-center gap-4 mb-6">
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${getTrackGradient(track)} shadow-md`}>
+                    <div className={`p-3 rounded-xl ${getTrackColor(track).split(' ')[0]} shadow-md`}>
                       <span className="text-3xl">{getTrackIcon(track)}</span>
                     </div>
                     <div className="flex-1">
@@ -355,7 +365,7 @@ export default function ModulesPage() {
                               />
                             </div>
                           ) : (
-                            <div className={`w-full h-48 bg-gradient-to-br ${getTrackGradient(module.track)} flex items-center justify-center`}>
+                            <div className={`w-full h-48 ${getTrackColor(module.track).split(' ')[0]} flex items-center justify-center`}>
                               <span className="text-6xl">{getTrackIcon(module.track)}</span>
                             </div>
                           )}
@@ -383,7 +393,11 @@ export default function ModulesPage() {
 
                             {/* Description */}
                             <p className="text-gray-600 mb-4 line-clamp-2 min-h-[3rem]">
-                              {module.description || 'No description available'}
+                              {module.description ? (
+                                <LinkifiedText text={module.description} />
+                              ) : (
+                                'No description available'
+                              )}
                             </p>
 
                             {/* Progress Bar */}
