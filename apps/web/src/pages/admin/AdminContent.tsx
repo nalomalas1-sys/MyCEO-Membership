@@ -135,6 +135,7 @@ function AdminContentContent() {
       entrepreneurship: 'Entrepreneurship',
       advanced: 'Advanced',
       project_based: 'Project Based',
+      online_class: 'Online Class',
     };
     return names[track] || track;
   };
@@ -199,6 +200,7 @@ function AdminContentContent() {
               <option value="entrepreneurship">Entrepreneurship</option>
               <option value="advanced">Advanced</option>
               <option value="project_based">Project Based</option>
+              <option value="online_class">Online Class</option>
             </select>
             <select
               value={publishedFilter}
