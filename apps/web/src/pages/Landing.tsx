@@ -866,7 +866,13 @@ export default function LandingPage() {
               </span>
             </h2>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto font-medium">
-              Choose the plan that works best for your family
+              Choose the plan that works best for your family.{' '}
+              <Link
+                to="/pricing"
+                className="text-blue-600 font-semibold underline hover:text-blue-700"
+              >
+                See full pricing & upgrade options
+              </Link>
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
