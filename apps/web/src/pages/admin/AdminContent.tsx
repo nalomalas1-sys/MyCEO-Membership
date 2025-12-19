@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
+import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Plus, Edit, Eye, EyeOff, Search, Trash2, ExternalLink } from 'lucide-react';
@@ -273,7 +274,9 @@ function AdminContentContent() {
                   </div>
 
                   {module.description && (
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{module.description}</p>
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      <LinkifiedText text={module.description} />
+                    </p>
                   )}
 
                   <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
