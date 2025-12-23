@@ -7,7 +7,6 @@ import {
   CheckCircle2, 
   Loader2, 
   Shield, 
-  HelpCircle, 
   ChevronDown, 
   X,
   Users,
