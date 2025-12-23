@@ -11,7 +11,7 @@ import { RecentActivityFeed } from '@/components/parent/RecentActivityFeed';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
-import { CheckCircle2, X, Sparkles, Users, TrendingUp, Award, Zap, RotateCcw, Trash2 } from 'lucide-react';
+import { CheckCircle2, X, Sparkles, Users, TrendingUp, Award, Zap, RotateCcw, Trash2, ExternalLink } from 'lucide-react';
 import { BackgroundEffects, FloatingCharacters, BusinessCharacter, FloatingBackgroundStyles } from '@/components/ui/FloatingBackground';
 
 function DashboardContent() {
@@ -31,6 +31,7 @@ function DashboardContent() {
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [subscription, setSubscription] = useState<{
     current_period_start: string | null;
     current_period_end: string | null;
@@ -197,6 +198,27 @@ function DashboardContent() {
       setChildLoginError('An unexpected error occurred');
     } finally {
       setChildLoginLoading(false);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    setPortalLoading(true);
+    setCheckoutError(null);
+    try {
+      const { data, error: portalError } = await supabase.functions.invoke('create-portal-session', {
+        body: {
+          returnUrl: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (portalError) throw portalError;
+      if (!data?.url) throw new Error('No portal URL returned');
+
+      // Redirect to Stripe Customer Portal
+      window.location.href = data.url;
+    } catch (err: any) {
+      setCheckoutError(err.message || 'Failed to open billing portal. Please try again.');
+      setPortalLoading(false);
     }
   };
 
@@ -390,10 +412,21 @@ function DashboardContent() {
                 )}
               </div>
               <button
-                onClick={() => navigate('/settings')}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                onClick={handleManageBilling}
+                disabled={portalLoading}
+                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Manage Billing
+                {portalLoading ? (
+                  <>
+                    <span className="animate-spin">⏳</span>
+                    Opening...
+                  </>
+                ) : (
+                  <>
+                    Manage Billing
+                    <ExternalLink className="h-4 w-4" />
+                  </>
+                )}
               </button>
             </div>
           </div>
