@@ -83,7 +83,7 @@ serve(async (req) => {
     // Get return URL from request or use default
     const { returnUrl } = await req.json().catch(() => ({}));
     const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:5173';
-    const defaultReturnUrl = `${siteUrl}/settings`;
+    const defaultReturnUrl = `${siteUrl}/dashboard/settings`;
 
     // Create Customer Portal session
     const portalSession = await stripe.billingPortal.sessions.create({

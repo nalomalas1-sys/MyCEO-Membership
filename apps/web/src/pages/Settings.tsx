@@ -85,7 +85,7 @@ function SettingsContent() {
     try {
       const { data, error: portalError } = await supabase.functions.invoke('create-portal-session', {
         body: {
-          returnUrl: `${window.location.origin}/settings`,
+          returnUrl: `${window.location.origin}/dashboard/settings`,
         },
       });
 
