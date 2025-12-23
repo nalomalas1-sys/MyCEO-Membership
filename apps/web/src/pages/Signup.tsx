@@ -13,6 +13,7 @@ import {
   Check,
   Loader2
 } from 'lucide-react';
+import logoImage from '../Logo-MyCeo-300x200.png';
 
 // --- Playful Background Effects ---
 const BackgroundEffects = () => (
@@ -108,9 +109,9 @@ export default function SignupPage() {
 
           <Link to="/" className="flex items-center space-x-2 md:hidden group">
             <img 
-              src="https://scontent.fkul8-3.fna.fbcdn.net/v/t39.30808-6/347852338_1298442111077474_8795534666084721020_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=QfpWZPJif_AQ7kNvwGKNb55&_nc_oc=Adm_CnAHBkE12PRbo4qtp9tP53duvVkizda7HHizTMgpaNmdltCZk21SZibUI2cwl5o&_nc_zt=23&_nc_ht=scontent.fkul8-3.fna&_nc_gid=lRznnaEwmgK-bGCapfEKKA&oh=00_Aflfx4QlygdIVEU46_xQSk5DfFW_-7xH8Qtz6j-q78o8wg&oe=6935F299"
+              src={logoImage}
               alt="MyCEO Logo"
-              className="w-10 h-10 rounded-xl object-cover shadow-lg group-hover:rotate-12 transition-transform"
+              className="h-10 w-auto object-contain shadow-lg group-hover:rotate-12 transition-transform"
             />
             <span className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">MyCEO</span>
           </Link>
@@ -126,9 +127,9 @@ export default function SignupPage() {
             <div className="mb-10">
               <Link to="/" className="inline-flex items-center space-x-4 group">
                 <img 
-                  src="https://scontent.fkul8-3.fna.fbcdn.net/v/t39.30808-6/347852338_1298442111077474_8795534666084721020_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=QfpWZPJif_AQ7kNvwGKNb55&_nc_oc=Adm_CnAHBkE12PRbo4qtp9tP53duvVkizda7HHizTMgpaNmdltCZk21SZibUI2cwl5o&_nc_zt=23&_nc_ht=scontent.fkul8-3.fna&_nc_gid=lRznnaEwmgK-bGCapfEKKA&oh=00_Aflfx4QlygdIVEU46_xQSk5DfFW_-7xH8Qtz6j-q78o8wg&oe=6935F299"
+                  src={logoImage}
                   alt="MyCEO Logo"
-                  className="w-16 h-16 rounded-2xl object-cover shadow-xl group-hover:rotate-12 transition-transform duration-500"
+                  className="h-16 w-auto object-contain shadow-xl group-hover:rotate-12 transition-transform duration-500"
                 />
                 <div>
                   <div className="text-4xl font-black tracking-tight">
