@@ -171,7 +171,7 @@ export default function SignupPage() {
                   <Check className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-bold text-blue-800">1-day FREE trial</p>
+                  <p className="font-bold text-blue-800">30-day FREE trial</p>
                   <p className="text-sm text-blue-600">No credit card required to start!</p>
                 </div>
               </div>
@@ -260,7 +260,7 @@ export default function SignupPage() {
                 <div className="mt-10 p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-3xl border-2 border-blue-200 text-center relative z-10 shadow-sm">
                   <div className="flex items-center justify-center gap-3 mb-3">
                     <div className="text-2xl">🎉</div>
-                    <p className="text-lg font-black text-blue-800">Start with 1-day FREE trial!</p>
+                    <p className="text-lg font-black text-blue-800">Start with 30-day FREE trial!</p>
                     <div className="text-2xl">🎮</div>
                   </div>
                   <p className="text-blue-600 font-bold">

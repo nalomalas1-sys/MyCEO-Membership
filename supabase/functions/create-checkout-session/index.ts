@@ -214,7 +214,7 @@ serve(async (req) => {
         },
       ],
       subscription_data: {
-        trial_period_days: 1, // 1-day free trial
+        trial_period_days: 30, // 30-day free trial
         metadata: {
           plan,
           billing_period: billingPeriod,

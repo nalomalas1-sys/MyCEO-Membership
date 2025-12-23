@@ -82,6 +82,22 @@ export function SignupForm() {
             '2. Environment variables are set in .env file\n' +
             '3. Check the browser console for more details'
           );
+        } else if (
+          authError.message.includes('confirmation email') ||
+          (authError.message.includes('email') && authError.message.includes('error')) ||
+          authError.message.includes('500') ||
+          authError.status === 500
+        ) {
+          // SMTP not configured error
+          setError(
+            'Unable to send confirmation email. This usually means SMTP is not configured.\n\n' +
+            'To fix this:\n' +
+            '1. Go to Supabase Dashboard → Settings → Auth\n' +
+            '2. Scroll to "SMTP Settings"\n' +
+            '3. Configure SMTP (Gmail, SendGrid, or Resend)\n' +
+            '4. Or disable email confirmations in Auth Settings\n\n' +
+            'Error details: ' + authError.message
+          );
         } else {
           setError(authError.message);
         }
@@ -117,6 +133,21 @@ export function SignupForm() {
             '1. Supabase is running locally (run: pnpm supabase:start)\n' +
             '2. Environment variables are set in .env file\n' +
             '3. Check the browser console for more details'
+          );
+        } else if (
+          err.message.includes('confirmation email') ||
+          (err.message.includes('email') && err.message.includes('error')) ||
+          err.message.includes('500')
+        ) {
+          // SMTP not configured error
+          setError(
+            'Unable to send confirmation email. This usually means SMTP is not configured.\n\n' +
+            'To fix this:\n' +
+            '1. Go to Supabase Dashboard → Settings → Auth\n' +
+            '2. Scroll to "SMTP Settings"\n' +
+            '3. Configure SMTP (Gmail, SendGrid, or Resend)\n' +
+            '4. Or disable email confirmations in Auth Settings\n\n' +
+            'Error details: ' + err.message
           );
         } else {
           setError(err.message || 'An unexpected error occurred');
