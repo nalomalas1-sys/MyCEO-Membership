@@ -22,9 +22,9 @@ const BackgroundEffects = () => (
     <div className="absolute bottom-20 left-1/4 w-50 h-25 bg-blue-100/20 rounded-full animate-float-cloud" style={{ animationDelay: '4s' }}></div>
     
     {/* Floating coins */}
-    <div className="absolute top-1/4 right-1/4 w-8 h-8 bg-gradient-to-br from-yellow-300 to-amber-400 rounded-full animate-bounce-coin" style={{ animationDelay: '1s' }}></div>
-    <div className="absolute top-1/3 left-1/4 w-6 h-6 bg-gradient-to-br from-yellow-300 to-amber-400 rounded-full animate-bounce-coin" style={{ animationDelay: '0.5s' }}></div>
-    <div className="absolute bottom-1/3 right-1/3 w-10 h-10 bg-gradient-to-br from-yellow-300 to-amber-400 rounded-full animate-bounce-coin" style={{ animationDelay: '1.5s' }}></div>
+    <div className="absolute top-1/4 right-1/4 w-8 h-8 bg-yellow-400 rounded-full animate-bounce-coin" style={{ animationDelay: '1s' }}></div>
+    <div className="absolute top-1/3 left-1/4 w-6 h-6 bg-yellow-400 rounded-full animate-bounce-coin" style={{ animationDelay: '0.5s' }}></div>
+    <div className="absolute bottom-1/3 right-1/3 w-10 h-10 bg-yellow-400 rounded-full animate-bounce-coin" style={{ animationDelay: '1.5s' }}></div>
     
     {/* Colorful blobs */}
     <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-300/20 rounded-full blur-[120px] animate-pulse duration-[6s]"></div>
@@ -67,9 +67,9 @@ const FloatingCharacters = () => {
 const PiggyBankMascot = () => (
   <div className="absolute bottom-10 left-10 w-32 h-32 animate-bounce-slow z-10 hidden lg:block">
     <div className="relative">
-      <div className="w-32 h-32 bg-gradient-to-br from-blue-300 to-cyan-400 rounded-full relative">
+      <div className="w-32 h-32 bg-blue-400 rounded-full relative">
         {/* Piggy body */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-20 h-20 bg-gradient-to-br from-blue-200 to-cyan-300 rounded-full"></div>
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-20 h-20 bg-blue-300 rounded-full"></div>
         {/* Snout */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-12 h-8 bg-cyan-200 rounded-full"></div>
         {/* Eyes */}
@@ -79,8 +79,8 @@ const PiggyBankMascot = () => (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-8 h-2 bg-yellow-300 rounded-full"></div>
       </div>
       {/* Floating coins */}
-      <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-yellow-300 to-amber-400 rounded-full animate-bounce-coin" style={{ animationDelay: '0.2s' }}></div>
-      <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-br from-yellow-300 to-amber-400 rounded-full animate-bounce-coin" style={{ animationDelay: '0.7s' }}></div>
+      <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400 rounded-full animate-bounce-coin" style={{ animationDelay: '0.2s' }}></div>
+      <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-yellow-400 rounded-full animate-bounce-coin" style={{ animationDelay: '0.7s' }}></div>
     </div>
   </div>
 );
@@ -89,15 +89,15 @@ const PiggyBankMascot = () => (
 const BusinessCharacter = () => (
   <div className="absolute top-10 right-10 w-40 h-40 animate-bounce-slower z-10 hidden lg:block">
     <div className="relative">
-      <div className="w-40 h-40 bg-gradient-to-br from-blue-300 to-cyan-400 rounded-full relative">
+      <div className="w-40 h-40 bg-blue-400 rounded-full relative">
         {/* Character body */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-blue-200 to-cyan-300 rounded-full"></div>
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-24 h-24 bg-blue-300 rounded-full"></div>
         {/* Briefcase */}
-        <div className="absolute bottom-8 right-8 w-12 h-8 bg-gradient-to-br from-yellow-300 to-amber-400 rounded-lg rotate-12">
+        <div className="absolute bottom-8 right-8 w-12 h-8 bg-yellow-400 rounded-lg rotate-12">
           <div className="absolute top-1 w-8 h-1 bg-amber-500 left-2"></div>
         </div>
         {/* Calculator */}
-        <div className="absolute bottom-12 left-8 w-10 h-6 bg-gradient-to-br from-green-300 to-emerald-400 rounded rotate-[-12deg]">
+        <div className="absolute bottom-12 left-8 w-10 h-6 bg-green-400 rounded rotate-[-12deg]">
           <div className="absolute top-1 left-1 right-1 h-4 bg-green-200 rounded-sm"></div>
         </div>
       </div>
@@ -274,7 +274,7 @@ export default function EnhancedLoginPage() {
       description: 'Enter your Magic Code to play!',
       color: 'from-blue-400 to-cyan-500',
 
-      bgColor: 'bg-gradient-to-br from-blue-100 to-cyan-100'
+      bgColor: 'bg-blue-100'
     },
     {
       id: 'parents' as LoginType,
@@ -283,7 +283,7 @@ export default function EnhancedLoginPage() {
       description: 'Help your little entrepreneur grow!',
       color: 'from-blue-500 to-blue-600',
 
-      bgColor: 'bg-gradient-to-br from-blue-100 to-blue-100'
+      bgColor: 'bg-blue-100'
     },
     {
       id: 'admin' as LoginType,
@@ -291,12 +291,12 @@ export default function EnhancedLoginPage() {
       icon: Shield,
       description: 'Keep the playground fun and safe!',
       color: 'from-emerald-400 to-teal-500',
-      bgColor: 'bg-gradient-to-br from-emerald-100 to-teal-100'
+      bgColor: 'bg-emerald-100'
     },
   ];
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-b from-blue-100 via-yellow-50 to-amber-50 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
+    <div className="min-h-screen relative flex items-center justify-center bg-blue-50 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
       
       <BackgroundEffects />
       <FloatingCharacters />
@@ -309,7 +309,7 @@ export default function EnhancedLoginPage() {
           to="/" 
           className="group flex items-center gap-3 text-blue-700 hover:text-blue-600 transition-all px-5 py-3 rounded-2xl hover:bg-white/60 backdrop-blur-sm border-2 border-blue-200 hover:border-blue-300 shadow-lg hover:scale-105"
         >
-          <div className="bg-gradient-to-br from-blue-300 to-cyan-400 p-2 rounded-xl group-hover:-translate-x-1 transition-transform text-white">
+          <div className="bg-blue-400 p-2 rounded-xl group-hover:-translate-x-1 transition-transform text-white">
             <ArrowLeft className="w-5 h-5" />
           </div>
           <span className="font-bold text-base">Back to Adventure! 🏠</span>
@@ -321,7 +321,7 @@ export default function EnhancedLoginPage() {
         {/* Left Side - Playful Illustration & Welcome */}
         <div className="hidden lg:flex flex-col relative">
           <div className="mb-12 relative group cursor-default">
-            <div className="absolute -inset-4 bg-gradient-to-r from-yellow-300 via-blue-300 to-cyan-300 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+            <div className="absolute -inset-4 bg-blue-300 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
             <div className="relative">
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/70 backdrop-blur-md border-2 border-yellow-300 text-base font-black text-yellow-800 mb-8 w-fit shadow-lg animate-pulse">
                 <img src={myCeoLogo} alt="MyCEO Logo" className="w-8 h-8 object-contain" />
@@ -349,14 +349,14 @@ export default function EnhancedLoginPage() {
         {/* Right Side - Login Card */}
         <div className="w-full max-w-md mx-auto relative">
           {/* Card Glow Effect */}
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-400/30 to-cyan-400/30 rounded-[2.5rem] blur-2xl transform rotate-3 animate-pulse"></div>
+          <div className="absolute inset-0 bg-blue-400/30 rounded-[2.5rem] blur-2xl transform rotate-3 animate-pulse"></div>
           
           <div className="bg-white/90 backdrop-blur-md border-4 border-white p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
             {/* Card Background Pattern */}
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-10 left-10 w-20 h-20 rounded-full bg-gradient-to-br from-yellow-300 to-amber-400"></div>
-              <div className="absolute bottom-10 right-10 w-16 h-16 rounded-full bg-gradient-to-br from-blue-300 to-cyan-400"></div>
-              <div className="absolute top-1/2 left-1/4 w-12 h-12 rounded-full bg-gradient-to-br from-blue-300 to-cyan-400"></div>
+              <div className="absolute top-10 left-10 w-20 h-20 rounded-full bg-yellow-400"></div>
+              <div className="absolute bottom-10 right-10 w-16 h-16 rounded-full bg-blue-400"></div>
+              <div className="absolute top-1/2 left-1/4 w-12 h-12 rounded-full bg-blue-400"></div>
             </div>
             
             {/* Logo Show */}
@@ -371,7 +371,7 @@ export default function EnhancedLoginPage() {
             </div>
 
             {/* Character Selectors */}
-            <div className="grid grid-cols-3 gap-3 mb-8 p-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl border-2 border-blue-200 shadow-inner">
+            <div className="grid grid-cols-3 gap-3 mb-8 p-2 bg-blue-50 rounded-2xl border-2 border-blue-200 shadow-inner">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -390,7 +390,7 @@ export default function EnhancedLoginPage() {
                     <div className={`
                       w-12 h-12 rounded-2xl flex items-center justify-center mb-3 transition-all duration-300
                       ${isActive 
-                        ? `bg-gradient-to-br ${tab.color} text-white shadow-lg scale-110` 
+                        ? `${tab.id === 'admin' ? 'bg-emerald-500' : 'bg-blue-500'} text-white shadow-lg scale-110` 
                         : 'bg-white text-blue-400 group-hover:scale-105 shadow-md'
                       }
                     `}>
@@ -406,9 +406,9 @@ export default function EnhancedLoginPage() {
 
             {/* Verification Message */}
             {showVerificationMessage && activeTab === 'parents' && (
-              <div className="bg-gradient-to-r from-blue-100 to-cyan-100 border-2 border-blue-300 rounded-2xl p-4 mb-6 animate-in slide-in-from-top-2 shadow-md">
+              <div className="bg-blue-100 border-2 border-blue-300 rounded-2xl p-4 mb-6 animate-in slide-in-from-top-2 shadow-md">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg text-white">
+                  <div className="p-2 bg-blue-500 rounded-lg text-white">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
@@ -419,7 +419,7 @@ export default function EnhancedLoginPage() {
                     <button 
                       onClick={handleResendVerification}
                       disabled={resendingEmail || resendSuccess}
-                      className="text-xs font-bold bg-gradient-to-r from-blue-400 to-cyan-500 hover:from-blue-500 hover:to-cyan-600 text-white px-4 py-2 rounded-xl transition-all shadow-md hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition-all shadow-md hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {resendSuccess ? '✨ Sent Again!' : (resendingEmail ? 'Sending...' : 'Resend Magic Link')}
                     </button>
@@ -430,7 +430,7 @@ export default function EnhancedLoginPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-gradient-to-r from-red-100 to-pink-100 border-2 border-red-300 rounded-2xl p-4 mb-6 flex items-start gap-3 animate-in slide-in-from-top-2 shadow-md">
+              <div className="bg-red-100 border-2 border-red-300 rounded-2xl p-4 mb-6 flex items-start gap-3 animate-in slide-in-from-top-2 shadow-md">
                 <AlertCircle className="w-6 h-6 text-red-500 shrink-0" />
                 <span className="text-sm font-bold text-red-700">{error}</span>
               </div>
@@ -526,8 +526,8 @@ export default function EnhancedLoginPage() {
                   w-full py-4 rounded-2xl font-black text-lg tracking-wide shadow-xl transform transition-all duration-300
                   flex items-center justify-center gap-3 relative overflow-hidden group
                   ${activeTab === 'children' 
-                    ? 'bg-gradient-to-r from-blue-400 to-cyan-500 text-white hover:shadow-[0_15px_30px_rgba(59,130,246,0.4)] hover:scale-105' 
-                    : 'bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 text-white hover:shadow-[0_15px_30px_rgba(59,130,246,0.4)] hover:scale-105'
+                    ? 'bg-blue-500 text-white hover:shadow-[0_15px_30px_rgba(59,130,246,0.4)] hover:scale-105' 
+                    : 'bg-blue-500 text-white hover:shadow-[0_15px_30px_rgba(59,130,246,0.4)] hover:scale-105'
                   }
                   disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
                 `}
@@ -548,7 +548,7 @@ export default function EnhancedLoginPage() {
             <div className="mt-8 text-center relative z-10">
               <p className="text-blue-600 text-sm font-bold">
                 New to the adventure?{' '}
-                <Link to="/signup" className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 transition-all">
+                <Link to="/signup" className="font-black text-blue-600 hover:text-blue-700 transition-all">
                   Join the fun! 🎉
                 </Link>
               </p>
