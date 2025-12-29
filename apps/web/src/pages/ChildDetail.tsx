@@ -663,7 +663,7 @@ function ChildDetailContent() {
               }).join('')}
 
               <div class="footer">
-                <p>MyCEO Learning Platform - Confidential Project Submissions Report</p>
+                <p>MyCEO Learning Platform - Project Submissions Report</p>
               </div>
             </div>
           </div>
