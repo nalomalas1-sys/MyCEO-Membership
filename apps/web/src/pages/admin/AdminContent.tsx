@@ -6,6 +6,7 @@ import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Plus, Edit, Eye, EyeOff, Search, Trash2, ExternalLink } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Module {
   id: string;
@@ -24,8 +25,10 @@ interface Module {
 
 function AdminContentContent() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingModuleId, setDeletingModuleId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [trackFilter, setTrackFilter] = useState<string>('all');
   const [publishedFilter, setPublishedFilter] = useState<string>('all');
@@ -90,26 +93,41 @@ function AdminContentContent() {
 
       if (error) throw error;
 
+      toast({
+        title: 'Success',
+        description: `Module ${!currentStatus ? 'published' : 'unpublished'} successfully`,
+        variant: 'success',
+      });
+
       fetchModules();
     } catch (error) {
       console.error('Failed to toggle publish status:', error);
-      alert('Failed to update module status');
+      toast({
+        title: 'Error',
+        description: 'Failed to update module status',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleDeleteModule = async (moduleId: string, moduleTitle: string) => {
-    if (!confirm(`Are you sure you want to delete "${moduleTitle}"? This will also delete all associated lessons.`)) {
+    if (!confirm(`Are you sure you want to delete "${moduleTitle}"? This will also delete all associated lessons. This action cannot be undone.`)) {
       return;
     }
 
+    setDeletingModuleId(moduleId);
+
     try {
-      // First delete all lessons
+      // First delete all lessons (CASCADE should handle this, but we'll do it explicitly for clarity)
       const { error: lessonsError } = await supabase
         .from('lessons')
         .delete()
         .eq('module_id', moduleId);
 
-      if (lessonsError) throw lessonsError;
+      if (lessonsError) {
+        console.error('Failed to delete lessons:', lessonsError);
+        throw lessonsError;
+      }
 
       // Then delete the module
       const { error: moduleError } = await supabase
@@ -117,12 +135,27 @@ function AdminContentContent() {
         .delete()
         .eq('id', moduleId);
 
-      if (moduleError) throw moduleError;
+      if (moduleError) {
+        console.error('Failed to delete module:', moduleError);
+        throw moduleError;
+      }
+
+      toast({
+        title: 'Success',
+        description: `Module "${moduleTitle}" has been deleted successfully`,
+        variant: 'success',
+      });
 
       fetchModules();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete module:', error);
-      alert('Failed to delete module');
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete module. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeletingModuleId(null);
     }
   };
 
@@ -325,10 +358,15 @@ function AdminContentContent() {
                     </button>
                     <button
                       onClick={() => handleDeleteModule(module.id, module.title)}
-                      className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                      disabled={deletingModuleId === module.id}
+                      className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Delete module"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {deletingModuleId === module.id ? (
+                        <div className="h-4 w-4 border-2 border-red-800 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>
