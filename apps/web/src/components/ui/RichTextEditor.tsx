@@ -64,14 +64,14 @@ export function RichTextEditor({
         <button
           type="button"
           onClick={handleBold}
-          className="p-2 hover:bg-gray-200 rounded transition-colors"
+          className="p-2 hover:bg-gray-200 rounded transition-colors flex items-center justify-center"
           title="Bold (Ctrl+B)"
           onMouseDown={(e) => e.preventDefault()} // Prevent textarea from losing focus
         >
           <Bold className="h-4 w-4 text-gray-700" />
         </button>
         <div className="text-xs text-gray-500 ml-auto px-2">
-          Use <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs">**text**</kbd> for bold
+          Use <kbd className="px-1 py-0.5 bg-gray-200 rounded text-xs font-mono">**text**</kbd> for bold
         </div>
       </div>
 
@@ -79,7 +79,7 @@ export function RichTextEditor({
       <textarea
         ref={textareaRef}
         id={id}
-        value={value}
+        value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
@@ -92,7 +92,7 @@ export function RichTextEditor({
         }}
         rows={rows}
         placeholder={placeholder}
-        className="w-full px-4 py-3 border-0 focus:ring-0 focus:outline-none resize-none bg-transparent"
+        className="w-full px-4 py-3 border-0 focus:ring-0 focus:outline-none resize-none bg-transparent min-h-[100px]"
       />
     </div>
   );

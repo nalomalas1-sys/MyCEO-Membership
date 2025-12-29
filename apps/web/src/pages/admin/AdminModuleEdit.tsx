@@ -379,7 +379,9 @@ function AdminModuleEditContent() {
                   <RichTextEditor
                     id="description"
                     value={watch('description') || ''}
-                    onChange={(value) => setValue('description', value)}
+                    onChange={(value) => {
+                      setValue('description', value, { shouldDirty: true, shouldValidate: true });
+                    }}
                     rows={4}
                   />
                 </div>

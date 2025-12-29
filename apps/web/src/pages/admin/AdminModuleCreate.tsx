@@ -37,6 +37,7 @@ function AdminModuleCreateContent() {
   } = useForm<ModuleFormData>({
     resolver: zodResolver(moduleSchema),
     defaultValues: {
+      description: '',
       track: 'money_basics',
       order_index: 1,
       difficulty_level: 1,
@@ -186,7 +187,9 @@ function AdminModuleCreateContent() {
               <RichTextEditor
                 id="description"
                 value={watch('description') || ''}
-                onChange={(value) => setValue('description', value)}
+                onChange={(value) => {
+                  setValue('description', value, { shouldDirty: true, shouldValidate: true });
+                }}
                 rows={4}
                 placeholder="Brief description of what children will learn..."
               />
