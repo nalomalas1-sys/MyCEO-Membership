@@ -8,7 +8,6 @@ import {
   AlertCircle, 
   Loader2,
   ArrowLeft,
-  Rocket,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
