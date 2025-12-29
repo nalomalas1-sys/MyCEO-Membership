@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
+import myCeoLogo from '@/Logo-MyCeo-300x200.png';
 
 // --- Playful Background Effects ---
 const BackgroundEffects = () => (
@@ -324,7 +325,7 @@ export default function EnhancedLoginPage() {
             <div className="absolute -inset-4 bg-gradient-to-r from-yellow-300 via-blue-300 to-cyan-300 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
             <div className="relative">
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/70 backdrop-blur-md border-2 border-yellow-300 text-base font-black text-yellow-800 mb-8 w-fit shadow-lg animate-pulse">
-                <Rocket className="w-5 h-5 text-blue-500 animate-bounce" />
+                <img src={myCeoLogo} alt="MyCEO Logo" className="w-8 h-8 object-contain" />
                 <span>Ready for adventure? 🚀</span>
               </div>
               
@@ -359,10 +360,10 @@ export default function EnhancedLoginPage() {
               <div className="absolute top-1/2 left-1/4 w-12 h-12 rounded-full bg-gradient-to-br from-blue-300 to-cyan-400"></div>
             </div>
             
-            {/* Mobile Logo Show */}
-            <div className="lg:hidden flex justify-center mb-8">
-               <div className="w-20 h-20 bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center text-white shadow-xl animate-bounce">
-                  <Rocket className="w-10 h-10" />
+            {/* Logo Show */}
+            <div className="flex justify-center mb-6">
+               <div className="rounded-2xl flex items-center justify-center">
+                  <img src={myCeoLogo} alt="MyCEO Logo" className="h-16 w-auto object-contain" />
                </div>
             </div>
 
