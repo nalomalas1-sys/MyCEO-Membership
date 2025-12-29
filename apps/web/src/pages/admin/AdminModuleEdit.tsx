@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical, Image } from 'lucide-react';
 import { QuizBuilder } from '@/components/admin/QuizBuilder';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import {
   DndContext,
   closestCenter,
@@ -75,6 +76,8 @@ function AdminModuleEditContent() {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<ModuleFormData>({
     resolver: zodResolver(moduleSchema),
   });
@@ -373,11 +376,11 @@ function AdminModuleEditContent() {
                   <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
                     Description
                   </label>
-                  <textarea
+                  <RichTextEditor
                     id="description"
-                    {...register('description')}
+                    value={watch('description') || ''}
+                    onChange={(value) => setValue('description', value)}
                     rows={4}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
                   />
                 </div>
 

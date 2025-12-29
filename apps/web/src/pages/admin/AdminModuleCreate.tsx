@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Save, Image, X } from 'lucide-react';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 
 const moduleSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -31,6 +32,8 @@ function AdminModuleCreateContent() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm<ModuleFormData>({
     resolver: zodResolver(moduleSchema),
     defaultValues: {
@@ -180,11 +183,11 @@ function AdminModuleCreateContent() {
               <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
                 Description
               </label>
-              <textarea
+              <RichTextEditor
                 id="description"
-                {...register('description')}
+                value={watch('description') || ''}
+                onChange={(value) => setValue('description', value)}
                 rows={4}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
                 placeholder="Brief description of what children will learn..."
               />
               {errors.description && (
