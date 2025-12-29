@@ -11,7 +11,7 @@ import { RecentActivityFeed } from '@/components/parent/RecentActivityFeed';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
-import { CheckCircle2, X, Sparkles, Users, TrendingUp, Award, Zap, RotateCcw, Trash2, ExternalLink } from 'lucide-react';
+import { CheckCircle2, X, Users, TrendingUp, Award, Zap, RotateCcw, Trash2, ExternalLink } from 'lucide-react';
 import { BackgroundEffects, FloatingCharacters, BusinessCharacter, FloatingBackgroundStyles } from '@/components/ui/FloatingBackground';
 
 function DashboardContent() {
@@ -262,7 +262,6 @@ function DashboardContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
-            <Sparkles className="h-8 w-8 text-blue-600" />
             <h1 className="text-4xl font-bold text-blue-600">
               Welcome back, {user?.user_metadata?.full_name || 'Parent'}! 🎉
           </h1>
@@ -490,7 +489,6 @@ function DashboardContent() {
                 onClick={() => setIsAddChildModalOpen(true)}
                 className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
               >
-                <Sparkles className="h-5 w-5" />
                 + Add Child
               </button>
             )}

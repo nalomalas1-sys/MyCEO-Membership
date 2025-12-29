@@ -7,7 +7,6 @@ import {
   CheckCircle2, 
   Loader2, 
   Shield, 
-  ChevronDown, 
   X,
   Users,
   Rocket,
@@ -96,7 +95,6 @@ function PricingContent() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [faqOpen, setFaqOpen] = useState<number | null>(null);
 
   const handleSelectPlan = async (planId: 'basic' | 'standard' | 'premium') => {
     if (!user) {
@@ -293,61 +291,6 @@ function PricingContent() {
               </div>
             );
           })}
-        </div>
-
-        {/* FAQ Section */}
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Frequently Asked Questions</h2>
-            <p className="text-gray-600">Common questions about our plans</p>
-          </div>
-
-          <div className="space-y-4">
-            {[
-              {
-                q: "Can I upgrade or downgrade my plan?",
-                a: "Yes! You can change your plan at any time. Upgrades take effect immediately, and downgrades apply at the end of your billing period."
-              },
-              {
-                q: "Is my data secure?",
-                a: "Absolutely. We use bank-level encryption and secure servers to protect all your information. Your data is always safe with us."
-              },
-              {
-                q: "What happens after my free trial ends?",
-                a: "After your 30-day free trial, you'll need to choose a plan to continue. All your progress and data will be saved."
-              },
-              {
-                q: "Can I cancel anytime?",
-                a: "Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing period."
-              },
-              {
-                q: "Do you offer refunds?",
-                a: "We offer a 30-day money-back guarantee. If you're not satisfied, contact us within 30 days for a full refund."
-              }
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-lg border border-gray-200 overflow-hidden"
-              >
-                <button
-                  onClick={() => setFaqOpen(faqOpen === idx ? null : idx)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-semibold text-gray-900">{item.q}</span>
-                  <ChevronDown
-                    className={`w-5 h-5 text-gray-500 transition-transform ${
-                      faqOpen === idx ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-                {faqOpen === idx && (
-                  <div className="px-6 pb-4">
-                    <p className="text-gray-600">{item.a}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Contact Section */}
