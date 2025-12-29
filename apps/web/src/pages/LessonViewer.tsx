@@ -415,6 +415,54 @@ export default function LessonViewerPage() {
     }
   };
 
+  // Helper function to parse and render text with bold formatting
+  const renderFormattedText = (text: string): React.ReactNode => {
+    if (!text) return null;
+    
+    // Split by **text** pattern to support bold formatting
+    const parts: React.ReactNode[] = [];
+    const regex = /\*\*(.+?)\*\*/g;
+    let lastIndex = 0;
+    let match;
+    let key = 0;
+    
+    while ((match = regex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        const beforeText = text.substring(lastIndex, match.index);
+        if (beforeText) {
+          parts.push(
+            <span key={key++}>{beforeText}</span>
+          );
+        }
+      }
+      
+      // Add bold text
+      parts.push(
+        <strong key={key++} className="font-bold">{match[1]}</strong>
+      );
+      
+      lastIndex = regex.lastIndex;
+    }
+    
+    // Add remaining text after last match
+    if (lastIndex < text.length) {
+      const remainingText = text.substring(lastIndex);
+      if (remainingText) {
+        parts.push(
+          <span key={key++}>{remainingText}</span>
+        );
+      }
+    }
+    
+    // If no matches found, return original text
+    if (parts.length === 0) {
+      return text;
+    }
+    
+    return <>{parts}</>;
+  };
+
   if (loading) {
     return <LoadingAnimation message="Loading lesson..." variant="fullscreen" />;
   }
@@ -576,54 +624,6 @@ export default function LessonViewerPage() {
     }
     
     return url; // Return original if we can't parse it
-  };
-
-  // Helper function to parse and render text with bold formatting
-  const renderFormattedText = (text: string): React.ReactNode => {
-    if (!text) return null;
-    
-    // Split by **text** pattern to support bold formatting
-    const parts: React.ReactNode[] = [];
-    const regex = /\*\*(.+?)\*\*/g;
-    let lastIndex = 0;
-    let match;
-    let key = 0;
-    
-    while ((match = regex.exec(text)) !== null) {
-      // Add text before the match
-      if (match.index > lastIndex) {
-        const beforeText = text.substring(lastIndex, match.index);
-        if (beforeText) {
-          parts.push(
-            <span key={key++}>{beforeText}</span>
-          );
-        }
-      }
-      
-      // Add bold text
-      parts.push(
-        <strong key={key++} className="font-bold">{match[1]}</strong>
-      );
-      
-      lastIndex = regex.lastIndex;
-    }
-    
-    // Add remaining text after last match
-    if (lastIndex < text.length) {
-      const remainingText = text.substring(lastIndex);
-      if (remainingText) {
-        parts.push(
-          <span key={key++}>{remainingText}</span>
-        );
-      }
-    }
-    
-    // If no matches found, return original text
-    if (parts.length === 0) {
-      return text;
-    }
-    
-    return <>{parts}</>;
   };
 
   // Text or video lesson
