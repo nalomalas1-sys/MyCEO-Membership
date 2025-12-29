@@ -15,8 +15,6 @@ export function LinkifiedText({ text, className = '' }: { text: string; classNam
 
   // Parse text into parts: plain text, bold (**text**), and links
   const parts: TextPart[] = [];
-  let remaining = text;
-  let lastIndex = 0;
 
   // First, find all bold markers (**text**)
   const boldRegex = /\*\*([^*]+)\*\*/g;
