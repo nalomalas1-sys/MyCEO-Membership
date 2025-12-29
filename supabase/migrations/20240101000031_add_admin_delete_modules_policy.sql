@@ -11,3 +11,4 @@ CREATE POLICY "Admins can delete modules"
     )
   );
 
+

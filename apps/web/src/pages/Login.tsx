@@ -362,14 +362,11 @@ export default function EnhancedLoginPage() {
             {/* Logo Show */}
             <div className="flex justify-center mb-6">
                <div className="rounded-2xl flex items-center justify-center">
-                  <img src={myCeoLogo} alt="MyCEO Logo" className="h-16 w-auto object-contain" />
+                  <img src={myCeoLogo} alt="MyCEO Logo" className="h-32 w-auto object-contain" />
                </div>
             </div>
 
             <div className="text-center mb-8 relative z-10">
-              <h2 className="text-4xl font-black mb-3 bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-                Who's Playing? 🤔
-              </h2>
               <p className="text-blue-600 text-base font-bold">Choose your character to continue the adventure!</p>
             </div>
 
