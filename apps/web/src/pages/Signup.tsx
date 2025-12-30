@@ -194,10 +194,7 @@ export default function SignupPage() {
                 
                 <div className="mb-10 relative z-10">
                   <div className="text-center mb-8">
-                    <h2 className="text-4xl font-black bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent mb-4">
-                      Start Your Quest! 🗺️
-                    </h2>
-                    <p className="text-blue-600 font-bold text-lg mb-2">
+                    <p className="text-blue-600 font-black text-2xl mb-3">
                       {stripeRegistrationEnabled 
                         ? 'Choose your adventure plan:'
                         : 'Create your account:'}
