@@ -171,7 +171,7 @@ export default function LandingPage() {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-blue-50 overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-lg border-b-2 border-blue-200 z-50 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -280,38 +280,39 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section 
-        className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative"
+        className="pt-24 sm:pt-32 pb-12 sm:pb-20 relative overflow-hidden w-full"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
+          backgroundRepeat: 'no-repeat',
+          minHeight: 'calc(100vh - 4rem)'
         }}
       >
         <div className="absolute inset-0 bg-white/70"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto relative z-10 px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
                 <span className="text-blue-600">
                   Teach Kids Money & Entrepreneurship
                 </span>
               </h1>
-              <p className="text-xl text-gray-700 mb-8 leading-relaxed font-medium">
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 leading-relaxed font-medium">
                 An interactive learning platform that makes financial literacy fun. 
                 Help your children build real-world business skills through gamified lessons and virtual companies.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link 
                   to="/signup" 
-                  className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/40 hover:shadow-2xl hover:scale-105"
+                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl font-bold text-base sm:text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/40 hover:shadow-2xl hover:scale-105"
                 >
                   Start Free Trial
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Link>
                 <Link 
                   to="/login" 
-                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 rounded-xl font-bold text-lg border-2 border-blue-300 hover:border-blue-500 transition-all hover:shadow-lg hover:bg-blue-50"
+                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-gray-900 rounded-xl font-bold text-base sm:text-lg border-2 border-blue-300 hover:border-blue-500 transition-all hover:shadow-lg hover:bg-blue-50"
                 >
                   Sign In
                 </Link>
@@ -319,7 +320,7 @@ export default function LandingPage() {
               <div className="mt-8 flex items-center space-x-8 text-sm text-gray-700 font-medium">
               </div>
             </div>
-            <div className="relative">
+            <div className="relative hidden lg:block">
               <div className="relative bg-blue-200 rounded-3xl p-8 shadow-2xl border-4 border-blue-300">
                 <div className="bg-white rounded-2xl p-6 shadow-xl">
                   <div className="space-y-4">
