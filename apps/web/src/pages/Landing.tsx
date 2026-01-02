@@ -29,6 +29,7 @@ import poster1 from '../poster1.jpg';
 import poster2 from '../poster2.jpg';
 import poster3 from '../poster3.jpg';
 import poster4 from '../poster4.jpg';
+import backgroundImage from '../background.png';
 
 interface MarketplaceItem {
   id: string;
@@ -278,8 +279,17 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section 
+        className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="absolute inset-0 bg-white/70"></div>
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
