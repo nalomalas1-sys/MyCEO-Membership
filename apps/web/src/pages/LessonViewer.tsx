@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { AchievementNotification } from '@/components/child/AchievementNotification';
+import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { supabase } from '@/lib/supabase';
 import { useModule, Lesson } from '@/hooks/useModules';
 import { Download, FileText, Presentation, ExternalLink, Sparkles } from 'lucide-react';
@@ -415,53 +416,6 @@ export default function LessonViewerPage() {
     }
   };
 
-  // Helper function to parse and render text with bold formatting
-  const renderFormattedText = (text: string): React.ReactNode => {
-    if (!text) return null;
-    
-    // Split by **text** pattern to support bold formatting
-    const parts: React.ReactNode[] = [];
-    const regex = /\*\*(.+?)\*\*/g;
-    let lastIndex = 0;
-    let match;
-    let key = 0;
-    
-    while ((match = regex.exec(text)) !== null) {
-      // Add text before the match
-      if (match.index > lastIndex) {
-        const beforeText = text.substring(lastIndex, match.index);
-        if (beforeText) {
-          parts.push(
-            <span key={key++}>{beforeText}</span>
-          );
-        }
-      }
-      
-      // Add bold text
-      parts.push(
-        <strong key={key++} className="font-bold">{match[1]}</strong>
-      );
-      
-      lastIndex = regex.lastIndex;
-    }
-    
-    // Add remaining text after last match
-    if (lastIndex < text.length) {
-      const remainingText = text.substring(lastIndex);
-      if (remainingText) {
-        parts.push(
-          <span key={key++}>{remainingText}</span>
-        );
-      }
-    }
-    
-    // If no matches found, return original text
-    if (parts.length === 0) {
-      return text;
-    }
-    
-    return <>{parts}</>;
-  };
 
   if (loading) {
     return <LoadingAnimation message="Loading lesson..." variant="fullscreen" />;
@@ -489,7 +443,7 @@ export default function LessonViewerPage() {
                 Question {currentQuestionIndex + 1} of {quizQuestions.length}
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">{renderFormattedText(currentQuestion.question)}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6"><LinkifiedText text={currentQuestion.question} /></h1>
 
             <div className="space-y-3 mb-6">
               {currentQuestion.options.map((option, index) => (
@@ -512,7 +466,7 @@ export default function LessonViewerPage() {
                   }`}
                 >
                   <span className="font-medium">{String.fromCharCode(65 + index)}. </span>
-                  {renderFormattedText(option)}
+                  <LinkifiedText text={option} />
                 </button>
               ))}
             </div>
@@ -525,7 +479,7 @@ export default function LessonViewerPage() {
                   {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
                 </p>
                 <p className={isCorrect ? 'text-green-700' : 'text-red-700'}>
-                  {renderFormattedText(currentQuestion.explanation)}
+                  <LinkifiedText text={currentQuestion.explanation || ''} />
                 </p>
               </div>
             )}
@@ -762,7 +716,7 @@ export default function LessonViewerPage() {
             {lesson.content && (
               <div className="prose max-w-none mb-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {renderFormattedText(lesson.content)}
+                  <LinkifiedText text={lesson.content} />
                 </div>
               </div>
             )}

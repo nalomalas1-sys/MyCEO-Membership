@@ -422,7 +422,7 @@ function DashboardContent() {
                   </>
                 ) : (
                   <>
-                    Manage Billing
+                Manage Billing
                     <ExternalLink className="h-4 w-4" />
                   </>
                 )}

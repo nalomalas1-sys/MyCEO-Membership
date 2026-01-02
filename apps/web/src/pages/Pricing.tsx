@@ -146,7 +146,7 @@ function PricingContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      <ParentNavBar />
+        <ParentNavBar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
@@ -158,7 +158,7 @@ function PricingContent() {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Start with a 30-day free trial. No credit card required.
           </p>
-        </div>
+                 </div>
 
         {/* Billing Toggle */}
         <div className="flex justify-center mb-12">
@@ -182,14 +182,14 @@ function PricingContent() {
               }`}
             >
               Annual
-              {billingPeriod === 'annual' && (
+                          {billingPeriod === 'annual' && (
                 <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
                   Save 17%
                 </span>
-              )}
+                          )}
             </button>
-          </div>
-        </div>
+                    </div>
+                 </div>
 
         {/* Error Message */}
         {error && (
@@ -198,11 +198,11 @@ function PricingContent() {
               <div className="flex items-center gap-3">
                 <Shield className="w-5 h-5" />
                 <span className="font-medium">{error}</span>
-              </div>
+                   </div>
               <button onClick={() => setError(null)} className="hover:bg-red-100 rounded p-1">
                 <X className="w-5 h-5" />
-              </button>
-            </div>
+                   </button>
+             </div>
           </div>
         )}
 
@@ -226,8 +226,8 @@ function PricingContent() {
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
                       Most Popular
-                    </span>
-                  </div>
+                            </span>
+                          </div>
                 )}
 
                 <div className="p-8">
@@ -235,16 +235,16 @@ function PricingContent() {
                   <div className="mb-6">
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                       <Icon className="w-6 h-6 text-blue-600" />
-                    </div>
+                        </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                     <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
-                    <div className="flex items-baseline gap-2">
+                              <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-bold text-gray-900">${price}</span>
                       <span className="text-gray-500">
                         /{billingPeriod === 'monthly' ? 'month' : 'year'}
                       </span>
-                    </div>
-                    {billingPeriod === 'annual' && (
+                              </div>
+                              {billingPeriod === 'annual' && (
                       <p className="text-sm text-gray-500 mt-2">
                         Save ${(plan.monthlyPrice * 12 - plan.annualPrice).toFixed(2)} per year
                       </p>
@@ -259,14 +259,14 @@ function PricingContent() {
                   {/* Features */}
                   <div className="mb-8">
                     <ul className="space-y-3">
-                      {plan.features.map((feature, index) => (
+                    {plan.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-3">
                           <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <span className="text-sm text-gray-700">{feature}</span>
                         </li>
                       ))}
                     </ul>
-                  </div>
+                     </div>
 
                   {/* CTA Button */}
                   <button
@@ -302,10 +302,10 @@ function PricingContent() {
             </p>
             <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
               Contact Sales
-            </button>
-          </div>
+                  </button>
+               </div>
+           </div>
         </div>
-      </div>
     </div>
   );
 }
