@@ -29,6 +29,7 @@ import AdminAnalyticsPage from '@/pages/admin/AdminAnalytics';
 import AdminSettingsPage from '@/pages/admin/AdminSettings';
 import AdminFeatureFlagsPage from '@/pages/admin/AdminFeatureFlags';
 import AdminNotificationsPage from '@/pages/admin/AdminNotifications';
+import AdminCompletionTrackingPage from '@/pages/admin/AdminCompletionTracking';
 
 
 // Child pages
@@ -142,6 +143,11 @@ function App() {
           <Route path="/admin/features" element={
             <ProtectedRoute requireRole="admin">
               <AdminFeatureFlagsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/completion" element={
+            <ProtectedRoute requireRole="admin">
+              <AdminCompletionTrackingPage />
             </ProtectedRoute>
           } />
        

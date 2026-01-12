@@ -14,6 +14,7 @@ import {
   ChevronDown,
   Crown,
   ToggleLeft,
+  CheckSquare,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
@@ -63,6 +64,12 @@ export function AdminNavBar() {
       icon: ToggleLeft, 
       label: 'Feature Flags',
       color: 'from-indigo-500 to-purple-500'
+    },
+    { 
+      path: '/admin/completion', 
+      icon: CheckSquare, 
+      label: 'Completion Tracking',
+      color: 'from-teal-500 to-emerald-500'
     },
   ];
 
