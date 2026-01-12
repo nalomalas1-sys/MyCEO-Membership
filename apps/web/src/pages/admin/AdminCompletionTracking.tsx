@@ -37,8 +37,7 @@ function AdminCompletionTrackingContent() {
   const [modules, setModules] = useState<Module[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
-  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+
   const [viewType, setViewType] = useState<'module' | 'lesson'>('module');
   const [searchQuery, setSearchQuery] = useState('');
   const [trackFilter, setTrackFilter] = useState<string>('all');
@@ -260,9 +259,7 @@ function AdminCompletionTrackingContent() {
     return matchesSearch && matchesTrack;
   });
 
-  const getLessonsForModule = (moduleId: string) => {
-    return filteredLessons.filter((lesson) => lesson.module_id === moduleId);
-  };
+
 
   if (loading) {
     return <LoadingAnimation message="Loading..." variant="fullscreen" />;
