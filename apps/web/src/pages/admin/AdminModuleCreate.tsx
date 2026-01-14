@@ -12,7 +12,7 @@ import { RichTextEditor } from '@/components/ui/RichTextEditor';
 const moduleSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().optional(),
-  track: z.enum(['money_basics', 'entrepreneurship', 'advanced', 'project_based', 'online_class']),
+  track: z.enum(['money_basics', 'entrepreneurship', 'advanced', 'project_based', 'online_class', 'recording']),
   order_index: z.number().min(1, 'Order index must be at least 1'),
   difficulty_level: z.number().min(1).max(5),
   xp_reward: z.number().min(0, 'XP reward must be non-negative'),
@@ -38,7 +38,7 @@ function AdminModuleCreateContent() {
     resolver: zodResolver(moduleSchema),
     defaultValues: {
       description: '',
-      track: 'money_basics',
+      track: 'entrepreneurship',
       order_index: 1,
       difficulty_level: 1,
       xp_reward: 100,
@@ -230,11 +230,10 @@ function AdminModuleCreateContent() {
                     />
                     <label
                       htmlFor="thumbnail-upload"
-                      className={`flex flex-col items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
-                        uploadingThumbnail
+                      className={`flex flex-col items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${uploadingThumbnail
                           ? 'border-primary-400 bg-primary-50'
                           : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       {uploadingThumbnail ? (
                         <>
@@ -269,11 +268,10 @@ function AdminModuleCreateContent() {
                   {...register('track')}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
                 >
-                  <option value="money_basics">Money Basics</option>
-                  <option value="entrepreneurship">Entrepreneurship</option>
-                  <option value="advanced">Advanced</option>
+                  <option value="entrepreneurship">Interactive Games</option>
                   <option value="project_based">Project Based</option>
                   <option value="online_class">Online Class</option>
+                  <option value="recording">Recording</option>
                 </select>
                 {errors.track && (
                   <p className="mt-2 text-sm text-red-600">{errors.track.message}</p>

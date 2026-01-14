@@ -31,7 +31,7 @@ import { CSS } from '@dnd-kit/utilities';
 const moduleSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().optional(),
-  track: z.enum(['money_basics', 'entrepreneurship', 'advanced', 'project_based', 'online_class']),
+  track: z.enum(['money_basics', 'entrepreneurship', 'advanced', 'project_based', 'online_class', 'recording']),
   order_index: z.number().min(1, 'Order index must be at least 1'),
   difficulty_level: z.number().min(1).max(5),
   xp_reward: z.number().min(0, 'XP reward must be non-negative'),
@@ -330,11 +330,10 @@ function AdminModuleEditContent() {
             </div>
             <button
               onClick={handleTogglePublish}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
-                isPublished
+              className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${isPublished
                   ? 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800'
                   : 'bg-green-100 hover:bg-green-200 text-green-800'
-              }`}
+                }`}
             >
               {isPublished ? (
                 <>
@@ -418,11 +417,10 @@ function AdminModuleEditContent() {
                         />
                         <label
                           htmlFor="thumbnail-upload"
-                          className={`flex flex-col items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
-                            uploadingThumbnail
+                          className={`flex flex-col items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${uploadingThumbnail
                               ? 'border-primary-400 bg-primary-50'
                               : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
-                          }`}
+                            }`}
                         >
                           {uploadingThumbnail ? (
                             <>
@@ -457,11 +455,10 @@ function AdminModuleEditContent() {
                       {...register('track')}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
                     >
-                      <option value="money_basics">Money Basics</option>
-                      <option value="entrepreneurship">Entrepreneurship</option>
-                      <option value="advanced">Advanced</option>
+                      <option value="entrepreneurship">Interactive Games</option>
                       <option value="project_based">Project Based</option>
                       <option value="online_class">Online Class</option>
+                      <option value="recording">Recording</option>
                     </select>
                   </div>
 
@@ -625,9 +622,8 @@ function SortableLessonItem({ lesson, onEdit, onDelete, disabled }: SortableLess
     <div
       ref={setNodeRef}
       style={style}
-      className={`p-3 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center justify-between ${
-        isDragging ? 'shadow-lg' : ''
-      } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
+      className={`p-3 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center justify-between ${isDragging ? 'shadow-lg' : ''
+        } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
     >
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <button
@@ -876,11 +872,10 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
                   />
                   <label
                     htmlFor="file-upload"
-                    className={`flex items-center justify-center gap-2 w-full px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
-                      uploading
+                    className={`flex items-center justify-center gap-2 w-full px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${uploading
                         ? 'border-primary-400 bg-primary-50'
                         : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {uploading ? (
                       <>

@@ -65,16 +65,14 @@ export default function ModulesPage() {
 
   const getTrackColor = (track: string) => {
     switch (track) {
-      case 'money_basics':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'entrepreneurship':
         return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'advanced':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'project_based':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'online_class':
         return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+      case 'recording':
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -82,16 +80,14 @@ export default function ModulesPage() {
 
   const getTrackIcon = (track: string) => {
     switch (track) {
-      case 'money_basics':
-        return '💰';
       case 'entrepreneurship':
-        return '🚀';
-      case 'advanced':
-        return '⭐';
+        return '🎮';
       case 'project_based':
         return '🔨';
       case 'online_class':
         return '💻';
+      case 'recording':
+        return '🎥';
       default:
         return '📚';
     }
@@ -99,16 +95,14 @@ export default function ModulesPage() {
 
   const getTrackName = (track: string) => {
     switch (track) {
-      case 'money_basics':
-        return 'Money Basics';
       case 'entrepreneurship':
-        return 'Entrepreneurship';
-      case 'advanced':
-        return 'Advanced';
+        return 'Interactive Games';
       case 'project_based':
         return 'Project Based';
       case 'online_class':
         return 'Online Class';
+      case 'recording':
+        return 'Recording';
       default:
         return track;
     }
@@ -172,7 +166,7 @@ export default function ModulesPage() {
 
   // Filter modules based on search and category
   const filteredModules = modules.filter((module) => {
-    const matchesSearch = 
+    const matchesSearch =
       module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (module.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
     const matchesCategory = selectedCategory === null || module.track === selectedCategory;
@@ -189,13 +183,12 @@ export default function ModulesPage() {
     return acc;
   }, {} as Record<string, Module[]>);
 
-  // Define the order of categories
-  const categoryOrder: Array<'money_basics' | 'entrepreneurship' | 'advanced' | 'project_based' | 'online_class'> = [
-    'money_basics',
+  // Define the order of categories (only showing Interactive Games, Project Based, Online Class, Recording)
+  const categoryOrder: Array<'entrepreneurship' | 'project_based' | 'online_class' | 'recording'> = [
     'entrepreneurship',
-    'advanced',
     'project_based',
     'online_class',
+    'recording',
   ];
 
   const totalModules = modules.length;
@@ -245,11 +238,10 @@ export default function ModulesPage() {
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  selectedCategory === null
-                    ? 'bg-purple-600 text-white shadow-md scale-105'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${selectedCategory === null
+                  ? 'bg-purple-600 text-white shadow-md scale-105'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
               >
                 All
               </button>
@@ -257,11 +249,10 @@ export default function ModulesPage() {
                 <button
                   key={track}
                   onClick={() => setSelectedCategory(selectedCategory === track ? null : track)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                    selectedCategory === track
-                      ? `${getTrackColor(track)} shadow-md scale-105 border-2`
-                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${selectedCategory === track
+                    ? `${getTrackColor(track)} shadow-md scale-105 border-2`
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
                 >
                   <span>{getTrackIcon(track)}</span>
                   {getTrackName(track)}
@@ -332,9 +323,8 @@ export default function ModulesPage() {
                       return (
                         <div
                           key={module.id}
-                          className={`group relative bg-white rounded-xl shadow-md border-2 border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${
-                            isCompleted ? 'ring-2 ring-green-200' : ''
-                          } animate-fade-in`}
+                          className={`group relative bg-white rounded-xl shadow-md border-2 border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${isCompleted ? 'ring-2 ring-green-200' : ''
+                            } animate-fade-in`}
                           style={{ animationDelay: `${(categoryIndex * 100) + (index * 50)}ms` }}
                           onClick={() => navigate(`/child/modules/${module.id}`)}
                         >

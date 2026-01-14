@@ -1,11 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Home, 
-  BookOpen, 
-  Trophy, 
-  Building2, 
-  ShoppingBag, 
-  LogOut, 
+import {
+  Home,
+  BookOpen,
+  Trophy,
+  Building2,
+  ShoppingBag,
+  LogOut,
   Menu,
   X,
   Gamepad2,
@@ -28,7 +28,7 @@ export function ChildNavBar() {
   const [childSession, setChildSession] = useState<ChildSession | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [expCoins, setExpCoins] = useState<Array<{id: number; x: number; y: number}>>([]);
+  const [expCoins, setExpCoins] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [notificationInboxOpen, setNotificationInboxOpen] = useState(false);
   const { unreadCount } = useNotifications(childSession?.childId || null);
   const { isEnabled } = useFeatureFlags();
@@ -52,12 +52,12 @@ export function ChildNavBar() {
 
   useEffect(() => {
     loadSession();
-    
+
     // Listen for storage changes
     const handleStorageChange = () => {
       loadSession();
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [loadSession]);
@@ -145,8 +145,8 @@ export function ChildNavBar() {
           <div className="flex items-center justify-between h-20 gap-4">
             {/* Left Side - Logo */}
             <div className="flex items-center flex-shrink-0">
-              <Link 
-                to="/child/dashboard" 
+              <Link
+                to="/child/dashboard"
                 className="flex items-center space-x-2 sm:space-x-3 group transform hover:scale-105 transition-transform"
               >
                 <div className="relative">
@@ -192,73 +192,72 @@ export function ChildNavBar() {
 
             {/* Right Side - Notifications and Logout */}
             <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0 justify-end">
-                {/* Notification Button - Game Style */}
-                <button
-                  onClick={() => setNotificationInboxOpen(true)}
-                  className="group relative transform hover:scale-105 transition-all"
-                  aria-label="Notifications"
-                >
-                  <div className="absolute -inset-1 bg-yellow-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-                  <div className="relative flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-yellow-400 rounded-xl border-3 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all pixel-font hover:brightness-110">
-                    <Bell className="h-5 w-5 lg:h-6 lg:w-6 text-blue-500" />
-                    {unreadCount > 0 && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 lg:w-6 lg:h-6 bg-red-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg">
-                        <span className="text-white text-[10px] lg:text-xs font-bold pixel-font">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </button>
-
-                {/* Exit Button - Game Style */}
-                <button
-                  onClick={handleLogout}
-                  className="group relative transform hover:scale-105 transition-all"
-                >
-                  <div className="absolute -inset-1 bg-gray-600 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-                  <div className="relative flex items-center space-x-1.5 lg:space-x-2 px-3 lg:px-5 py-2 lg:py-2.5 text-xs lg:text-sm font-bold text-white bg-gray-600 rounded-xl border-3 border-gray-700 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all pixel-font hover:brightness-110">
-                    <LogOut className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
-                    <span className="hidden sm:inline">EXIT GAME</span>
-                    <span className="sm:hidden">EXIT</span>
-                    <div className="absolute -top-2 -right-2 w-3 h-3 lg:w-4 lg:h-4 bg-yellow-400 rounded-full border border-gray-600 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"></div>
-                  </div>
-                </button>
-
-                {/* Mobile Menu Button - Pixel Style */}
-                <button
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="lg:hidden p-2 bg-yellow-400 text-white hover:scale-110 rounded-xl border-3 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] transition-all hover:brightness-110"
-                  aria-label="Toggle menu"
-                >
-                  {mobileMenuOpen ? (
-                    <X className="h-5 w-5 sm:h-6 sm:w-6 drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]" />
-                  ) : (
-                    <Menu className="h-5 w-5 sm:h-6 sm:w-6 drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]" />
+              {/* Notification Button - Game Style */}
+              <button
+                onClick={() => setNotificationInboxOpen(true)}
+                className="group relative transform hover:scale-105 transition-all"
+                aria-label="Notifications"
+              >
+                <div className="absolute -inset-1 bg-yellow-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-yellow-400 rounded-xl border-3 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all pixel-font hover:brightness-110">
+                  <Bell className="h-5 w-5 lg:h-6 lg:w-6 text-blue-500" />
+                  {unreadCount > 0 && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 lg:w-6 lg:h-6 bg-red-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg">
+                      <span className="text-white text-[10px] lg:text-xs font-bold pixel-font">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    </div>
                   )}
-                </button>
-              </div>
+                </div>
+              </button>
+
+              {/* Exit Button - Game Style */}
+              <button
+                onClick={handleLogout}
+                className="group relative transform hover:scale-105 transition-all"
+              >
+                <div className="absolute -inset-1 bg-gray-600 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative flex items-center space-x-1.5 lg:space-x-2 px-3 lg:px-5 py-2 lg:py-2.5 text-xs lg:text-sm font-bold text-white bg-gray-600 rounded-xl border-3 border-gray-700 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all pixel-font hover:brightness-110">
+                  <LogOut className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                  <span className="hidden sm:inline">EXIT GAME</span>
+                  <span className="sm:hidden">EXIT</span>
+                  <div className="absolute -top-2 -right-2 w-3 h-3 lg:w-4 lg:h-4 bg-yellow-400 rounded-full border border-gray-600 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"></div>
+                </div>
+              </button>
+
+              {/* Mobile Menu Button - Pixel Style */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 bg-yellow-400 text-white hover:scale-110 rounded-xl border-3 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] transition-all hover:brightness-110"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-5 w-5 sm:h-6 sm:w-6 drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]" />
+                ) : (
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6 drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]" />
+                )}
+              </button>
             </div>
           </div>
+        </div>
 
         {/* Mobile Menu - Pixel Game Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden bg-blue-500 border-t-4 border-gray-600 shadow-inner relative">
             <div className="px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4 relative z-10 max-w-7xl mx-auto">
-              {/* Mobile Navigation Links - Game Menu */}
               <div className="space-y-2 sm:space-y-3">
                 {navLinks.map((link) => (
                   <Link
                     key={link.to}
                     to={link.to}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center space-x-3 sm:space-x-4 px-3 sm:px-4 py-3 sm:py-4 bg-yellow-400 rounded-xl border-3 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] text-white font-bold transition-all transform hover:scale-105 pixel-font active:scale-95"
+                    className="flex items-center space-x-3 sm:space-x-4 px-3 sm:px-4 py-3 sm:py-4 bg-yellow-400 rounded-xl border-3 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] font-bold transition-all transform hover:scale-105 active:scale-95"
                   >
                     <div className="w-9 h-9 sm:w-10 sm:h-10 bg-blue-500 rounded-lg border-2 border-gray-600 flex items-center justify-center flex-shrink-0">
                       <div className="h-5 w-5 sm:h-6 sm:w-6 text-white">{link.icon}</div>
                     </div>
-                    <span className="text-sm sm:text-base flex-1 text-white">{link.label}</span>
-                    <div className="ml-auto text-base sm:text-lg text-white">▶</div>
+                    <span className="text-base sm:text-lg flex-1 text-gray-800 font-extrabold tracking-wide" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', textShadow: '1px 1px 0px rgba(255,255,255,0.5)' }}>{link.label}</span>
+                    <div className="ml-auto text-lg sm:text-xl text-gray-700 font-bold">›</div>
                   </Link>
                 ))}
               </div>

@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  GraduationCap, 
-  TrendingUp, 
+import {
+  Sparkles,
+  GraduationCap,
+  TrendingUp,
   Award,
   CheckCircle2,
   ArrowRight,
@@ -57,7 +57,7 @@ export default function LandingPage() {
   const itemsPerPage = 12;
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   // Poster carousel state
   const posters = [poster1, poster2, poster3, poster4];
   const [currentPosterIndex, setCurrentPosterIndex] = useState(0);
@@ -90,7 +90,7 @@ export default function LandingPage() {
     async function fetchMarketplaceItems() {
       try {
         setLoadingMarketplace(true);
-        
+
         // Build query with filters
         let query = supabase
           .from('marketplace_items')
@@ -177,14 +177,14 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src={logoImage} 
-                alt="MyCEO Logo" 
+              <img
+                src={logoImage}
+                alt="MyCEO Logo"
                 className="h-16 w-auto object-contain"
               />
               <span className="text-2xl font-bold text-blue-600"></span>
             </Link>
-            
+
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/#features" onClick={(e) => handleSectionClick(e, '#features')} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Features</Link>
@@ -192,8 +192,8 @@ export default function LandingPage() {
               <Link to="/#marketplace" onClick={(e) => handleSectionClick(e, '#marketplace')} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Marketplace</Link>
               <Link to="/#pricing" onClick={(e) => handleSectionClick(e, '#pricing')} className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Pricing</Link>
               <Link to="/login" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">Sign In</Link>
-              <Link 
-                to="/signup" 
+              <Link
+                to="/signup"
                 className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 font-bold transform hover:scale-105"
               >
                 Get Started
@@ -279,7 +279,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section 
+      <section
         className="pt-24 sm:pt-32 pb-12 sm:pb-20 relative overflow-hidden w-full"
         style={{
           backgroundImage: `url(${backgroundImage})`,
@@ -299,19 +299,19 @@ export default function LandingPage() {
                 </span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 leading-relaxed font-medium">
-                An interactive learning platform that makes financial literacy fun. 
+                An interactive learning platform that makes financial literacy fun.
                 Help your children build real-world business skills through gamified lessons and virtual companies.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Link 
-                  to="/signup" 
+                <Link
+                  to="/signup"
                   className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl font-bold text-base sm:text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/40 hover:shadow-2xl hover:scale-105"
                 >
                   Start Free Trial
                   <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Link>
-                <Link 
-                  to="/login" 
+                <Link
+                  to="/login"
                   className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white text-gray-900 rounded-xl font-bold text-base sm:text-lg border-2 border-blue-300 hover:border-blue-500 transition-all hover:shadow-lg hover:bg-blue-50"
                 >
                   Sign In
@@ -366,7 +366,7 @@ export default function LandingPage() {
               Explore our collection of inspiring posters
             </p>
           </div>
-          
+
           {/* Carousel Container */}
           <div className="relative">
             {/* Left Navigation Button */}
@@ -380,7 +380,7 @@ export default function LandingPage() {
 
             {/* Carousel */}
             <div className="mx-12 overflow-hidden">
-              <div 
+              <div
                 className="flex transition-transform duration-500 ease-in-out"
                 style={{ transform: `translateX(-${currentPosterIndex * 100}%)` }}
               >
@@ -389,7 +389,7 @@ export default function LandingPage() {
                     key={index}
                     className="min-w-full px-2"
                   >
-                    <div 
+                    <div
                       className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border-2 border-purple-200 group cursor-pointer flex items-center justify-center"
                       onClick={() => setSelectedPosterIndex(index)}
                     >
@@ -427,11 +427,10 @@ export default function LandingPage() {
               <button
                 key={index}
                 onClick={() => setCurrentPosterIndex(index)}
-                className={`h-3 rounded-full transition-all ${
-                  index === currentPosterIndex
-                    ? 'w-8 bg-purple-600'
-                    : 'w-3 bg-purple-300 hover:bg-purple-400'
-                }`}
+                className={`h-3 rounded-full transition-all ${index === currentPosterIndex
+                  ? 'w-8 bg-purple-600'
+                  : 'w-3 bg-purple-300 hover:bg-purple-400'
+                  }`}
                 aria-label={`Go to poster ${index + 1}`}
               />
             ))}
@@ -511,7 +510,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               <span className="text-blue-600">
-              Everything Your Child Needs to Succeed
+                Everything Your Child Needs to Succeed
               </span>
             </h2>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto font-medium">
@@ -565,7 +564,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               <span className="text-blue-600">
-              How It Works
+                How It Works
               </span>
             </h2>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto font-medium">
@@ -699,18 +698,18 @@ export default function LandingPage() {
           </div>
 
           {loadingMarketplace ? (
-            <LoadingAnimation 
-              message="Loading amazing products..." 
-              variant="inline" 
-              showSkeleton={true} 
-              skeletonCount={8} 
+            <LoadingAnimation
+              message="Loading amazing products..."
+              variant="inline"
+              showSkeleton={true}
+              skeletonCount={8}
             />
           ) : marketplaceItems.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-2xl shadow-xl border-2 border-purple-200">
               <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-2xl font-bold text-gray-700 mb-2">No Products Found</h3>
               <p className="text-gray-600 font-medium mb-4">
-                {searchQuery || priceFilter !== 'all' 
+                {searchQuery || priceFilter !== 'all'
                   ? 'Try adjusting your search or filters to find more products.'
                   : 'Be the first to create a product! Sign up and start your entrepreneurial journey.'}
               </p>
@@ -727,7 +726,7 @@ export default function LandingPage() {
                 </button>
               )}
               {!searchQuery && priceFilter === 'all' && (
-                <Link 
+                <Link
                   to="/signup"
                   className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all shadow-lg"
                 >
@@ -762,7 +761,7 @@ export default function LandingPage() {
                         {formatCurrency(item.price)}
                       </div>
                     </div>
-                    
+
                     {/* Product Info */}
                     <div className="p-5">
                       <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
@@ -806,7 +805,7 @@ export default function LandingPage() {
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
-                  
+
                   {/* Page Numbers */}
                   <div className="flex items-center gap-2">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -825,11 +824,10 @@ export default function LandingPage() {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`px-4 py-2 rounded-xl border-2 font-bold transition-all ${
-                            currentPage === pageNum
-                              ? 'bg-purple-600 text-white border-purple-500 shadow-lg'
-                              : 'bg-white text-gray-700 border-purple-200 hover:bg-purple-50 hover:border-purple-500'
-                          }`}
+                          className={`px-4 py-2 rounded-xl border-2 font-bold transition-all ${currentPage === pageNum
+                            ? 'bg-purple-600 text-white border-purple-500 shadow-lg'
+                            : 'bg-white text-gray-700 border-purple-200 hover:bg-purple-50 hover:border-purple-500'
+                            }`}
                         >
                           {pageNum}
                         </button>
@@ -873,123 +871,54 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               <span className="text-blue-600">
-              Simple, Transparent Pricing
+                Start Learning for Free
               </span>
             </h2>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto font-medium">
-              Choose the plan that works best for your family
+              Begin your child's entrepreneurship journey today - no credit card required!
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="flex justify-center">
             {/* Free Plan */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-all">
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Free</h3>
-                <div className="flex items-baseline">
-                  <span className="text-4xl font-bold text-gray-900">$0</span>
-                  <span className="text-gray-600 ml-2 font-medium">/month</span>
+            <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-green-300 hover:shadow-2xl transition-all max-w-md w-full">
+              <div className="mb-6 text-center">
+                <div className="inline-block bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold mb-4">
+                  ✨ Get Started Free
                 </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Free Plan</h3>
+                <div className="flex items-baseline justify-center">
+                  <span className="text-5xl font-bold text-green-600">FREE</span>
+                </div>
+                <p className="text-green-600 font-medium mt-2">No credit card required</p>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start">
                   <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">Access to basic lessons</span>
+                  <span className="text-gray-700 font-medium">Access to all learning modules</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">Limited modules</span>
+                  <span className="text-gray-700 font-medium">Virtual company simulation</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">Basic progress tracking</span>
+                  <span className="text-gray-700 font-medium">Progress tracking</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700 font-medium">Marketplace access</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <span className="text-gray-700 font-medium">Achievements & badges</span>
                 </li>
               </ul>
-              <Link 
+              <Link
                 to="/signup"
-                className="block w-full text-center px-6 py-3 bg-gray-100 text-gray-900 rounded-xl font-bold hover:bg-gray-200 transition-all shadow-md"
+                className="block w-full text-center px-6 py-4 bg-green-600 text-white rounded-xl font-bold text-lg hover:bg-green-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                Get Started
-              </Link>
-            </div>
-
-            {/* Standard Plan - Recommended */}
-            <div className="bg-blue-600 rounded-2xl p-8 shadow-2xl transform scale-105 relative border-4 border-yellow-300">
-              <div className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 px-4 py-1 rounded-bl-2xl rounded-tr-2xl text-sm font-bold shadow-lg">
-                Most Popular ⭐
-              </div>
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Standard</h3>
-                <div className="flex items-baseline">
-                  <span className="text-4xl font-bold text-white">$19</span>
-                  <span className="text-white/90 ml-2 font-medium">/month</span>
-                </div>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-white mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-white font-medium">All lessons & modules</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-white mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-white font-medium">Virtual company feature</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-white mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-white font-medium">Full progress tracking</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-white mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-white font-medium">Achievements & badges</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-white mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-white font-medium">Priority support</span>
-                </li>
-              </ul>
-              <Link 
-                to="/signup"
-                className="block w-full text-center px-6 py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg"
-              >
-                Start Free Trial
-              </Link>
-            </div>
-
-            {/* Pro Plan */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-purple-200 hover:shadow-2xl transition-all">
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
-                <div className="flex items-baseline">
-                  <span className="text-4xl font-bold text-gray-900">$39</span>
-                  <span className="text-gray-600 ml-2 font-medium">/month</span>
-                </div>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">Everything in Standard</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">Multiple children accounts</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">Advanced analytics</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">Marketplace features</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                  <span className="text-gray-700 font-medium">24/7 premium support</span>
-                </li>
-              </ul>
-              <Link 
-                to="/signup"
-                className="block w-full text-center px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg"
-              >
-                Start Free Trial
+                Get Started Free
+                <ArrowRight className="inline ml-2 h-5 w-5" />
               </Link>
             </div>
           </div>

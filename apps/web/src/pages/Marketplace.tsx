@@ -35,12 +35,23 @@ interface Company {
   product_name: string | null;
 }
 
+interface Purchase {
+  id: string;
+  item_id: string;
+  purchase_date: string;
+  item_name: string;
+  item_price: number;
+  item_image_url: string | null;
+  seller_name: string;
+}
+
 export default function MarketplacePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [childSession, setChildSession] = useState<ChildSession | null>(null);
   const [items, setItems] = useState<MarketplaceItem[]>([]);
   const [myItems, setMyItems] = useState<MarketplaceItem[]>([]);
+  const [myPurchases, setMyPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,6 +145,47 @@ export default function MarketplacePage() {
           (item) => item.seller_child_id === childSession.childId
         );
         setMyItems(myItemsList);
+
+        // Fetch my purchases
+        const { data: purchasesData, error: purchasesError } = await supabase
+          .from('marketplace_purchases')
+          .select('id, item_id, purchase_date')
+          .eq('buyer_child_id', childSession.childId)
+          .order('purchase_date', { ascending: false });
+
+        if (!purchasesError && purchasesData) {
+          // Fetch item details for each purchase
+          const purchasesWithDetails = await Promise.all(
+            purchasesData.map(async (purchase) => {
+              const { data: itemData } = await supabase
+                .from('marketplace_items')
+                .select('item_name, price, image_url, seller_child_id')
+                .eq('id', purchase.item_id)
+                .single();
+
+              let sellerName = 'Unknown';
+              if (itemData?.seller_child_id) {
+                const { data: sellerData } = await supabase
+                  .from('children')
+                  .select('name')
+                  .eq('id', itemData.seller_child_id)
+                  .single();
+                sellerName = sellerData?.name || 'Unknown';
+              }
+
+              return {
+                id: purchase.id,
+                item_id: purchase.item_id,
+                purchase_date: purchase.purchase_date,
+                item_name: itemData?.item_name || 'Unknown Item',
+                item_price: itemData?.price || 0,
+                item_image_url: itemData?.image_url || null,
+                seller_name: sellerName,
+              };
+            })
+          );
+          setMyPurchases(purchasesWithDetails);
+        }
       } catch (err) {
         console.error('Failed to fetch marketplace data:', err);
         toast({
@@ -269,6 +321,67 @@ export default function MarketplacePage() {
                   onRefresh={handleRefresh}
                   onProductClick={() => setSelectedProductId(item.id)}
                 />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* My Purchases Section */}
+        {myPurchases.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <ShoppingCart className="h-6 w-6 text-green-600" />
+              My Purchases
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myPurchases.map((purchase) => (
+                <div
+                  key={purchase.id}
+                  onClick={() => setSelectedProductId(purchase.item_id)}
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden border-4 border-green-200 hover:shadow-xl transition-shadow cursor-pointer"
+                >
+                  {/* Product Image */}
+                  <div className="h-40 bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+                    {purchase.item_image_url ? (
+                      <img
+                        src={purchase.item_image_url}
+                        alt={purchase.item_name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Package className="h-16 w-16 text-gray-400" />
+                    )}
+                  </div>
+
+                  {/* Purchase Info */}
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="h-5 w-5 text-green-600" />
+                      <span className="text-xs font-semibold text-green-600 uppercase">Purchased</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{purchase.item_name}</h3>
+
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-lg font-bold text-gray-800">
+                        {formatCurrency(purchase.item_price)}
+                      </span>
+                    </div>
+
+                    <div className="text-sm text-gray-500 space-y-1">
+                      <p>
+                        <span className="font-medium">Seller:</span> {purchase.seller_name}
+                      </p>
+                      <p>
+                        <span className="font-medium">Date:</span>{' '}
+                        {new Date(purchase.purchase_date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -532,6 +645,29 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
           .eq('id', sellerCompany.id);
 
         if (sellerUpdateError) throw sellerUpdateError;
+
+        // Create sale notification for the seller
+        try {
+          await supabase
+            .from('notifications')
+            .insert({
+              child_id: item.seller_child_id,
+              notification_type: 'sale',
+              title: '💰 You made a sale!',
+              message: `${childSession.childName || 'Someone'} purchased ${purchaseQuantity}x ${item.item_name} for ${formatCurrency(totalPrice)}!`,
+              is_read: false,
+              metadata: {
+                item_id: item.id,
+                item_name: item.item_name,
+                buyer_name: childSession.childName || 'Unknown',
+                quantity: purchaseQuantity,
+                total_price: totalPrice,
+              },
+            });
+        } catch (notifyErr) {
+          // Don't fail purchase if notification fails
+          console.warn('Failed to create sale notification:', notifyErr);
+        }
 
         // 6a. Award achievements and XP for the seller (check for sale achievements)
         // Company achievements are checked on any activity type, so we use 'sale' for clarity

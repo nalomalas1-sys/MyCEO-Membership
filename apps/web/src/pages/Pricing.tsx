@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/hooks/useAuth';
 import { ParentNavBar } from '@/components/navigation/ParentNavBar';
-import { 
-  CheckCircle2, 
-  Loader2, 
-  Shield, 
+import {
+  CheckCircle2,
+  Loader2,
+  Shield,
   X,
   Users,
   Rocket,
@@ -29,64 +29,65 @@ interface Plan {
 const plans: Plan[] = [
   {
     id: 'basic',
-    name: 'Basic',
-    description: 'Perfect for getting started with one child.',
-    monthlyPrice: 9.99,
-    annualPrice: 99.99,
+    name: 'Free',
+    description: 'Start your entrepreneurship journey for free!',
+    monthlyPrice: 0,
+    annualPrice: 0,
     childLimit: 1,
     features: [
       '1 child profile',
-      'Basic quest designer',
-      'Simple progress tracking',
-      'Weekly reports',
-      'Safe digital environment',
-      '5 starter quests',
-      'Basic games',
+      'Access to all learning modules',
+      'Progress tracking',
+      'Virtual company simulation',
+      'Marketplace access',
+      'Achievements & badges',
+      '30-day full access',
     ],
     icon: Rocket,
   },
-  {
-    id: 'standard',
-    name: 'Standard',
-    description: 'Best for families with multiple children.',
-    monthlyPrice: 19.99,
-    annualPrice: 199.99,
-    childLimit: 5,
-    features: [
-      'Up to 5 child profiles',
-      'Virtual shop builder',
-      'Advanced analytics',
-      'Priority support',
-      'Unlimited quests',
-      'Interactive business games',
-      'Export reports',
-      'Achievement system',
-      'Mini-games collection',
-    ],
-    popular: true,
-    icon: Users,
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    description: 'Unlimited access for the whole family.',
-    monthlyPrice: 29.99,
-    annualPrice: 299.99,
-    childLimit: 'Unlimited',
-    features: [
-      'Unlimited child profiles',
-      'Full feature access',
-      'AI assistant',
-      'Export all data',
-      'Dedicated support',
-      'Custom quest creator',
-      'White label options',
-      'All mini-games',
-      'Elite achievements',
-      'Exclusive content',
-    ],
-    icon: Crown,
-  },
+  // Standard and Premium plans are hidden for now
+  // {
+  //   id: 'standard',
+  //   name: 'Standard',
+  //   description: 'Best for families with multiple children.',
+  //   monthlyPrice: 19.99,
+  //   annualPrice: 199.99,
+  //   childLimit: 5,
+  //   features: [
+  //     'Up to 5 child profiles',
+  //     'Virtual shop builder',
+  //     'Advanced analytics',
+  //     'Priority support',
+  //     'Unlimited quests',
+  //     'Interactive business games',
+  //     'Export reports',
+  //     'Achievement system',
+  //     'Mini-games collection',
+  //   ],
+  //   popular: true,
+  //   icon: Users,
+  // },
+  // {
+  //   id: 'premium',
+  //   name: 'Premium',
+  //   description: 'Unlimited access for the whole family.',
+  //   monthlyPrice: 29.99,
+  //   annualPrice: 299.99,
+  //   childLimit: 'Unlimited',
+  //   features: [
+  //     'Unlimited child profiles',
+  //     'Full feature access',
+  //     'AI assistant',
+  //     'Export all data',
+  //     'Dedicated support',
+  //     'Custom quest creator',
+  //     'White label options',
+  //     'All mini-games',
+  //     'Elite achievements',
+  //     'Exclusive content',
+  //   ],
+  //   icon: Crown,
+  // },
 ];
 
 function PricingContent() {
@@ -146,50 +147,48 @@ function PricingContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-        <ParentNavBar />
+      <ParentNavBar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
+
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Choose Your Plan
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Start with a 30-day free trial. No credit card required.
+            Start your child's entrepreneurship journey today!
           </p>
-                 </div>
+        </div>
 
-        {/* Billing Toggle */}
-        <div className="flex justify-center mb-12">
+        {/* Billing Toggle - Hidden for Free tier only */}
+        {/* <div className="flex justify-center mb-12">
           <div className="inline-flex items-center bg-white rounded-lg p-1 shadow-md border border-gray-200">
             <button
               onClick={() => setBillingPeriod('monthly')}
-              className={`px-6 py-2 rounded-md font-medium transition-all ${
-                billingPeriod === 'monthly'
+              className={`px-6 py-2 rounded-md font-medium transition-all ${billingPeriod === 'monthly'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setBillingPeriod('annual')}
-              className={`px-6 py-2 rounded-md font-medium transition-all ${
-                billingPeriod === 'annual'
+              className={`px-6 py-2 rounded-md font-medium transition-all ${billingPeriod === 'annual'
                   ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               Annual
-                          {billingPeriod === 'annual' && (
+              {billingPeriod === 'annual' && (
                 <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
                   Save 17%
                 </span>
-                          )}
+              )}
             </button>
-                    </div>
-                 </div>
+          </div>
+        </div> */}
 
         {/* Error Message */}
         {error && (
@@ -198,16 +197,16 @@ function PricingContent() {
               <div className="flex items-center gap-3">
                 <Shield className="w-5 h-5" />
                 <span className="font-medium">{error}</span>
-                   </div>
+              </div>
               <button onClick={() => setError(null)} className="hover:bg-red-100 rounded p-1">
                 <X className="w-5 h-5" />
-                   </button>
-             </div>
+              </button>
+            </div>
           </div>
         )}
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="flex justify-center mb-16">
           {plans.map((plan) => {
             const price = getPrice(plan);
             const Icon = plan.icon;
@@ -216,18 +215,17 @@ function PricingContent() {
             return (
               <div
                 key={plan.id}
-                className={`relative bg-white rounded-2xl shadow-lg border-2 transition-all hover:shadow-xl ${
-                  isPopular
-                    ? 'border-blue-500 scale-105'
-                    : 'border-gray-200'
-                }`}
+                className={`relative bg-white rounded-2xl shadow-lg border-2 transition-all hover:shadow-xl ${isPopular
+                  ? 'border-blue-500 scale-105'
+                  : 'border-gray-200'
+                  }`}
               >
                 {isPopular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
                       Most Popular
-                            </span>
-                          </div>
+                    </span>
+                  </div>
                 )}
 
                 <div className="p-8">
@@ -235,22 +233,21 @@ function PricingContent() {
                   <div className="mb-6">
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                       <Icon className="w-6 h-6 text-blue-600" />
-                        </div>
+                    </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                     <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
-                              <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-bold text-gray-900">${price}</span>
-                      <span className="text-gray-500">
-                        /{billingPeriod === 'monthly' ? 'month' : 'year'}
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold text-green-600">
+                        {price === 0 ? 'FREE' : `$${price}`}
                       </span>
-                              </div>
-                              {billingPeriod === 'annual' && (
-                      <p className="text-sm text-gray-500 mt-2">
-                        Save ${(plan.monthlyPrice * 12 - plan.annualPrice).toFixed(2)} per year
+                    </div>
+                    {price === 0 && (
+                      <p className="text-sm text-green-600 mt-2 font-medium">
+                        No credit card required
                       </p>
                     )}
                     <p className="text-sm text-gray-600 mt-3">
-                      {typeof plan.childLimit === 'number' 
+                      {typeof plan.childLimit === 'number'
                         ? `Up to ${plan.childLimit} child${plan.childLimit > 1 ? 'ren' : ''}`
                         : 'Unlimited children'}
                     </p>
@@ -259,24 +256,23 @@ function PricingContent() {
                   {/* Features */}
                   <div className="mb-8">
                     <ul className="space-y-3">
-                    {plan.features.map((feature, index) => (
+                      {plan.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-3">
                           <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <span className="text-sm text-gray-700">{feature}</span>
                         </li>
                       ))}
                     </ul>
-                     </div>
+                  </div>
 
                   {/* CTA Button */}
                   <button
                     onClick={() => handleSelectPlan(plan.id)}
                     disabled={loading !== null}
-                    className={`w-full py-3 rounded-lg font-semibold transition-all ${
-                      isPopular
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`w-full py-3 rounded-lg font-semibold transition-all ${isPopular
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {loading === plan.id ? (
                       <span className="flex items-center justify-center gap-2">
@@ -302,10 +298,10 @@ function PricingContent() {
             </p>
             <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
               Contact Sales
-                  </button>
-               </div>
-           </div>
+            </button>
+          </div>
         </div>
+      </div>
     </div>
   );
 }

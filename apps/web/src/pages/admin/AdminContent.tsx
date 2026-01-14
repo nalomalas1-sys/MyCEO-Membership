@@ -165,11 +165,10 @@ function AdminContentContent() {
 
   const getTrackName = (track: string) => {
     const names: Record<string, string> = {
-      money_basics: 'Money Basics',
-      entrepreneurship: 'Entrepreneurship',
-      advanced: 'Advanced',
+      entrepreneurship: 'Interactive Games',
       project_based: 'Project Based',
       online_class: 'Online Class',
+      recording: 'Recording',
     };
     return names[track] || track;
   };
@@ -230,11 +229,10 @@ function AdminContentContent() {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               <option value="all">All Tracks</option>
-              <option value="money_basics">Money Basics</option>
-              <option value="entrepreneurship">Entrepreneurship</option>
-              <option value="advanced">Advanced</option>
+              <option value="entrepreneurship">Interactive Games</option>
               <option value="project_based">Project Based</option>
               <option value="online_class">Online Class</option>
+              <option value="recording">Recording</option>
             </select>
             <select
               value={publishedFilter}
@@ -281,7 +279,7 @@ function AdminContentContent() {
                     <BookOpen className="h-12 w-12 text-gray-400" />
                   </div>
                 )}
-                
+
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
@@ -338,11 +336,10 @@ function AdminContentContent() {
                     )}
                     <button
                       onClick={() => handleTogglePublish(module.id, module.is_published)}
-                      className={`px-4 py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 ${
-                        module.is_published
+                      className={`px-4 py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 ${module.is_published
                           ? 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800'
                           : 'bg-green-100 hover:bg-green-200 text-green-800'
-                      }`}
+                        }`}
                     >
                       {module.is_published ? (
                         <>
