@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
@@ -72,7 +72,7 @@ export default function MarketplacePage() {
         // Fetch company info
         // Use * to avoid 406 errors with specific column selection and RLS
         if (!childSession) return;
-        
+
         const { data: companyData, error: companyError } = await supabase
           .from('companies')
           .select('*')
@@ -343,6 +343,7 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
   const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
+  const [purchaseQuantity, setPurchaseQuantity] = useState(1);
   const [childSession, setChildSession] = useState<ChildSession | null>(null);
   const [buyerCompany, setBuyerCompany] = useState<{ id: string; current_balance: number; company_name: string } | null>(null);
 
@@ -426,10 +427,22 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
       return;
     }
 
-    if (buyerCompany.current_balance < item.price) {
+    // Check if requested quantity is available
+    if (purchaseQuantity > availableQuantity) {
+      toast({
+        title: 'Not Enough Stock',
+        description: `Only ${availableQuantity} items available.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const totalPrice = item.price * purchaseQuantity;
+
+    if (buyerCompany.current_balance < totalPrice) {
       toast({
         title: 'Insufficient Funds',
-        description: `You need ${formatCurrency(item.price)} but only have ${formatCurrency(buyerCompany.current_balance)}.`,
+        description: `You need ${formatCurrency(totalPrice)} but only have ${formatCurrency(buyerCompany.current_balance)}.`,
         variant: 'destructive',
       });
       setShowPurchaseConfirm(false);
@@ -458,8 +471,8 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
         .insert({
           company_id: buyerCompany.id,
           transaction_type: 'purchase',
-          amount: item.price,
-          description: `Purchased: ${item.item_name} from ${item.seller_name}`,
+          amount: totalPrice,
+          description: `Purchased: ${purchaseQuantity}x ${item.item_name} from ${item.seller_name}`,
         })
         .select()
         .single();
@@ -479,8 +492,8 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
       const { error: buyerUpdateError } = await supabase
         .from('companies')
         .update({
-          current_balance: buyerCompany.current_balance - item.price,
-          total_expenses: (currentBuyerCompany?.total_expenses || 0) + item.price,
+          current_balance: buyerCompany.current_balance - totalPrice,
+          total_expenses: (currentBuyerCompany?.total_expenses || 0) + totalPrice,
         })
         .eq('id', buyerCompany.id);
 
@@ -503,8 +516,8 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
           .insert({
             company_id: sellerCompany.id,
             transaction_type: 'sale',
-            amount: item.price,
-            description: `Sold: ${item.item_name} to ${childSession.childName || 'a buyer'}`,
+            amount: totalPrice,
+            description: `Sold: ${purchaseQuantity}x ${item.item_name} to ${childSession.childName || 'a buyer'}`,
           });
 
         if (sellerTxError) throw sellerTxError;
@@ -513,8 +526,8 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
         const { error: sellerUpdateError } = await supabase
           .from('companies')
           .update({
-            current_balance: sellerCompany.current_balance + item.price,
-            total_revenue: (sellerCompany.total_revenue || 0) + item.price,
+            current_balance: sellerCompany.current_balance + totalPrice,
+            total_revenue: (sellerCompany.total_revenue || 0) + totalPrice,
           })
           .eq('id', sellerCompany.id);
 
@@ -535,7 +548,7 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
             const newAchievements = Array.isArray(result.new_achievements) ? result.new_achievements : [];
             if (newAchievements.length > 0) {
               // Log for debugging - seller will see achievements when they check their profile
-              console.warn(`Seller earned ${newAchievements.length} achievement(s):`, 
+              console.warn(`Seller earned ${newAchievements.length} achievement(s):`,
                 newAchievements.map((a: { name: string }) => a.name).join(', '));
             }
           }
@@ -552,12 +565,12 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
         .eq('id', purchaseData.id);
 
       // 8. Decrement quantity and update status if needed
-      const currentQuantity = (item.quantity || 1) - 1;
+      const currentQuantity = (item.quantity || 1) - purchaseQuantity;
       const newStatus = currentQuantity <= 0 ? 'sold' : 'available';
-      
+
       const { error: itemUpdateError } = await supabase
         .from('marketplace_items')
-        .update({ 
+        .update({
           quantity: currentQuantity,
           status: newStatus
         })
@@ -567,11 +580,12 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
 
       toast({
         title: 'Purchase Successful! 🎉',
-        description: `You've purchased ${item.item_name} for ${formatCurrency(item.price)}!`,
+        description: `You've purchased ${purchaseQuantity}x ${item.item_name} for ${formatCurrency(totalPrice)}!`,
         variant: 'success',
       });
 
       setShowPurchaseConfirm(false);
+      setPurchaseQuantity(1);
       onRefresh();
     } catch (err: unknown) {
       const error = err instanceof Error ? err : new Error(String(err));
@@ -717,16 +731,53 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
                 <p className="text-gray-900 text-lg">{item.item_name}</p>
               </div>
               <div>
-                <p className="text-gray-700 font-semibold mb-2">Price:</p>
-                <p className="text-2xl font-bold text-yellow-600">{formatCurrency(item.price)}</p>
+                <p className="text-gray-700 font-semibold mb-2">Price per item:</p>
+                <p className="text-xl font-bold text-yellow-600">{formatCurrency(item.price)}</p>
               </div>
-              {(item.quantity || 0) > 0 && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <p className="text-sm text-gray-700">
-                    <strong>Available:</strong> {item.quantity || 0} {item.quantity === 1 ? 'item' : 'items'} remaining
-                  </p>
+
+              {/* Quantity Selector */}
+              <div>
+                <p className="text-gray-700 font-semibold mb-2">Quantity:</p>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
+                    disabled={purchaseQuantity <= 1}
+                    className="w-10 h-10 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    max={item.quantity || 1}
+                    value={purchaseQuantity}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 1;
+                      setPurchaseQuantity(Math.min(Math.max(1, val), item.quantity || 1));
+                    }}
+                    className="w-20 text-center text-xl font-bold border-2 border-gray-300 rounded-lg py-2"
+                  />
+                  <button
+                    onClick={() => setPurchaseQuantity(Math.min(item.quantity || 1, purchaseQuantity + 1))}
+                    disabled={purchaseQuantity >= (item.quantity || 1)}
+                    className="w-10 h-10 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    +
+                  </button>
+                  <span className="text-sm text-gray-500">
+                    of {item.quantity || 0} available
+                  </span>
                 </div>
-              )}
+              </div>
+
+              {/* Total Price */}
+              <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
+                <p className="text-gray-700 font-semibold mb-1">Total Price:</p>
+                <p className="text-3xl font-bold text-yellow-600">
+                  {formatCurrency(item.price * purchaseQuantity)}
+                </p>
+              </div>
+
               {buyerCompany && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <p className="text-sm text-blue-800">
@@ -734,21 +785,24 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
                   </p>
                   <p className="text-sm text-blue-800 mt-1">
                     <strong>After Purchase:</strong>{' '}
-                    {formatCurrency(buyerCompany.current_balance - item.price)}
+                    {formatCurrency(buyerCompany.current_balance - (item.price * purchaseQuantity))}
                   </p>
                 </div>
               )}
-              {buyerCompany && buyerCompany.current_balance < item.price && (
+              {buyerCompany && buyerCompany.current_balance < (item.price * purchaseQuantity) && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                   <p className="text-sm text-red-800">
-                    ⚠️ Insufficient funds! You need {formatCurrency(item.price - buyerCompany.current_balance)} more.
+                    ⚠️ Insufficient funds! You need {formatCurrency((item.price * purchaseQuantity) - buyerCompany.current_balance)} more.
                   </p>
                 </div>
               )}
             </div>
             <div className="flex gap-4">
               <button
-                onClick={() => setShowPurchaseConfirm(false)}
+                onClick={() => {
+                  setShowPurchaseConfirm(false);
+                  setPurchaseQuantity(1);
+                }}
                 className="flex-1 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
                 disabled={purchasing}
               >
@@ -756,7 +810,7 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
               </button>
               <button
                 onClick={handlePurchase}
-                disabled={purchasing || !!(buyerCompany && buyerCompany.current_balance < item.price)}
+                disabled={purchasing || !!(buyerCompany && buyerCompany.current_balance < (item.price * purchaseQuantity))}
                 className="flex-1 py-2 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {purchasing ? (
@@ -767,7 +821,7 @@ function ProductCard({ item, isOwnItem, onRefresh, onProductClick }: ProductCard
                 ) : (
                   <>
                     <Check className="h-5 w-5" />
-                    Confirm Purchase
+                    Buy {purchaseQuantity} {purchaseQuantity === 1 ? 'item' : 'items'}
                   </>
                 )}
               </button>
@@ -815,6 +869,32 @@ function AddProductModal({
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [sellerCompany, setSellerCompany] = useState<{ id: string; current_balance: number; total_expenses: number } | null>(null);
+
+  // Fetch seller's company balance
+  useEffect(() => {
+    if (childSession?.childId) {
+      async function fetchSellerCompany() {
+        const { data, error } = await supabase
+          .from('companies')
+          .select('id, current_balance, total_expenses')
+          .eq('child_id', childSession.childId)
+          .single();
+
+        if (!error && data) {
+          setSellerCompany(data);
+        }
+      }
+      fetchSellerCompany();
+    }
+  }, [childSession?.childId]);
+
+  // Calculate promotion cost (50% of price × quantity)
+  const promotionCost = useMemo(() => {
+    const priceNum = parseFloat(price) || 0;
+    const quantityNum = parseInt(quantity) || 1;
+    return (priceNum * quantityNum) * 0.5;
+  }, [price, quantity]);
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/jfif', 'image/pjpeg'];
@@ -840,8 +920,8 @@ function AddProductModal({
     // Validate file type
     const fileExt = file.name.split('.').pop()?.toLowerCase();
     const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'jfif'];
-    const isValidType = ALLOWED_TYPES.includes(file.type) || 
-                        (fileExt && allowedExtensions.includes(fileExt));
+    const isValidType = ALLOWED_TYPES.includes(file.type) ||
+      (fileExt && allowedExtensions.includes(fileExt));
 
     if (!isValidType) {
       setImageError('Please upload a JPEG, PNG, or WebP image');
@@ -870,9 +950,9 @@ function AddProductModal({
 
       // Determine correct MIME type
       let contentType = file.type;
-      if (!contentType || 
-          contentType === 'application/json' || 
-          !ALLOWED_TYPES.includes(contentType)) {
+      if (!contentType ||
+        contentType === 'application/json' ||
+        !ALLOWED_TYPES.includes(contentType)) {
         contentType = getMimeTypeFromExtension(fileExt || 'jpg');
       } else if (contentType === 'image/jfif' || contentType === 'image/pjpeg') {
         contentType = 'image/jpeg';
@@ -939,10 +1019,10 @@ function AddProductModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Prevent double submission
     if (loading) return;
-    
+
     setLoading(true);
 
     try {
@@ -972,6 +1052,30 @@ function AddProductModal({
         toast({
           title: 'Error',
           description: 'Session expired. Please log in again.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Calculate promotion cost (50% of price × quantity)
+      const promotionCost = (priceNum * quantityNum) * 0.5;
+
+      // Check if seller has enough balance for promotion cost
+      if (!sellerCompany) {
+        toast({
+          title: 'No Company Found',
+          description: 'You need a company to promote products.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (sellerCompany.current_balance < promotionCost) {
+        toast({
+          title: 'Insufficient Funds',
+          description: `You need ${formatCurrency(promotionCost)} to promote this product, but only have ${formatCurrency(sellerCompany.current_balance)}.`,
           variant: 'destructive',
         });
         setLoading(false);
@@ -1017,9 +1121,33 @@ function AddProductModal({
         }
       }
 
+      // Deduct promotion cost from seller's company
+      const { error: deductError } = await supabase
+        .from('companies')
+        .update({
+          current_balance: sellerCompany.current_balance - promotionCost,
+          total_expenses: (sellerCompany.total_expenses || 0) + promotionCost,
+        })
+        .eq('id', sellerCompany.id);
+
+      if (deductError) {
+        console.error('Failed to deduct promotion cost:', deductError);
+        // Don't fail the whole operation - item is already listed
+      }
+
+      // Create transaction record for promotion cost
+      await supabase
+        .from('company_transactions')
+        .insert({
+          company_id: sellerCompany.id,
+          transaction_type: 'expense',
+          amount: promotionCost,
+          description: `Promotion fee: ${quantityNum}x ${itemName.trim()}`,
+        });
+
       toast({
         title: 'Success! 🎉',
-        description: 'Your product has been added to the marketplace!',
+        description: `Your product has been promoted! Promotion cost: ${formatCurrency(promotionCost)}`,
       });
       onSuccess();
     } catch (err: unknown) {
@@ -1114,7 +1242,7 @@ function AddProductModal({
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Product Image (Optional)
             </label>
-            
+
             {/* Image Preview */}
             <div className="mb-3">
               {imagePreview ? (
@@ -1153,11 +1281,10 @@ function AddProductModal({
               />
               <label
                 htmlFor="product-image-upload"
-                className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer transition-colors ${
-                  uploadingImage || loading
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
+                className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer transition-colors ${uploadingImage || loading
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
               >
                 <Upload className="h-4 w-4 mr-2" />
                 {uploadingImage ? 'Uploading...' : imagePreview ? 'Change Image' : 'Upload Image'}
@@ -1180,6 +1307,40 @@ function AddProductModal({
             </div>
           )}
 
+          {/* Promotion Cost Display */}
+          <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700 font-semibold">Promotion Cost (50%):</span>
+              <span className="text-2xl font-bold text-yellow-600">
+                {formatCurrency(promotionCost)}
+              </span>
+            </div>
+            <p className="text-xs text-gray-600">
+              A 50% promotion fee is charged based on your listing price × quantity
+            </p>
+            {sellerCompany && (
+              <div className="pt-2 border-t border-yellow-200 space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Your Balance:</span>
+                  <span className="font-semibold text-gray-800">{formatCurrency(sellerCompany.current_balance)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">After Listing:</span>
+                  <span className={`font-semibold ${sellerCompany.current_balance - promotionCost < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {formatCurrency(sellerCompany.current_balance - promotionCost)}
+                  </span>
+                </div>
+              </div>
+            )}
+            {sellerCompany && sellerCompany.current_balance < promotionCost && (
+              <div className="bg-red-100 border border-red-300 rounded-lg p-2 mt-2">
+                <p className="text-sm text-red-700">
+                  ⚠️ Insufficient funds! You need {formatCurrency(promotionCost - sellerCompany.current_balance)} more.
+                </p>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-4 pt-4">
             <button
               type="button"
@@ -1190,10 +1351,10 @@ function AddProductModal({
             </button>
             <button
               type="submit"
-              disabled={loading}
-              className="flex-1 py-3 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50"
+              disabled={loading || !sellerCompany || sellerCompany.current_balance < promotionCost}
+              className="flex-1 py-3 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Adding...' : 'Add to Marketplace'}
+              {loading ? 'Adding...' : `Promote (${formatCurrency(promotionCost)})`}
             </button>
           </div>
         </form>
@@ -1249,8 +1410,8 @@ function EditProductModal({
     // Validate file type
     const fileExt = file.name.split('.').pop()?.toLowerCase();
     const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'jfif'];
-    const isValidType = ALLOWED_TYPES.includes(file.type) || 
-                        (fileExt && allowedExtensions.includes(fileExt));
+    const isValidType = ALLOWED_TYPES.includes(file.type) ||
+      (fileExt && allowedExtensions.includes(fileExt));
 
     if (!isValidType) {
       setImageError('Please upload a JPEG, PNG, or WebP image');
@@ -1279,9 +1440,9 @@ function EditProductModal({
 
       // Determine correct MIME type
       let contentType = file.type;
-      if (!contentType || 
-          contentType === 'application/json' || 
-          !ALLOWED_TYPES.includes(contentType)) {
+      if (!contentType ||
+        contentType === 'application/json' ||
+        !ALLOWED_TYPES.includes(contentType)) {
         contentType = getMimeTypeFromExtension(fileExt || 'jpg');
       } else if (contentType === 'image/jfif' || contentType === 'image/pjpeg') {
         contentType = 'image/jpeg';
@@ -1486,7 +1647,7 @@ function EditProductModal({
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Product Image (Optional)
             </label>
-            
+
             {/* Image Preview */}
             <div className="mb-3">
               {imagePreview ? (
@@ -1525,11 +1686,10 @@ function EditProductModal({
               />
               <label
                 htmlFor="edit-product-image-upload"
-                className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer transition-colors ${
-                  uploadingImage || loading
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
+                className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer transition-colors ${uploadingImage || loading
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
               >
                 <Upload className="h-4 w-4 mr-2" />
                 {uploadingImage ? 'Uploading...' : imagePreview ? 'Change Image' : 'Upload Image'}
