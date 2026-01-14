@@ -26,7 +26,7 @@ export function useParent() {
 
     async function fetchParent() {
       if (!user) return;
-      
+
       try {
         // First get the user record
         const { error: userError } = await supabase
@@ -133,7 +133,7 @@ export function useChildren() {
     async function fetchChildren() {
       try {
         if (!parent) return;
-        
+
         const { data, error: fetchError } = await supabase
           .from('children')
           .select('*')
@@ -193,7 +193,7 @@ export function useDeletedChildren() {
     async function fetchDeletedChildren() {
       try {
         if (!parent) return;
-        
+
         const { data, error: fetchError } = await supabase
           .from('children')
           .select('*')
@@ -251,6 +251,22 @@ export function useDeletedChildren() {
     }
   };
 
-  return { deletedChildren, loading, error, refetch, restoreChild };
+  const permanentDeleteChild = async (childId: string) => {
+    try {
+      const { error: deleteError } = await supabase
+        .from('children')
+        .delete()
+        .eq('id', childId);
+
+      if (deleteError) throw deleteError;
+      await refetch();
+      return { success: true };
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      return { success: false, error: error.message || 'Failed to permanently delete child' };
+    }
+  };
+
+  return { deletedChildren, loading, error, refetch, restoreChild, permanentDeleteChild };
 }
 

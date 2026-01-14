@@ -20,7 +20,7 @@ function DashboardContent() {
   const [searchParams] = useSearchParams();
   const { parent, loading: parentLoading, refetch: refetchParent } = useParent();
   const { children, loading: childrenLoading, refetch } = useChildren();
-  const { deletedChildren, refetch: refetchDeleted, restoreChild } = useDeletedChildren();
+  const { deletedChildren, refetch: refetchDeleted, restoreChild, permanentDeleteChild } = useDeletedChildren();
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -142,6 +142,23 @@ function DashboardContent() {
     }
   };
 
+  const handlePermanentDeleteChild = async (childId: string, childName: string) => {
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete ${childName}? This action cannot be undone and all their data will be lost forever.`
+      )
+    ) {
+      return;
+    }
+
+    const result = await permanentDeleteChild(childId);
+    if (result.success) {
+      refetchDeleted();
+    } else {
+      alert('Failed to permanently delete child: ' + (result.error || 'Unknown error'));
+    }
+  };
+
   const handleViewChildDetails = (childId: string) => {
     navigate(`/dashboard/children/${childId}`);
   };
@@ -158,7 +175,7 @@ function DashboardContent() {
 
       // Format code (ensure uppercase, keep dashes as stored in DB)
       const formattedCode = childLoginCode.toUpperCase().trim();
-      
+
       // Check child and parent subscription status using database function
       const { data: result, error: queryError } = await supabase
         .rpc('check_parent_subscription_by_access_code', {
@@ -257,14 +274,14 @@ function DashboardContent() {
           <FloatingBackgroundStyles />
         </>
       )}
-      
+
       <ParentNavBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
             <h1 className="text-4xl font-bold text-blue-600">
               Welcome back, {user?.user_metadata?.full_name || 'Parent'}! 🎉
-          </h1>
+            </h1>
           </div>
           <p className="text-lg text-gray-700">Manage your children's learning journey at the Park</p>
         </div>
@@ -422,7 +439,7 @@ function DashboardContent() {
                   </>
                 ) : (
                   <>
-                Manage Billing
+                    Manage Billing
                     <ExternalLink className="h-4 w-4" />
                   </>
                 )}
@@ -545,10 +562,10 @@ function DashboardContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {deletedChildren.map((child) => {
                 const deletedDate = child.deleted_at ? new Date(child.deleted_at) : null;
-                const daysUntilPermanent = deletedDate 
+                const daysUntilPermanent = deletedDate
                   ? Math.ceil((30 - (Date.now() - deletedDate.getTime()) / (1000 * 60 * 60 * 24)))
                   : 0;
-                
+
                 return (
                   <div key={child.id} className="relative bg-gray-100 rounded-2xl p-6 shadow-lg border-2 border-gray-300 opacity-75">
                     <div className="flex items-start justify-between mb-4">
@@ -575,6 +592,14 @@ function DashboardContent() {
                       >
                         <RotateCcw className="h-4 w-4" />
                         Restore
+                      </button>
+                      <button
+                        onClick={() => handlePermanentDeleteChild(child.id, child.name)}
+                        className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                        title="Permanently delete child"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
                       </button>
                     </div>
                   </div>

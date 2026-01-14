@@ -15,7 +15,7 @@ function ManageChildrenContent() {
   const navigate = useNavigate();
   const { parent, loading: parentLoading } = useParent();
   const { children, loading: childrenLoading, refetch } = useChildren();
-  const { deletedChildren, refetch: refetchDeleted, restoreChild } = useDeletedChildren();
+  const { deletedChildren, refetch: refetchDeleted, restoreChild, permanentDeleteChild } = useDeletedChildren();
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -76,6 +76,23 @@ function ManageChildrenContent() {
     }
   };
 
+  const handlePermanentDeleteChild = async (childId: string, childName: string) => {
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete ${childName}? This action cannot be undone and all their data will be lost forever.`
+      )
+    ) {
+      return;
+    }
+
+    const result = await permanentDeleteChild(childId);
+    if (result.success) {
+      refetchDeleted();
+    } else {
+      alert('Failed to permanently delete child: ' + (result.error || 'Unknown error'));
+    }
+  };
+
   const handleViewChildDetails = (childId: string) => {
     navigate(`/dashboard/children/${childId}`);
   };
@@ -85,7 +102,7 @@ function ManageChildrenContent() {
     const matchesSearch =
       child.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       child.access_code.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesFilter =
       filterLevel === 'all' || child.current_level.toString() === filterLevel;
 
@@ -176,7 +193,7 @@ function ManageChildrenContent() {
               <div className="text-2xl font-bold text-primary-600">
                 {Math.round(
                   children.reduce((sum, child) => sum + child.current_level, 0) /
-                    children.length
+                  children.length
                 )}
               </div>
             </div>
@@ -274,10 +291,10 @@ function ManageChildrenContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {deletedChildren.map((child) => {
                 const deletedDate = child.deleted_at ? new Date(child.deleted_at) : null;
-                const daysUntilPermanent = deletedDate 
+                const daysUntilPermanent = deletedDate
                   ? Math.ceil((30 - (Date.now() - deletedDate.getTime()) / (1000 * 60 * 60 * 24)))
                   : 0;
-                
+
                 return (
                   <div key={child.id} className="card opacity-75 bg-gray-50 border-gray-300">
                     <div className="flex items-start justify-between mb-4">
@@ -300,14 +317,24 @@ function ManageChildrenContent() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleRestoreChild(child.id)}
-                      className="w-full btn btn-success flex items-center justify-center space-x-2"
-                      title="Restore child"
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                      <span>Restore</span>
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleRestoreChild(child.id)}
+                        className="flex-1 btn btn-success flex items-center justify-center space-x-2"
+                        title="Restore child"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                        <span>Restore</span>
+                      </button>
+                      <button
+                        onClick={() => handlePermanentDeleteChild(child.id, child.name)}
+                        className="flex-1 btn bg-red-600 hover:bg-red-700 text-white flex items-center justify-center space-x-2"
+                        title="Permanently delete child"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </div>
                 );
               })}
