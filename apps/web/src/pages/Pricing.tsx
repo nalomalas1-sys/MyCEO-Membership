@@ -8,9 +8,7 @@ import {
   Loader2,
   Shield,
   X,
-  Users,
   Rocket,
-  Crown
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -93,7 +91,7 @@ const plans: Plan[] = [
 function PricingContent() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
+  const [billingPeriod, /* setBillingPeriod */] = useState<'monthly' | 'annual'>('monthly');
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
