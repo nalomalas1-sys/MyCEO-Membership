@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { AchievementNotification } from '@/components/child/AchievementNotification';
 import { supabase } from '@/lib/supabase';
-import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight, Edit2, Save, X, Package, Rocket, Tag } from 'lucide-react';
+import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight, Edit2, Save, X, Package, Tag } from 'lucide-react';
 import { formatCurrency } from '@/utils/currency';
 
 interface ChildSession {
@@ -42,7 +42,7 @@ export default function CompanyPage() {
   const [showSetup, setShowSetup] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [showEditCompany, setShowEditCompany] = useState(false);
-  const [showLaunchProduct, setShowLaunchProduct] = useState(false);
+  // const [showLaunchProduct, setShowLaunchProduct] = useState(false); // Removed
   const [showSetPricing, setShowSetPricing] = useState(false);
   const [marketplaceItems, setMarketplaceItems] = useState<any[]>([]);
   const [achievementNotification, setAchievementNotification] = useState<{
@@ -256,7 +256,7 @@ export default function CompanyPage() {
   }
 
   const profit = company.total_revenue - company.total_expenses;
-  const profitPercentage = company.total_revenue > 0 
+  const profitPercentage = company.total_revenue > 0
     ? ((profit / company.total_revenue) * 100).toFixed(1)
     : '0.0';
 
@@ -333,11 +333,10 @@ export default function CompanyPage() {
             </div>
           </div>
 
-          <div className={`card bg-gradient-to-br ${
-            profit >= 0 
-              ? 'from-green-50 to-emerald-50 border-green-200' 
-              : 'from-red-50 to-rose-50 border-red-200'
-          }`}>
+          <div className={`card bg-gradient-to-br ${profit >= 0
+            ? 'from-green-50 to-emerald-50 border-green-200'
+            : 'from-red-50 to-rose-50 border-red-200'
+            }`}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Profit/Loss</p>
@@ -359,32 +358,14 @@ export default function CompanyPage() {
 
         {/* Actions */}
         <div className="mb-8 flex flex-wrap gap-4">
-          <button
-            onClick={() => setShowAddTransaction(true)}
-            className="btn btn-primary flex items-center gap-2"
-          >
-            <Plus className="h-5 w-5" />
-            Add Transaction
-          </button>
-          {company.product_name && (
-            <>
-              <button
-                onClick={() => setShowLaunchProduct(true)}
-                className="btn bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-semibold flex items-center gap-2 hover:from-yellow-500 hover:to-orange-500"
-              >
-                <Rocket className="h-5 w-5" />
-                Launch Product
-              </button>
-              {marketplaceItems.length > 0 && (
-                <button
-                  onClick={() => setShowSetPricing(true)}
-                  className="btn bg-gradient-to-r from-blue-400 to-purple-400 text-white font-semibold flex items-center gap-2 hover:from-blue-500 hover:to-purple-500"
-                >
-                  <Tag className="h-5 w-5" />
-                  Set Pricing
-                </button>
-              )}
-            </>
+          {company.product_name && marketplaceItems.length > 0 && (
+            <button
+              onClick={() => setShowSetPricing(true)}
+              className="btn bg-gradient-to-r from-blue-400 to-purple-400 text-white font-semibold flex items-center gap-2 hover:from-blue-500 hover:to-purple-500"
+            >
+              <Tag className="h-5 w-5" />
+              Set Pricing
+            </button>
           )}
         </div>
 
@@ -408,11 +389,10 @@ export default function CompanyPage() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-bold text-gray-900">{item.item_name}</h3>
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        item.status === 'available' ? 'bg-green-100 text-green-700' :
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${item.status === 'available' ? 'bg-green-100 text-green-700' :
                         item.status === 'sold' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
+                          'bg-gray-100 text-gray-700'
+                        }`}>
                         {item.status}
                       </span>
                     </div>
@@ -460,11 +440,10 @@ export default function CompanyPage() {
               {transactions.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className={`p-4 rounded-lg border-2 ${
-                    transaction.transaction_type === 'revenue' || transaction.transaction_type === 'sale'
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-red-50 border-red-200'
-                  }`}
+                  className={`p-4 rounded-lg border-2 ${transaction.transaction_type === 'revenue' || transaction.transaction_type === 'sale'
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-red-50 border-red-200'
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -478,11 +457,10 @@ export default function CompanyPage() {
                         {new Date(transaction.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className={`text-2xl font-bold ${
-                      transaction.transaction_type === 'revenue' || transaction.transaction_type === 'sale'
-                        ? 'text-green-700'
-                        : 'text-red-700'
-                    }`}>
+                    <div className={`text-2xl font-bold ${transaction.transaction_type === 'revenue' || transaction.transaction_type === 'sale'
+                      ? 'text-green-700'
+                      : 'text-red-700'
+                      }`}>
                       {transaction.transaction_type === 'revenue' || transaction.transaction_type === 'sale' ? '+' : '-'}
                       {formatCurrency(transaction.amount)}
                     </div>
@@ -550,7 +528,7 @@ export default function CompanyPage() {
         />
       )}
 
-      {/* Launch Product Modal */}
+      {/* Launch Product Modal - Removed
       {showLaunchProduct && company && childSession && (
         <LaunchProductModal
           company={company}
@@ -568,6 +546,7 @@ export default function CompanyPage() {
           }}
         />
       )}
+      */}
 
       {/* Set Pricing Modal */}
       {showSetPricing && marketplaceItems.length > 0 && (
@@ -647,14 +626,14 @@ function AddTransactionModal({ companyId, onClose, onSuccess, onAchievementNotif
       if (!company) throw new Error('Company not found');
 
       const isRevenue = type === 'revenue' || type === 'sale';
-      const newBalance = isRevenue 
-        ? company.current_balance + amount 
+      const newBalance = isRevenue
+        ? company.current_balance + amount
         : company.current_balance - amount;
-      const newRevenue = isRevenue 
-        ? company.total_revenue + amount 
+      const newRevenue = isRevenue
+        ? company.total_revenue + amount
         : company.total_revenue;
-      const newExpenses = !isRevenue 
-        ? company.total_expenses + amount 
+      const newExpenses = !isRevenue
+        ? company.total_expenses + amount
         : company.total_expenses;
 
       const { error: updateError } = await supabase
@@ -951,14 +930,16 @@ function EditCompanyModal({ company, onClose, onSuccess }: EditCompanyModalProps
   );
 }
 
+/*
 interface LaunchProductModalProps {
   company: Company;
   childSession: ChildSession;
   onClose: () => void;
   onSuccess: () => void;
 }
+*/
 
-function LaunchProductModal({ company, childSession, onClose, onSuccess }: LaunchProductModalProps) {
+/* function LaunchProductModal({ company, childSession, onClose, onSuccess }: LaunchProductModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [price, setPrice] = useState('');
@@ -1137,7 +1118,7 @@ function LaunchProductModal({ company, childSession, onClose, onSuccess }: Launc
       </div>
     </div>
   );
-}
+} */
 
 interface SetPricingModalProps {
   items: Array<{ id: string; item_name: string; price: number; status: string }>;
