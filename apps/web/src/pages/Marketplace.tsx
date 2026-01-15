@@ -1025,11 +1025,11 @@ function AddProductModal({
     }
   }, [childSession?.childId]);
 
-  // Calculate promotion cost (50% of price × quantity)
+  // Calculate promotion cost (30% of price × quantity)
   const promotionCost = useMemo(() => {
     const priceNum = parseFloat(price) || 0;
     const quantityNum = parseInt(quantity) || 1;
-    return (priceNum * quantityNum) * 0.5;
+    return (priceNum * quantityNum) * 0.3;
   }, [price, quantity]);
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -1194,8 +1194,8 @@ function AddProductModal({
         return;
       }
 
-      // Calculate promotion cost (50% of price × quantity)
-      const promotionCost = (priceNum * quantityNum) * 0.5;
+      // Calculate promotion cost (30% of price × quantity)
+      const promotionCost = (priceNum * quantityNum) * 0.3;
 
       // Check if seller has enough balance for promotion cost
       if (!sellerCompany) {
@@ -1452,7 +1452,7 @@ function AddProductModal({
               </span>
             </div>
             <p className="text-xs text-gray-600">
-              A 50% promotion fee is charged based on your listing price × quantity
+              A 30% promotion fee is charged based on your listing price × quantity
             </p>
             {sellerCompany && (
               <div className="pt-2 border-t border-yellow-200 space-y-1">
