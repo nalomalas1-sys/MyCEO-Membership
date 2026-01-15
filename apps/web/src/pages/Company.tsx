@@ -44,6 +44,7 @@ export default function CompanyPage() {
   const [showEditCompany, setShowEditCompany] = useState(false);
   // const [showLaunchProduct, setShowLaunchProduct] = useState(false); // Removed
   const [showSetPricing, setShowSetPricing] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
   const [marketplaceItems, setMarketplaceItems] = useState<any[]>([]);
   const [achievementNotification, setAchievementNotification] = useState<{
     isOpen: boolean;
@@ -293,6 +294,30 @@ export default function CompanyPage() {
               Edit
             </button>
           </div>
+        </div>
+
+        {/* Budget Instructions */}
+        <div className="mb-8 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 overflow-hidden">
+          <button
+            onClick={() => setShowInstructions(!showInstructions)}
+            className="w-full p-4 flex items-center justify-between hover:bg-blue-100/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">💡</div>
+              <h3 className="font-bold text-blue-800 text-lg">Getting Started!</h3>
+            </div>
+            <span className="text-blue-600 text-xl">{showInstructions ? '▲' : '▼'}</span>
+          </button>
+          {showInstructions && (
+            <div className="px-4 pb-4">
+              <p className="text-blue-700 ml-9">
+                You have been given an initial budget of <span className="font-bold text-blue-900">RM1,000</span>!
+                Use this money wisely to <span className="font-semibold">buy things</span> and
+                <span className="font-semibold"> promote your products at the Marketplace</span>.
+                Make smart decisions to grow your business! 🚀
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}

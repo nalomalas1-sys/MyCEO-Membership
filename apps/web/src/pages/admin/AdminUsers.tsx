@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
-import { Search, Mail, Users, Calendar, CreditCard, ChevronDown, ChevronUp, Settings, Clock } from 'lucide-react';
+import { Search, Mail, Users, Calendar, CreditCard, ChevronDown, ChevronUp, Settings, Clock, Trash2 } from 'lucide-react';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 
 interface ParentWithUser {
@@ -41,6 +41,10 @@ function AdminUsersContent() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [selectedParent, setSelectedParent] = useState<ParentWithUser | null>(null);
+  const [showDeleteParentConfirm, setShowDeleteParentConfirm] = useState(false);
+  const [showDeleteChildConfirm, setShowDeleteChildConfirm] = useState(false);
+  const [selectedChildToDelete, setSelectedChildToDelete] = useState<{ child: Child; parentId: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchParents();
@@ -49,7 +53,7 @@ function AdminUsersContent() {
   async function fetchParents() {
     try {
       setLoading(true);
-      
+
       // Build query - admins can now see all parents thanks to RLS policies
       let query = supabase
         .from('parents')
@@ -206,6 +210,103 @@ function AdminUsersContent() {
     }
   };
 
+  const handleDeleteParent = async (parentId: string) => {
+    setDeleting(true);
+    try {
+      const parent = parents.find((p) => p.id === parentId);
+      if (!parent) return;
+
+      // Delete all children first (this will cascade delete their data)
+      const { data: childrenData } = await supabase
+        .from('children')
+        .select('id')
+        .eq('parent_id', parentId);
+
+      if (childrenData) {
+        for (const child of childrenData) {
+          await deleteChildData(child.id);
+        }
+      }
+
+      // Delete parent record
+      const { error: parentError } = await supabase
+        .from('parents')
+        .delete()
+        .eq('id', parentId);
+
+      if (parentError) throw parentError;
+
+      // Delete user record (auth user will remain but profile deleted)
+      const { error: userError } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', parent.user_id);
+
+      if (userError) console.warn('Could not delete user record:', userError);
+
+      fetchParents();
+      setShowDeleteParentConfirm(false);
+      setSelectedParent(null);
+      alert('Parent account deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete parent:', error);
+      alert('Failed to delete parent account');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteChild = async (childId: string, parentId: string) => {
+    setDeleting(true);
+    try {
+      await deleteChildData(childId);
+
+      // Remove from local state
+      setChildrenMap((prev) => ({
+        ...prev,
+        [parentId]: prev[parentId]?.filter((c) => c.id !== childId) || [],
+      }));
+
+      // Update parent's children count
+      fetchParents();
+      setShowDeleteChildConfirm(false);
+      setSelectedChildToDelete(null);
+      alert('Child account deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete child:', error);
+      alert('Failed to delete child account');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const deleteChildData = async (childId: string) => {
+    // Delete child's company and transactions
+    const { data: company } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('child_id', childId)
+      .single();
+
+    if (company) {
+      await supabase.from('company_transactions').delete().eq('company_id', company.id);
+      await supabase.from('companies').delete().eq('id', company.id);
+    }
+
+    // Delete marketplace items
+    await supabase.from('marketplace_items').delete().eq('seller_child_id', childId);
+    await supabase.from('marketplace_purchases').delete().eq('buyer_child_id', childId);
+
+    // Delete progress and achievements
+    await supabase.from('child_progress').delete().eq('child_id', childId);
+    await supabase.from('child_achievements').delete().eq('child_id', childId);
+    await supabase.from('quiz_attempts').delete().eq('child_id', childId);
+
+    // Delete the child record
+    const { error } = await supabase.from('children').delete().eq('id', childId);
+    if (error) throw error;
+  };
+
   const filteredParents = parents.filter((parent) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -332,6 +433,17 @@ function AdminUsersContent() {
                       >
                         <Clock className="h-4 w-4" />
                       </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedParent(parent);
+                          setShowDeleteParentConfirm(true);
+                        }}
+                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete account"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                       {expandedParentId === parent.id ? (
                         <ChevronUp className="h-5 w-5 text-gray-400 cursor-pointer" />
                       ) : (
@@ -356,7 +468,20 @@ function AdminUsersContent() {
                           >
                             <div className="flex items-center justify-between mb-2">
                               <h5 className="font-semibold text-gray-900">{child.name}</h5>
-                              <span className="text-xs text-gray-500">Level {child.current_level}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500">Level {child.current_level}</span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedChildToDelete({ child, parentId: parent.id });
+                                    setShowDeleteChildConfirm(true);
+                                  }}
+                                  className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Delete child"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              </div>
                             </div>
                             <div className="space-y-1 text-sm text-gray-600">
                               <div>Access Code: <span className="font-mono font-semibold">{child.access_code}</span></div>
@@ -398,6 +523,89 @@ function AdminUsersContent() {
           }}
           onExtendTrial={handleExtendTrial}
         />
+      )}
+
+      {/* Delete Parent Confirmation Modal */}
+      {showDeleteParentConfirm && selectedParent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Delete Account</h2>
+            <p className="text-gray-700 mb-4">
+              Are you sure you want to delete <strong>{selectedParent.user.full_name || selectedParent.user.email}</strong>?
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-red-800">
+                <strong>⚠️ Warning:</strong> This action is permanent and will delete:
+              </p>
+              <ul className="text-sm text-red-700 list-disc list-inside mt-2">
+                <li>All {selectedParent.children_count} children accounts</li>
+                <li>All companies and transactions</li>
+                <li>All progress and achievements</li>
+                <li>All marketplace items</li>
+              </ul>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowDeleteParentConfirm(false);
+                  setSelectedParent(null);
+                }}
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors"
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteParent(selectedParent.id)}
+                disabled={deleting}
+                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? 'Deleting...' : 'Delete Account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Child Confirmation Modal */}
+      {showDeleteChildConfirm && selectedChildToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Delete Child Account</h2>
+            <p className="text-gray-700 mb-4">
+              Are you sure you want to delete <strong>{selectedChildToDelete.child.name}</strong>?
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-red-800">
+                <strong>⚠️ Warning:</strong> This action is permanent and will delete:
+              </p>
+              <ul className="text-sm text-red-700 list-disc list-inside mt-2">
+                <li>Company and all transactions</li>
+                <li>Progress and achievements</li>
+                <li>Marketplace items and purchases</li>
+              </ul>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowDeleteChildConfirm(false);
+                  setSelectedChildToDelete(null);
+                }}
+                className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium text-gray-700 transition-colors"
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteChild(selectedChildToDelete.child.id, selectedChildToDelete.parentId)}
+                disabled={deleting}
+                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? 'Deleting...' : 'Delete Child'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
