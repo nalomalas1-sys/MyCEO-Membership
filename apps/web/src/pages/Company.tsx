@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { AchievementNotification } from '@/components/child/AchievementNotification';
 import { supabase } from '@/lib/supabase';
-import { Building2, DollarSign, TrendingUp, TrendingDown, Plus, ArrowLeftRight, Edit2, Save, X, Package, Tag } from 'lucide-react';
+import { Building2, DollarSign, TrendingUp, TrendingDown, ArrowLeftRight, Edit2, Package, Tag } from 'lucide-react';
 import { formatCurrency } from '@/utils/currency';
 
 interface ChildSession {

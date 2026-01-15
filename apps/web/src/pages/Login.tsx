@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { 
-  Gamepad2, 
-  Users, 
-  Shield, 
-  Mail, 
-  AlertCircle, 
+import {
+  Gamepad2,
+  Users,
+  Shield,
+  Mail,
+  AlertCircle,
   Loader2,
   ArrowLeft,
 } from 'lucide-react';
@@ -20,12 +20,12 @@ const BackgroundEffects = () => (
     <div className="absolute top-10 left-10 w-40 h-20 bg-blue-100/20 rounded-full animate-float-cloud" style={{ animationDelay: '0s' }}></div>
     <div className="absolute top-40 right-20 w-60 h-30 bg-blue-100/20 rounded-full animate-float-cloud" style={{ animationDelay: '2s' }}></div>
     <div className="absolute bottom-20 left-1/4 w-50 h-25 bg-blue-100/20 rounded-full animate-float-cloud" style={{ animationDelay: '4s' }}></div>
-    
+
     {/* Floating coins */}
     <div className="absolute top-1/4 right-1/4 w-8 h-8 bg-yellow-400 rounded-full animate-bounce-coin" style={{ animationDelay: '1s' }}></div>
     <div className="absolute top-1/3 left-1/4 w-6 h-6 bg-yellow-400 rounded-full animate-bounce-coin" style={{ animationDelay: '0.5s' }}></div>
     <div className="absolute bottom-1/3 right-1/3 w-10 h-10 bg-yellow-400 rounded-full animate-bounce-coin" style={{ animationDelay: '1.5s' }}></div>
-    
+
     {/* Colorful blobs */}
     <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-300/20 rounded-full blur-[120px] animate-pulse duration-[6s]"></div>
     <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-[100px] animate-pulse duration-[8s]"></div>
@@ -110,7 +110,7 @@ type LoginType = 'children' | 'parents' | 'admin';
 export default function EnhancedLoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
+
   // UI State
   const [activeTab, setActiveTab] = useState<LoginType>('parents');
 
@@ -131,7 +131,7 @@ export default function EnhancedLoginPage() {
     // Check for signup verification
     const fromSignup = searchParams.get('from_signup');
     const paramEmail = searchParams.get('email');
-    
+
     if (fromSignup === 'true') {
       setShowVerificationMessage(true);
       if (paramEmail) {
@@ -151,13 +151,13 @@ export default function EnhancedLoginPage() {
     try {
       if (activeTab === 'children') {
         // --- Child Login Logic (PRESERVED) ---
-        
+
         // Clear existing session to ensure anon role/clean slate
         await supabase.auth.signOut();
 
         // Format code
         const formattedCode = accessCode.toUpperCase().trim();
-        
+
         // Check child and parent subscription status using database function
         const { data: result, error: queryError } = await supabase
           .rpc('check_parent_subscription_by_access_code', {
@@ -191,7 +191,7 @@ export default function EnhancedLoginPage() {
         }));
 
         navigate('/child/dashboard');
-        
+
       } else {
         // --- Parent/Admin Login Logic (PRESERVED) ---
         const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -297,7 +297,7 @@ export default function EnhancedLoginPage() {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center bg-blue-50 font-sans text-blue-900 overflow-hidden selection:bg-yellow-300 selection:text-yellow-900">
-      
+
       <BackgroundEffects />
       <FloatingCharacters />
       <PiggyBankMascot />
@@ -305,8 +305,8 @@ export default function EnhancedLoginPage() {
 
       {/* Navigation Header - Playful Style */}
       <nav className="absolute top-0 left-0 p-6 z-20">
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="group flex items-center gap-3 text-blue-700 hover:text-blue-600 transition-all px-5 py-3 rounded-2xl hover:bg-white/60 backdrop-blur-sm border-2 border-blue-200 hover:border-blue-300 shadow-lg hover:scale-105"
         >
           <div className="bg-blue-400 p-2 rounded-xl group-hover:-translate-x-1 transition-transform text-white">
@@ -317,7 +317,7 @@ export default function EnhancedLoginPage() {
       </nav>
 
       <div className="w-full max-w-6xl mx-auto p-4 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-        
+
         {/* Left Side - Playful Illustration & Welcome */}
         <div className="hidden lg:flex flex-col relative">
           <div className="mb-12 relative group cursor-default">
@@ -327,19 +327,19 @@ export default function EnhancedLoginPage() {
                 <img src={myCeoLogo} alt="MyCEO Logo" className="w-8 h-8 object-contain" />
                 <span>Ready for adventure? 🚀</span>
               </div>
-              
+
               <h1 className="text-7xl font-black mb-6 leading-[0.9] drop-shadow-lg">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">
                   Welcome
                 </span>
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500">
-                  Back, CEO! 
+                  Back, CEO!
                 </span>
               </h1>
-              
+
               <p className="text-2xl text-blue-700/90 max-w-lg font-bold leading-relaxed bg-white/50 p-6 rounded-3xl border-2 border-dashed border-blue-300">
-                Your <span className="text-blue-600">entrepeneurship journey</span> is waiting! Log in to track coins, finish quests, and build your empire!
+                Your <span className="text-blue-600">entrepeneurial journey</span> is waiting! Log in to track coins, finish quests, and build your empire!
               </p>
             </div>
           </div>
@@ -350,7 +350,7 @@ export default function EnhancedLoginPage() {
         <div className="w-full max-w-md mx-auto relative">
           {/* Card Glow Effect */}
           <div className="absolute inset-0 bg-blue-400/30 rounded-[2.5rem] blur-2xl transform rotate-3 animate-pulse"></div>
-          
+
           <div className="bg-white/90 backdrop-blur-md border-4 border-white p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
             {/* Card Background Pattern */}
             <div className="absolute inset-0 opacity-10">
@@ -358,12 +358,12 @@ export default function EnhancedLoginPage() {
               <div className="absolute bottom-10 right-10 w-16 h-16 rounded-full bg-blue-400"></div>
               <div className="absolute top-1/2 left-1/4 w-12 h-12 rounded-full bg-blue-400"></div>
             </div>
-            
+
             {/* Logo Show */}
             <div className="flex justify-center mb-6">
-               <div className="rounded-2xl flex items-center justify-center">
-                  <img src={myCeoLogo} alt="MyCEO Logo" className="h-32 w-auto object-contain" />
-               </div>
+              <div className="rounded-2xl flex items-center justify-center">
+                <img src={myCeoLogo} alt="MyCEO Logo" className="h-32 w-auto object-contain" />
+              </div>
             </div>
 
             <div className="text-center mb-8 relative z-10">
@@ -381,16 +381,15 @@ export default function EnhancedLoginPage() {
                       setActiveTab(tab.id);
                       setError(null);
                     }}
-                    className={`relative flex flex-col items-center justify-center py-4 rounded-xl transition-all duration-300 group ${
-                      isActive 
-                      ? 'bg-white shadow-lg border-2 border-blue-300 scale-105' 
-                      : 'hover:bg-white/70 hover:scale-102'
-                    }`}
+                    className={`relative flex flex-col items-center justify-center py-4 rounded-xl transition-all duration-300 group ${isActive
+                        ? 'bg-white shadow-lg border-2 border-blue-300 scale-105'
+                        : 'hover:bg-white/70 hover:scale-102'
+                      }`}
                   >
                     <div className={`
                       w-12 h-12 rounded-2xl flex items-center justify-center mb-3 transition-all duration-300
-                      ${isActive 
-                        ? `${tab.id === 'admin' ? 'bg-emerald-500' : 'bg-blue-500'} text-white shadow-lg scale-110` 
+                      ${isActive
+                        ? `${tab.id === 'admin' ? 'bg-emerald-500' : 'bg-blue-500'} text-white shadow-lg scale-110`
                         : 'bg-white text-blue-400 group-hover:scale-105 shadow-md'
                       }
                     `}>
@@ -416,7 +415,7 @@ export default function EnhancedLoginPage() {
                     <p className="text-xs text-blue-700 mb-3">
                       We sent a special link to <span className="font-bold text-blue-700">{verificationEmail}</span>
                     </p>
-                    <button 
+                    <button
                       onClick={handleResendVerification}
                       disabled={resendingEmail || resendSuccess}
                       className="text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition-all shadow-md hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -452,11 +451,11 @@ export default function EnhancedLoginPage() {
                       required
                       value={accessCode}
                       onChange={(e) => {
-                         let value = e.target.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
-                         if (value.length > 3 && value.indexOf('-') === -1) {
-                           value = value.slice(0, 3) + '-' + value.slice(3, 6);
-                         }
-                         setAccessCode(value);
+                        let value = e.target.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+                        if (value.length > 3 && value.indexOf('-') === -1) {
+                          value = value.slice(0, 3) + '-' + value.slice(3, 6);
+                        }
+                        setAccessCode(value);
                       }}
                       maxLength={7}
                       placeholder="ABC-123"
@@ -491,7 +490,7 @@ export default function EnhancedLoginPage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between items-center ml-1">
                       <label className="text-sm font-black text-blue-700 uppercase tracking-wider flex items-center gap-2">
@@ -499,7 +498,7 @@ export default function EnhancedLoginPage() {
                         <span className="text-lg"></span>
                       </label>
                       <Link to="/forgot-password" className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
-                        Forgot your password? 
+                        Forgot your password?
                       </Link>
                     </div>
                     <div className="relative group">
@@ -519,14 +518,14 @@ export default function EnhancedLoginPage() {
                 </>
               )}
 
-              <button 
+              <button
                 type="submit"
                 disabled={loading || (activeTab === 'children' && accessCode.length < 7)}
                 className={`
                   w-full py-4 rounded-2xl font-black text-lg tracking-wide shadow-xl transform transition-all duration-300
                   flex items-center justify-center gap-3 relative overflow-hidden group
-                  ${activeTab === 'children' 
-                    ? 'bg-blue-500 text-white hover:shadow-[0_15px_30px_rgba(59,130,246,0.4)] hover:scale-105' 
+                  ${activeTab === 'children'
+                    ? 'bg-blue-500 text-white hover:shadow-[0_15px_30px_rgba(59,130,246,0.4)] hover:scale-105'
                     : 'bg-blue-500 text-white hover:shadow-[0_15px_30px_rgba(59,130,246,0.4)] hover:scale-105'
                   }
                   disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
@@ -534,12 +533,12 @@ export default function EnhancedLoginPage() {
               >
                 {loading && <Loader2 className="h-5 w-5 animate-spin" />}
                 <span className="flex items-center gap-2">
-                  {loading 
-                    ? (activeTab === 'children' ? 'Launching Rocket...' : 'Opening Treasure...') 
+                  {loading
+                    ? (activeTab === 'children' ? 'Launching Rocket...' : 'Opening Treasure...')
                     : (activeTab === 'children' ? 'Start Adventure! 🚀' : 'Login')
                   }
                 </span>
-                
+
                 {/* Shine effect */}
                 <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
               </button>
