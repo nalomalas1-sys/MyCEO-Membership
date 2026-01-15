@@ -51,7 +51,7 @@ export default function LeaderboardPage() {
       try {
         setLoading(true);
 
-        // Fetch Top Revenue
+        // Fetch Top Profit
         const { data: revenueData, error: revenueError } = await supabase
           .from('companies')
           .select(`
@@ -112,7 +112,7 @@ export default function LeaderboardPage() {
 
         // Get all items with seller IDs
         const itemIds = purchasesData?.map((p: any) => p.item_id).filter(Boolean) || [];
-        
+
         if (itemIds.length > 0) {
           const { data: itemsData, error: itemsError } = await supabase
             .from('marketplace_items')
@@ -123,7 +123,7 @@ export default function LeaderboardPage() {
 
           // Count sales per seller
           const salesCount: Record<string, number> = {};
-          
+
           purchasesData?.forEach((purchase: any) => {
             const item = itemsData?.find((i: any) => i.id === purchase.item_id);
             if (item?.seller_child_id) {
@@ -224,11 +224,10 @@ export default function LeaderboardPage() {
           return (
             <div
               key={entry.childId}
-              className={`flex items-center gap-4 p-4 rounded-xl shadow-md transition-all ${
-                isCurrentUser
+              className={`flex items-center gap-4 p-4 rounded-xl shadow-md transition-all ${isCurrentUser
                   ? 'bg-yellow-100 border-4 border-yellow-400'
                   : 'bg-white border-2 border-gray-200'
-              }`}
+                }`}
             >
               <div className={`flex items-center justify-center w-12 h-12 rounded-full ${getRankBadge(entry.rank)}`}>
                 {getRankIcon(entry.rank)}
@@ -284,33 +283,30 @@ export default function LeaderboardPage() {
         <div className="flex gap-4 mb-6 justify-center">
           <button
             onClick={() => setActiveTab('revenue')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${
-              activeTab === 'revenue'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${activeTab === 'revenue'
                 ? 'bg-green-500 text-white shadow-lg scale-105'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
-            }`}
+              }`}
           >
             <TrendingUp className="h-5 w-5" />
-            Top Revenue
+            Top Profit
           </button>
           <button
             onClick={() => setActiveTab('level')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${
-              activeTab === 'level'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${activeTab === 'level'
                 ? 'bg-blue-500 text-white shadow-lg scale-105'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
-            }`}
+              }`}
           >
             <Star className="h-5 w-5" />
             Top Level
           </button>
           <button
             onClick={() => setActiveTab('sales')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${
-              activeTab === 'sales'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-bold transition-all ${activeTab === 'sales'
                 ? 'bg-purple-500 text-white shadow-lg scale-105'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
-            }`}
+              }`}
           >
             <Award className="h-5 w-5" />
             Top Sales
@@ -323,7 +319,7 @@ export default function LeaderboardPage() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <TrendingUp className="h-6 w-6 text-green-500" />
-                Top Revenue Earners
+                Top Profit Earners
               </h2>
               {renderLeaderboard(topRevenue, (val) => formatCurrency(val))}
             </div>
