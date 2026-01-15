@@ -5,6 +5,8 @@ import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { useModules, Module } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
+import { generateSSOTicketAndRedirect } from '@/lib/sso';
+import { Sparkles } from 'lucide-react';
 
 interface ChildSession {
   childId: string;
@@ -18,6 +20,7 @@ export default function ModulesPage() {
   const [childProgress, setChildProgress] = useState<Record<string, any>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [ssoLoading, setSsoLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -211,6 +214,41 @@ export default function ModulesPage() {
             </div>
             {totalModules > 0 && (
               <div className="flex items-center gap-4">
+                {/* AI Tools Button */}
+                <button
+                  onClick={async () => {
+                    if (!childSession) return;
+                    setSsoLoading(true);
+                    try {
+                      // Fetch parent_id for the child
+                      const { data: childData } = await supabase
+                        .from('children')
+                        .select('parent_id')
+                        .eq('id', childSession.childId)
+                        .single();
+
+                      if (childData?.parent_id) {
+                        await generateSSOTicketAndRedirect({
+                          actorType: 'child',
+                          actorId: childSession.childId,
+                          parentId: childData.parent_id,
+                        });
+                      } else {
+                        alert('Could not find parent information');
+                      }
+                    } catch (err) {
+                      console.error('SSO failed:', err);
+                      alert('Failed to open AI Tools. Please try again.');
+                    } finally {
+                      setSsoLoading(false);
+                    }
+                  }}
+                  disabled={ssoLoading}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg shadow-md hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Sparkles className="h-5 w-5" />
+                  {ssoLoading ? 'Opening...' : 'AI Tools'}
+                </button>
                 <div className="bg-white rounded-lg shadow-md px-4 py-2 border border-gray-200">
                   <div className="text-xs text-gray-500 uppercase tracking-wide">Progress</div>
                   <div className="text-lg font-bold text-gray-900">
