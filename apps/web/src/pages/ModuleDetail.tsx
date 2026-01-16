@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { LinkifiedText } from '@/components/ui/LinkifiedText';
-import { useModule, useChildModuleProgress, Lesson, useChildLockedModules } from '@/hooks/useModules';
+import { useModule, useChildModuleProgress, Lesson } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 import { TrackSubmissionUpload } from '@/components/child/TrackSubmissionUpload';
 import { Lock, ArrowLeft } from 'lucide-react';
@@ -70,10 +70,6 @@ export default function ModuleDetailPage() {
     moduleId || ''
   );
 
-  // Check if module is locked for this child
-  const { isModuleLocked, loading: lockedLoading } = useChildLockedModules(childSession?.childId || '');
-  const isLocked = moduleId ? isModuleLocked(moduleId) : false;
-
   const handleStartModule = async () => {
     if (!childSession || !moduleId) return;
 
@@ -125,13 +121,16 @@ export default function ModuleDetailPage() {
     return { icon: '○', color: 'text-gray-400', bg: 'bg-gray-50' };
   };
 
-  if (loading || (childSession && lockedLoading)) {
+  if (loading) {
     return <LoadingAnimation message="Loading module..." variant="fullscreen" />;
   }
 
   if (!module || !childSession) {
     return null;
   }
+
+  // Check if module is locked
+  const isLocked = module.is_locked;
 
   // Show locked message if module is locked
   if (isLocked) {
@@ -215,10 +214,10 @@ export default function ModuleDetailPage() {
                 <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${progress.progress_percentage === 100
-                        ? 'bg-green-500'
-                        : progress.progress_percentage > 0
-                          ? 'bg-primary-500'
-                          : 'bg-gray-300'
+                      ? 'bg-green-500'
+                      : progress.progress_percentage > 0
+                        ? 'bg-primary-500'
+                        : 'bg-gray-300'
                       }`}
                     style={{ width: `${progress.progress_percentage}%` }}
                   />
@@ -270,8 +269,8 @@ export default function ModuleDetailPage() {
                   <div
                     key={lesson.id}
                     className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${lessonProgress[lesson.id]?.is_completed
-                        ? 'border-green-300 bg-green-50'
-                        : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50'
+                      ? 'border-green-300 bg-green-50'
+                      : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50'
                       }`}
                     onClick={() => handleLessonClick(lesson)}
                   >

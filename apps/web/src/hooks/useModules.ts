@@ -10,6 +10,7 @@ export interface Module {
   difficulty_level: number;
   xp_reward: number;
   is_published: boolean;
+  is_locked: boolean;
   published_at: string | null;
   thumbnail_url: string | null;
   created_at: string;

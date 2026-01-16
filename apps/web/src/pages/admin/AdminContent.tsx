@@ -5,7 +5,7 @@ import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Plus, Edit, Eye, EyeOff, Search, Trash2, ExternalLink } from 'lucide-react';
+import { BookOpen, Plus, Edit, Eye, EyeOff, Search, Trash2, ExternalLink, Lock, Unlock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Module {
@@ -17,6 +17,7 @@ interface Module {
   difficulty_level: number;
   xp_reward: number;
   is_published: boolean;
+  is_locked: boolean;
   published_at: string | null;
   thumbnail_url: string | null;
   created_at: string;
@@ -105,6 +106,34 @@ function AdminContentContent() {
       toast({
         title: 'Error',
         description: 'Failed to update module status',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleToggleLock = async (moduleId: string, currentLockStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('modules')
+        .update({
+          is_locked: !currentLockStatus,
+        })
+        .eq('id', moduleId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: `Module ${!currentLockStatus ? 'locked' : 'unlocked'} successfully`,
+        variant: 'success',
+      });
+
+      fetchModules();
+    } catch (error) {
+      console.error('Failed to toggle lock status:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update module lock status',
         variant: 'destructive',
       });
     }
@@ -302,6 +331,12 @@ function AdminContentContent() {
                             Draft
                           </span>
                         )}
+                        {module.is_locked && (
+                          <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full flex items-center gap-1">
+                            <Lock className="h-3 w-3" />
+                            Locked
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -317,54 +352,84 @@ function AdminContentContent() {
                     <span>{module.xp_reward} XP</span>
                   </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => navigate(`/admin/content/${module.id}/edit`)}
-                      className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium text-gray-700 flex items-center justify-center gap-2"
-                    >
-                      <Edit className="h-4 w-4" />
-                      Edit
-                    </button>
-                    {module.is_published && (
+                  <div className="space-y-2">
+                    {/* Row 1: Edit and Preview */}
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => handlePreviewModule(module.id)}
-                        className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
-                        title="Preview module"
+                        onClick={() => navigate(`/admin/content/${module.id}/edit`)}
+                        className="flex-1 px-3 py-2.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg transition-colors font-medium text-gray-700 flex items-center justify-center gap-2 text-sm"
                       >
-                        <ExternalLink className="h-4 w-4" />
+                        <Edit className="h-4 w-4" />
+                        <span>Edit</span>
                       </button>
-                    )}
-                    <button
-                      onClick={() => handleTogglePublish(module.id, module.is_published)}
-                      className={`px-4 py-2 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 ${module.is_published
-                          ? 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800'
-                          : 'bg-green-100 hover:bg-green-200 text-green-800'
-                        }`}
-                    >
-                      {module.is_published ? (
-                        <>
-                          <EyeOff className="h-4 w-4" />
-                          Unpublish
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-4 w-4" />
-                          Publish
-                        </>
+                      {module.is_published && (
+                        <button
+                          onClick={() => handlePreviewModule(module.id)}
+                          className="px-3 py-2.5 bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-800 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 text-sm"
+                          title="Preview module"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          <span className="hidden sm:inline">Preview</span>
+                        </button>
                       )}
-                    </button>
-                    <button
-                      onClick={() => handleDeleteModule(module.id, module.title)}
-                      disabled={deletingModuleId === module.id}
-                      className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Delete module"
-                    >
-                      {deletingModuleId === module.id ? (
-                        <div className="h-4 w-4 border-2 border-red-800 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </button>
+                    </div>
+                    {/* Row 2: Publish, Lock, Delete */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleTogglePublish(module.id, module.is_published)}
+                        className={`flex-1 px-3 py-2.5 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 text-sm border ${module.is_published
+                          ? 'bg-yellow-100 hover:bg-yellow-200 border-yellow-300 text-yellow-800'
+                          : 'bg-green-100 hover:bg-green-200 border-green-300 text-green-800'
+                          }`}
+                      >
+                        {module.is_published ? (
+                          <>
+                            <EyeOff className="h-4 w-4" />
+                            <span>Unpublish</span>
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-4 w-4" />
+                            <span>Publish</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleToggleLock(module.id, module.is_locked)}
+                        className={`px-3 py-2.5 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 text-sm border ${module.is_locked
+                          ? 'bg-orange-100 hover:bg-orange-200 border-orange-300 text-orange-800'
+                          : 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700'
+                          }`}
+                        title={module.is_locked ? 'Unlock module for children' : 'Lock module from children'}
+                      >
+                        {module.is_locked ? (
+                          <>
+                            <Unlock className="h-4 w-4" />
+                            <span className="hidden sm:inline">Unlock</span>
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="h-4 w-4" />
+                            <span className="hidden sm:inline">Lock</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteModule(module.id, module.title)}
+                        disabled={deletingModuleId === module.id}
+                        className="px-3 py-2.5 bg-red-100 hover:bg-red-200 border border-red-300 text-red-800 rounded-lg transition-colors font-medium flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Delete module"
+                      >
+                        {deletingModuleId === module.id ? (
+                          <div className="h-4 w-4 border-2 border-red-800 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <Trash2 className="h-4 w-4" />
+                            <span className="hidden sm:inline">Delete</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

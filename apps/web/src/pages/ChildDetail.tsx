@@ -8,7 +8,6 @@ import { Child } from '@/types/child';
 import { ArrowLeft, Edit, Trophy, TrendingUp, BookOpen, Clock, Award, File, Download, FileText } from 'lucide-react';
 import { EditChildModal } from '@/components/parent/EditChildModal';
 import { ChildCodeDisplay } from '@/components/parent/ChildCodeDisplay';
-import { ModuleAccessControl } from '@/components/parent/ModuleAccessControl';
 import { formatCurrency } from '@/utils/currency';
 
 interface ChildProgress {
@@ -840,11 +839,6 @@ function ChildDetailContent() {
             </div>
           </div>
         )}
-
-        {/* Module Access Control */}
-        <div className="mb-6">
-          <ModuleAccessControl childId={childId!} />
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Company Info */}

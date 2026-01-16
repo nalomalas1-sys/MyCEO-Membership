@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { LinkifiedText } from '@/components/ui/LinkifiedText';
-import { useModules, Module, useChildLockedModules } from '@/hooks/useModules';
+import { useModules, Module } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 import { generateSSOTicketAndRedirect } from '@/lib/sso';
 import { Sparkles, Lock } from 'lucide-react';
@@ -22,9 +22,6 @@ export default function ModulesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [ssoLoading, setSsoLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Fetch locked modules for this child
-  const { isModuleLocked, loading: lockedLoading } = useChildLockedModules(childSession?.childId || '');
 
   useEffect(() => {
     // Clear any existing Supabase auth session to ensure we use anon role
@@ -162,7 +159,7 @@ export default function ModulesPage() {
     );
   };
 
-  if (loading || (childSession && lockedLoading)) {
+  if (loading) {
     return <LoadingAnimation message="Loading modules..." variant="fullscreen" />;
   }
 
@@ -360,14 +357,14 @@ export default function ModulesPage() {
                     {trackModules.map((module, index) => {
                       const progress = childProgress[module.id];
                       const isCompleted = progress?.status === 'completed';
-                      const isLocked = isModuleLocked(module.id);
+                      const isLocked = module.is_locked;
 
                       return (
                         <div
                           key={module.id}
                           className={`group relative bg-white rounded-xl shadow-md border-2 overflow-hidden transition-all duration-300 ${isLocked
-                              ? 'border-gray-300 cursor-not-allowed opacity-75'
-                              : `border-gray-200 cursor-pointer hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${isCompleted ? 'ring-2 ring-green-200' : ''}`
+                            ? 'border-gray-300 cursor-not-allowed opacity-75'
+                            : `border-gray-200 cursor-pointer hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${isCompleted ? 'ring-2 ring-green-200' : ''}`
                             } animate-fade-in`}
                           style={{ animationDelay: `${(categoryIndex * 100) + (index * 50)}ms` }}
                           onClick={() => {

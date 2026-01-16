@@ -7,7 +7,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
-import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical, Image } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical, Image, FileDown, User, ExternalLink } from 'lucide-react';
 import { QuizBuilder } from '@/components/admin/QuizBuilder';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import {
@@ -49,6 +49,19 @@ interface Lesson {
   duration_minutes: number | null;
 }
 
+interface Submission {
+  id: string;
+  child_id: string;
+  child_name: string;
+  file_url: string;
+  file_name: string;
+  file_size: number | null;
+  mime_type: string | null;
+  notes: string | null;
+  submitted_at: string;
+  signed_url?: string;
+}
+
 function AdminModuleEditContent() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -63,6 +76,8 @@ function AdminModuleEditContent() {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [_selectedThumbnailFile, setSelectedThumbnailFile] = useState<File | null>(null);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -85,6 +100,7 @@ function AdminModuleEditContent() {
   useEffect(() => {
     if (id) {
       fetchModule();
+      fetchSubmissions();
     }
   }, [id]);
 
@@ -128,6 +144,61 @@ function AdminModuleEditContent() {
       setError(err.message || 'Failed to load module');
     } finally {
       setFetching(false);
+    }
+  }
+
+  async function fetchSubmissions() {
+    if (!id) return;
+    setLoadingSubmissions(true);
+    try {
+      const { data, error } = await supabase
+        .from('track_submissions')
+        .select(`
+          id,
+          child_id,
+          file_url,
+          file_name,
+          file_size,
+          mime_type,
+          notes,
+          submitted_at
+        `)
+        .eq('module_id', id)
+        .order('submitted_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Fetch child names and generate signed URLs
+      const submissionsWithNames = await Promise.all(
+        (data || []).map(async (sub) => {
+          const { data: childData } = await supabase
+            .from('children')
+            .select('name')
+            .eq('id', sub.child_id)
+            .single();
+
+          // Generate signed URL for the file (valid for 1 hour)
+          let signedUrl = sub.file_url;
+          if (sub.file_url && !sub.file_url.startsWith('http')) {
+            const { data: urlData } = await supabase.storage
+              .from('track-submissions')
+              .createSignedUrl(sub.file_url, 3600); // 1 hour expiry
+            signedUrl = urlData?.signedUrl || sub.file_url;
+          }
+
+          return {
+            ...sub,
+            child_name: childData?.name || 'Unknown',
+            signed_url: signedUrl,
+          };
+        })
+      );
+
+      setSubmissions(submissionsWithNames);
+    } catch (err) {
+      console.error('Failed to fetch submissions:', err);
+    } finally {
+      setLoadingSubmissions(false);
     }
   }
 
@@ -331,8 +402,8 @@ function AdminModuleEditContent() {
             <button
               onClick={handleTogglePublish}
               className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${isPublished
-                  ? 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800'
-                  : 'bg-green-100 hover:bg-green-200 text-green-800'
+                ? 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800'
+                : 'bg-green-100 hover:bg-green-200 text-green-800'
                 }`}
             >
               {isPublished ? (
@@ -418,8 +489,8 @@ function AdminModuleEditContent() {
                         <label
                           htmlFor="thumbnail-upload"
                           className={`flex flex-col items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all ${uploadingThumbnail
-                              ? 'border-primary-400 bg-primary-50'
-                              : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+                            ? 'border-primary-400 bg-primary-50'
+                            : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
                             }`}
                         >
                           {uploadingThumbnail ? (
@@ -572,6 +643,86 @@ function AdminModuleEditContent() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Student Submissions Section */}
+        <div className="mt-6 bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <FileDown className="h-5 w-5 text-blue-500" />
+              Student Submissions ({submissions.length})
+            </h2>
+          </div>
+
+          {loadingSubmissions ? (
+            <div className="text-center py-8 text-gray-500">Loading submissions...</div>
+          ) : submissions.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No submissions yet for this module.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Student</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">File</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Submitted</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Notes</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {submissions.map((sub) => (
+                    <tr key={sub.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-gray-400" />
+                          <span className="font-medium">{sub.child_name}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-blue-500" />
+                          <span className="truncate max-w-[200px]" title={sub.file_name}>
+                            {sub.file_name}
+                          </span>
+                          {sub.file_size && (
+                            <span className="text-xs text-gray-400">
+                              ({(sub.file_size / 1024).toFixed(1)} KB)
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-gray-600">
+                        {new Date(sub.submitted_at).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 px-4 text-gray-600">
+                        {sub.notes ? (
+                          <span className="truncate max-w-[150px] block" title={sub.notes}>
+                            {sub.notes}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        <a
+                          href={sub.signed_url || sub.file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-xs font-medium"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          View
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Lesson Form Modal */}
@@ -873,8 +1024,8 @@ function LessonFormModal({ moduleId, lesson, onClose, onSuccess }: LessonFormMod
                   <label
                     htmlFor="file-upload"
                     className={`flex items-center justify-center gap-2 w-full px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${uploading
-                        ? 'border-primary-400 bg-primary-50'
-                        : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+                      ? 'border-primary-400 bg-primary-50'
+                      : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
                       }`}
                   >
                     {uploading ? (
