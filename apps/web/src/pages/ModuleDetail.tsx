@@ -3,9 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChildNavBar } from '@/components/navigation/ChildNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { LinkifiedText } from '@/components/ui/LinkifiedText';
-import { useModule, useChildModuleProgress, Lesson } from '@/hooks/useModules';
+import { useModule, useChildModuleProgress, Lesson, useChildLockedModules } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 import { TrackSubmissionUpload } from '@/components/child/TrackSubmissionUpload';
+import { Lock, ArrowLeft } from 'lucide-react';
 
 interface ChildSession {
   childId: string;
@@ -69,6 +70,10 @@ export default function ModuleDetailPage() {
     moduleId || ''
   );
 
+  // Check if module is locked for this child
+  const { isModuleLocked, loading: lockedLoading } = useChildLockedModules(childSession?.childId || '');
+  const isLocked = moduleId ? isModuleLocked(moduleId) : false;
+
   const handleStartModule = async () => {
     if (!childSession || !moduleId) return;
 
@@ -120,12 +125,41 @@ export default function ModuleDetailPage() {
     return { icon: '○', color: 'text-gray-400', bg: 'bg-gray-50' };
   };
 
-  if (loading) {
+  if (loading || (childSession && lockedLoading)) {
     return <LoadingAnimation message="Loading module..." variant="fullscreen" />;
   }
 
   if (!module || !childSession) {
     return null;
+  }
+
+  // Show locked message if module is locked
+  if (isLocked) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ChildNavBar />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="card text-center py-16">
+            <div className="flex justify-center mb-6">
+              <div className="bg-gray-200 rounded-full p-6">
+                <Lock className="h-12 w-12 text-gray-500" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">🔒 Module Locked</h2>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              This module has been locked by your parent. Please ask them to unlock it if you'd like to continue.
+            </p>
+            <button
+              onClick={() => navigate('/child/modules')}
+              className="btn btn-primary inline-flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Modules
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const isStarted = progress?.status === 'in_progress' || progress?.status === 'completed';
@@ -147,7 +181,7 @@ export default function ModuleDetailPage() {
               />
             </div>
           ) : null}
-          
+
           <div className="p-6">
             <div className="mb-4">
               <span className="px-3 py-1 text-sm font-medium rounded-full bg-primary-100 text-primary-800">
@@ -164,64 +198,63 @@ export default function ModuleDetailPage() {
             </p>
 
             <div className="flex items-center gap-6 text-sm text-gray-600 mb-6">
-            <span>⭐ Difficulty: {module.difficulty_level}/5</span>
-            <span>🎁 Reward: {module.xp_reward} XP</span>
-            {progress && (
-              <span>📊 Progress: {progress.progress_percentage}%</span>
-            )}
-          </div>
-
-          {/* Progress Bar */}
-          {progress && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                <span>Module Progress</span>
-                <span className="font-semibold">{progress.progress_percentage}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    progress.progress_percentage === 100
-                      ? 'bg-green-500'
-                      : progress.progress_percentage > 0
-                      ? 'bg-primary-500'
-                      : 'bg-gray-300'
-                  }`}
-                  style={{ width: `${progress.progress_percentage}%` }}
-                />
-              </div>
+              <span>⭐ Difficulty: {module.difficulty_level}/5</span>
+              <span>🎁 Reward: {module.xp_reward} XP</span>
+              {progress && (
+                <span>📊 Progress: {progress.progress_percentage}%</span>
+              )}
             </div>
-          )}
 
-          {!isStarted && (
-            <button
-              onClick={handleStartModule}
-              disabled={startingModule}
-              className="btn btn-primary w-full"
-            >
-              {startingModule ? 'Starting...' : 'Start Module'}
-            </button>
-          )}
-
-          {isCompleted && (
-            <>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                <p className="text-green-800 font-semibold">🎉 Module Completed!</p>
-                <p className="text-green-700 text-sm mt-1">
-                  You earned {progress?.xp_earned || module.xp_reward} XP
-                </p>
-              </div>
-              {module.track === 'project_based' && childSession && (
-                <div className="mb-6">
-                  <TrackSubmissionUpload
-                    childId={childSession.childId}
-                    moduleId={module.id}
-                    moduleTitle={module.title}
+            {/* Progress Bar */}
+            {progress && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                  <span>Module Progress</span>
+                  <span className="font-semibold">{progress.progress_percentage}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${progress.progress_percentage === 100
+                        ? 'bg-green-500'
+                        : progress.progress_percentage > 0
+                          ? 'bg-primary-500'
+                          : 'bg-gray-300'
+                      }`}
+                    style={{ width: `${progress.progress_percentage}%` }}
                   />
                 </div>
-              )}
-            </>
-          )}
+              </div>
+            )}
+
+            {!isStarted && (
+              <button
+                onClick={handleStartModule}
+                disabled={startingModule}
+                className="btn btn-primary w-full"
+              >
+                {startingModule ? 'Starting...' : 'Start Module'}
+              </button>
+            )}
+
+            {isCompleted && (
+              <>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                  <p className="text-green-800 font-semibold">🎉 Module Completed!</p>
+                  <p className="text-green-700 text-sm mt-1">
+                    You earned {progress?.xp_earned || module.xp_reward} XP
+                  </p>
+                </div>
+                {module.track === 'project_based' && childSession && (
+                  <div className="mb-6">
+                    <TrackSubmissionUpload
+                      childId={childSession.childId}
+                      moduleId={module.id}
+                      moduleTitle={module.title}
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
 
@@ -236,11 +269,10 @@ export default function ModuleDetailPage() {
                 return (
                   <div
                     key={lesson.id}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                      lessonProgress[lesson.id]?.is_completed
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${lessonProgress[lesson.id]?.is_completed
                         ? 'border-green-300 bg-green-50'
                         : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50'
-                    }`}
+                      }`}
                     onClick={() => handleLessonClick(lesson)}
                   >
                     <div className="flex items-center justify-between">

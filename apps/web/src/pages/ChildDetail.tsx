@@ -8,6 +8,7 @@ import { Child } from '@/types/child';
 import { ArrowLeft, Edit, Trophy, TrendingUp, BookOpen, Clock, Award, File, Download, FileText } from 'lucide-react';
 import { EditChildModal } from '@/components/parent/EditChildModal';
 import { ChildCodeDisplay } from '@/components/parent/ChildCodeDisplay';
+import { ModuleAccessControl } from '@/components/parent/ModuleAccessControl';
 import { formatCurrency } from '@/utils/currency';
 
 interface ChildProgress {
@@ -254,12 +255,12 @@ function ChildDetailContent() {
       submissions.map(async (submission) => {
         let imageUrl = null;
         let fileUrl = null;
-        
+
         // Generate signed URL for the file
         const { data, error } = await supabase.storage
           .from('track-submissions')
           .createSignedUrl(submission.file_url, 86400); // 24 hours expiry
-        
+
         if (!error && data) {
           if (isImageFile(submission.mime_type)) {
             // Convert image to base64 for reliable PDF printing
@@ -268,7 +269,7 @@ function ChildDetailContent() {
             fileUrl = data.signedUrl;
           }
         }
-        
+
         return { ...submission, imageUrl, fileUrl };
       })
     );
@@ -574,10 +575,10 @@ function ChildDetailContent() {
                 </div>
                 <div class="report-date">
                   Generated: ${new Date().toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })}
                 </div>
               </div>
             </div>
@@ -616,27 +617,27 @@ function ChildDetailContent() {
               <div class="section-title">Project Submissions</div>
               
               ${submissionsWithUrls.map((submission, index) => {
-                const isImage = isImageFile(submission.mime_type);
-                const imageDisplay = isImage && submission.imageUrl 
-                  ? `<div class="image-container">
+      const isImage = isImageFile(submission.mime_type);
+      const imageDisplay = isImage && submission.imageUrl
+        ? `<div class="image-container">
                        <img src="${submission.imageUrl}" class="submission-image" />
                      </div>`
-                  : '';
-                
-                const fileLink = !isImage && submission.fileUrl
-                  ? `<a href="${submission.fileUrl}" target="_blank" class="file-link">View File</a>`
-                  : '';
+        : '';
 
-                const trackName = submission.module.track.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-                const formattedDate = new Date(submission.submitted_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                });
+      const fileLink = !isImage && submission.fileUrl
+        ? `<a href="${submission.fileUrl}" target="_blank" class="file-link">View File</a>`
+        : '';
 
-                return `
+      const trackName = submission.module.track.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+      const formattedDate = new Date(submission.submitted_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      return `
                   <div class="submission-item">
                     <div class="submission-header">
                       <div class="module-title">${submission.module.title}</div>
@@ -660,7 +661,7 @@ function ChildDetailContent() {
                   </div>
                   ${index < submissionsWithUrls.length - 1 ? '<div class="divider"></div>' : ''}
                 `;
-              }).join('')}
+    }).join('')}
 
               <div class="footer">
                 <p>MyCEO Learning Platform - Project Submissions Report</p>
@@ -673,7 +674,7 @@ function ChildDetailContent() {
 
     loadingWindow.document.write(htmlContent);
     loadingWindow.document.close();
-    
+
     // Wait for all images to load before printing (base64 images load instantly, but we still wait for rendering)
     const images = loadingWindow.document.querySelectorAll('img');
     const imagePromises = Array.from(images).map((img) => {
@@ -691,7 +692,7 @@ function ChildDetailContent() {
 
     // Wait for all images to load, then print
     await Promise.all(imagePromises);
-    
+
     // Additional small delay to ensure everything is rendered
     setTimeout(() => {
       loadingWindow.print();
@@ -840,6 +841,11 @@ function ChildDetailContent() {
           </div>
         )}
 
+        {/* Module Access Control */}
+        <div className="mb-6">
+          <ModuleAccessControl childId={childId!} />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Company Info */}
           {company && (
@@ -940,7 +946,7 @@ function ChildDetailContent() {
                       {new Date(submission.submitted_at).toLocaleDateString()}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 mb-2">
                     <File className="h-5 w-5 text-blue-500" />
                     <div className="flex-1 min-w-0">
@@ -956,12 +962,12 @@ function ChildDetailContent() {
                         const { data, error } = await supabase.storage
                           .from('track-submissions')
                           .createSignedUrl(submission.file_url, 3600); // 1 hour expiry
-                        
+
                         if (error || !data) {
                           alert('Failed to generate file link. Please try again.');
                           return;
                         }
-                        
+
                         window.open(data.signedUrl, '_blank');
                       }}
                       className="btn btn-sm btn-secondary"
@@ -970,7 +976,7 @@ function ChildDetailContent() {
                       View
                     </button>
                   </div>
-                  
+
                   {submission.notes && (
                     <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-gray-700 italic">
                       "{submission.notes}"
