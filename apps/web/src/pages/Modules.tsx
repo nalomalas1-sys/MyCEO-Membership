@@ -6,7 +6,7 @@ import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { useModules, Module } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 import { generateSSOTicketAndRedirect } from '@/lib/sso';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Lock } from 'lucide-react';
 
 interface ChildSession {
   childId: string;
@@ -357,14 +357,21 @@ export default function ModulesPage() {
                     {trackModules.map((module, index) => {
                       const progress = childProgress[module.id];
                       const isCompleted = progress?.status === 'completed';
+                      const isLocked = module.is_locked;
 
                       return (
                         <div
                           key={module.id}
-                          className={`group relative bg-white rounded-xl shadow-md border-2 border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${isCompleted ? 'ring-2 ring-green-200' : ''
+                          className={`group relative bg-white rounded-xl shadow-md border-2 overflow-hidden transition-all duration-300 ${isLocked
+                            ? 'border-gray-300 cursor-not-allowed opacity-75'
+                            : `border-gray-200 cursor-pointer hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${isCompleted ? 'ring-2 ring-green-200' : ''}`
                             } animate-fade-in`}
                           style={{ animationDelay: `${(categoryIndex * 100) + (index * 50)}ms` }}
-                          onClick={() => navigate(`/child/modules/${module.id}`)}
+                          onClick={() => {
+                            if (!isLocked) {
+                              navigate(`/child/modules/${module.id}`);
+                            }
+                          }}
                         >
                           {/* Thumbnail */}
                           {module.thumbnail_url ? (
@@ -382,8 +389,15 @@ export default function ModulesPage() {
                           )}
 
                           <div className="p-6">
+                            {/* Lock Badge */}
+                            {isLocked && (
+                              <div className="absolute top-2 right-2 bg-gray-600 text-white rounded-full p-2 shadow-lg z-10">
+                                <Lock className="h-4 w-4" />
+                              </div>
+                            )}
+
                             {/* Completion Badge */}
-                            {isCompleted && (
+                            {!isLocked && isCompleted && (
                               <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-2 shadow-lg animate-bounce z-10">
                                 ✓
                               </div>
@@ -394,7 +408,13 @@ export default function ModulesPage() {
                               <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getTrackColor(module.track)}`}>
                                 {getTrackName(module.track)}
                               </span>
-                              {getStatusBadge(module)}
+                              {isLocked ? (
+                                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-600 border border-gray-300">
+                                  🔒 Locked
+                                </span>
+                              ) : (
+                                getStatusBadge(module)
+                              )}
                             </div>
 
                             {/* Module Title */}

@@ -10,6 +10,7 @@ export interface Module {
   difficulty_level: number;
   xp_reward: number;
   is_published: boolean;
+  is_locked: boolean;
   published_at: string | null;
   thumbnail_url: string | null;
   created_at: string;
@@ -151,5 +152,49 @@ export function useChildModuleProgress(childId: string, moduleId: string) {
   }, [childId, moduleId]);
 
   return { progress, loading, error };
+}
+
+export interface LockedModule {
+  id: string;
+  child_id: string;
+  module_id: string;
+  locked_by: string | null;
+  locked_at: string;
+}
+
+export function useChildLockedModules(childId: string) {
+  const [lockedModuleIds, setLockedModuleIds] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!childId) {
+      setLoading(false);
+      return;
+    }
+
+    async function fetchLockedModules() {
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('child_locked_modules')
+          .select('module_id')
+          .eq('child_id', childId);
+
+        if (fetchError) throw fetchError;
+        const ids = new Set((data || []).map((item: { module_id: string }) => item.module_id));
+        setLockedModuleIds(ids);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch locked modules');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLockedModules();
+  }, [childId]);
+
+  const isModuleLocked = (moduleId: string) => lockedModuleIds.has(moduleId);
+
+  return { lockedModuleIds, isModuleLocked, loading, error };
 }
 
