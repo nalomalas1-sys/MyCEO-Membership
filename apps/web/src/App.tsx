@@ -30,6 +30,7 @@ import AdminSettingsPage from '@/pages/admin/AdminSettings';
 import AdminFeatureFlagsPage from '@/pages/admin/AdminFeatureFlags';
 import AdminNotificationsPage from '@/pages/admin/AdminNotifications';
 import AdminCompletionTrackingPage from '@/pages/admin/AdminCompletionTracking';
+import AdminSubmissionsPage from '@/pages/admin/AdminSubmissions';
 
 
 // Child pages
@@ -49,7 +50,7 @@ import { FeatureFlagRoute } from '@/components/auth/FeatureFlagRoute';
 
 function HomePage() {
   const { isAuthenticated, user } = useAuth();
-  
+
   if (isAuthenticated) {
     // Check if user is admin or parent
     const isAdmin = user?.user_metadata?.role === 'admin';
@@ -58,7 +59,7 @@ function HomePage() {
     }
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return <LandingPage />;
 }
 
@@ -66,15 +67,15 @@ function App() {
   return (
     <ToastProvider>
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <Routes>
+        <Routes>
           {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/signup-success" element={<SignupSuccessPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signup-success" element={<SignupSuccessPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/company" element={<CompanyPage />} />
 
           {/* Parent Protected Routes */}
@@ -150,10 +151,15 @@ function App() {
               <AdminCompletionTrackingPage />
             </ProtectedRoute>
           } />
-       
+          <Route path="/admin/submissions" element={
+            <ProtectedRoute requireRole="admin">
+              <AdminSubmissionsPage />
+            </ProtectedRoute>
+          } />
+
 
           {/* Child Routes */}
-        <Route path="/child/login" element={<ChildLoginPage />} />
+          <Route path="/child/login" element={<ChildLoginPage />} />
           <Route path="/child/dashboard" element={
             <ProtectedRoute requireRole="child">
               <ChildDashboardPage />
@@ -219,10 +225,10 @@ function App() {
               </div>
             </div>
           } />
-      </Routes>
-      <Toaster />
-      <SpeedInsights />
-    </div>
+        </Routes>
+        <Toaster />
+        <SpeedInsights />
+      </div>
     </ToastProvider>
   );
 }

@@ -1,12 +1,12 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  Home, 
-  Users, 
-  BookOpen, 
-  BarChart3, 
-  Settings, 
-  LogOut, 
+import {
+  Home,
+  Users,
+  BookOpen,
+  BarChart3,
+  Settings,
+  LogOut,
   Shield,
   Menu,
   X,
@@ -15,9 +15,32 @@ import {
   Crown,
   ToggleLeft,
   CheckSquare,
+  FileDown,
+  TrendingUp,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
+
+interface NavItem {
+  path: string;
+  icon: any;
+  label: string;
+  color: string;
+}
+
+interface NavGroup {
+  id: string;
+  icon: any;
+  label: string;
+  color: string;
+  items: NavItem[];
+}
+
+type NavEntry = NavItem | NavGroup;
+
+function isNavGroup(entry: NavEntry): entry is NavGroup {
+  return 'items' in entry;
+}
 
 export function AdminNavBar() {
   const { user, signOut } = useAuth();
@@ -25,7 +48,9 @@ export function AdminNavBar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const { unreadCount: adminUnreadCount } = useAdminNotifications();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
     await signOut();
@@ -33,45 +58,84 @@ export function AdminNavBar() {
   };
 
   const isActive = (path: string) => location.pathname === path;
+  const isGroupActive = (items: NavItem[]) => items.some(item => location.pathname === item.path);
 
-  const navItems = [
-    { 
-      path: '/admin/dashboard', 
-      icon: Home, 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const navEntries: NavEntry[] = [
+    {
+      path: '/admin/dashboard',
+      icon: Home,
       label: 'Dashboard',
       color: 'from-blue-500 to-cyan-500'
     },
-    { 
-      path: '/admin/users', 
-      icon: Users, 
+    {
+      path: '/admin/users',
+      icon: Users,
       label: 'Users',
       color: 'from-emerald-500 to-green-500'
     },
-    { 
-      path: '/admin/content', 
-      icon: BookOpen, 
+    {
+      id: 'content',
+      icon: BookOpen,
       label: 'Content',
-      color: 'from-purple-500 to-violet-500'
+      color: 'from-purple-500 to-violet-500',
+      items: [
+        {
+          path: '/admin/content',
+          icon: BookOpen,
+          label: 'Modules',
+          color: 'from-purple-500 to-violet-500'
+        },
+        {
+          path: '/admin/submissions',
+          icon: FileDown,
+          label: 'Submissions',
+          color: 'from-pink-500 to-rose-500'
+        },
+      ]
     },
-    { 
-      path: '/admin/analytics', 
-      icon: BarChart3, 
-      label: 'Analytics',
-      color: 'from-amber-500 to-orange-500'
+    {
+      id: 'insights',
+      icon: TrendingUp,
+      label: 'Insights',
+      color: 'from-amber-500 to-orange-500',
+      items: [
+        {
+          path: '/admin/analytics',
+          icon: BarChart3,
+          label: 'Analytics',
+          color: 'from-amber-500 to-orange-500'
+        },
+        {
+          path: '/admin/completion',
+          icon: CheckSquare,
+          label: 'Completion',
+          color: 'from-teal-500 to-emerald-500'
+        },
+      ]
     },
-    { 
-      path: '/admin/features', 
-      icon: ToggleLeft, 
-      label: 'Feature Flags',
+    {
+      path: '/admin/features',
+      icon: ToggleLeft,
+      label: 'Features',
       color: 'from-indigo-500 to-purple-500'
     },
-    { 
-      path: '/admin/completion', 
-      icon: CheckSquare, 
-      label: 'Completion Tracking',
-      color: 'from-teal-500 to-emerald-500'
-    },
   ];
+
+  // Flatten for mobile menu
+  const allNavItems: NavItem[] = navEntries.flatMap(entry =>
+    isNavGroup(entry) ? entry.items : [entry]
+  );
 
   return (
     <>
@@ -88,9 +152,9 @@ export function AdminNavBar() {
               <span className="text-cyan-300 font-medium">v2.4.1</span>
             </div>
             <div className="text-xs text-gray-500">
-              {new Date().toLocaleDateString('en-US', { 
-                weekday: 'short', 
-                month: 'short', 
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
@@ -122,31 +186,82 @@ export function AdminNavBar() {
               </Link>
 
               {/* Desktop Navigation Links */}
-              <div className="hidden lg:flex items-center space-x-1 ml-12">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const active = isActive(item.path);
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={`group flex flex-col items-center px-4 py-2 rounded-lg transition-all duration-200 ${
-                        active
-                          ? `bg-gradient-to-r ${item.color} shadow-lg`
-                          : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Icon className={`h-4 w-4 ${active ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`} />
-                        <span className={`text-sm font-medium ${active ? 'text-white' : 'group-hover:text-white'}`}>
-                          {item.label}
-                        </span>
+              <div className="hidden lg:flex items-center space-x-1 ml-12" ref={dropdownRef}>
+                {navEntries.map((entry) => {
+                  if (isNavGroup(entry)) {
+                    // Render dropdown group
+                    const Icon = entry.icon;
+                    const groupActive = isGroupActive(entry.items);
+                    const isOpen = openDropdown === entry.id;
+
+                    return (
+                      <div key={entry.id} className="relative">
+                        <button
+                          onClick={() => setOpenDropdown(isOpen ? null : entry.id)}
+                          className={`group flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${groupActive
+                              ? `bg-gradient-to-r ${entry.color} shadow-lg`
+                              : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                            }`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <Icon className={`h-4 w-4 ${groupActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`} />
+                            <span className={`text-sm font-medium ${groupActive ? 'text-white' : 'group-hover:text-white'}`}>
+                              {entry.label}
+                            </span>
+                            <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''} ${groupActive ? 'text-white' : 'text-gray-400'}`} />
+                          </div>
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {isOpen && (
+                          <div className="absolute top-full left-0 mt-1 w-48 bg-gray-900 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                            {entry.items.map((item) => {
+                              const ItemIcon = item.icon;
+                              const itemActive = isActive(item.path);
+                              return (
+                                <Link
+                                  key={item.path}
+                                  to={item.path}
+                                  onClick={() => setOpenDropdown(null)}
+                                  className={`flex items-center space-x-3 px-4 py-3 transition-colors ${itemActive
+                                      ? `bg-gradient-to-r ${item.color} text-white`
+                                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                                    }`}
+                                >
+                                  <ItemIcon className="h-4 w-4" />
+                                  <span className="text-sm font-medium">{item.label}</span>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                      {active && (
-                        <div className="w-4 h-0.5 bg-white rounded-full mt-1"></div>
-                      )}
-                    </Link>
-                  );
+                    );
+                  } else {
+                    // Render single nav item
+                    const Icon = entry.icon;
+                    const active = isActive(entry.path);
+                    return (
+                      <Link
+                        key={entry.path}
+                        to={entry.path}
+                        className={`group flex flex-col items-center px-4 py-2 rounded-lg transition-all duration-200 ${active
+                            ? `bg-gradient-to-r ${entry.color} shadow-lg`
+                            : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                          }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Icon className={`h-4 w-4 ${active ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'}`} />
+                          <span className={`text-sm font-medium ${active ? 'text-white' : 'group-hover:text-white'}`}>
+                            {entry.label}
+                          </span>
+                        </div>
+                        {active && (
+                          <div className="w-4 h-0.5 bg-white rounded-full mt-1"></div>
+                        )}
+                      </Link>
+                    );
+                  }
                 })}
               </div>
             </div>
@@ -215,7 +330,7 @@ export function AdminNavBar() {
                         <span>14:32</span>
                       </div>
                     </div>
-                    
+
                     <div className="py-2">
                       <button
                         onClick={() => {
@@ -228,7 +343,7 @@ export function AdminNavBar() {
                         <span>System Settings</span>
                       </button>
                       <div className="border-t border-gray-800 my-2"></div>
-                      
+
                       <button
                         onClick={handleLogout}
                         className="flex items-center space-x-3 w-full px-4 py-3 text-sm text-rose-400 hover:bg-gray-800 hover:text-rose-300 transition-colors"
@@ -256,7 +371,7 @@ export function AdminNavBar() {
         {mobileMenuOpen && (
           <div className="lg:hidden bg-gradient-to-b from-gray-900 to-gray-950 border-t border-gray-800">
             <div className="px-4 py-4 space-y-1">
-              {navItems.map((item) => {
+              {allNavItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.path);
                 return (
@@ -264,11 +379,10 @@ export function AdminNavBar() {
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      active
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${active
                         ? `bg-gradient-to-r ${item.color} text-white`
                         : 'text-gray-300 hover:text-white hover:bg-gray-800'
-                    }`}
+                      }`}
                   >
                     <Icon className="h-5 w-5" />
                     <span className="font-medium">{item.label}</span>
@@ -278,7 +392,7 @@ export function AdminNavBar() {
                   </Link>
                 );
               })}
-              
+
               <div className="border-t border-gray-800 pt-4 mt-4">
                 <div className="px-4 py-3 space-y-4">
                   <div className="flex items-center space-x-3">
@@ -294,13 +408,13 @@ export function AdminNavBar() {
                       <p className="text-xs text-cyan-300 truncate">{user?.email}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-amber-900">
                       <Crown className="w-3 h-3" />
                       <span className="uppercase tracking-wide">Admin</span>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => {

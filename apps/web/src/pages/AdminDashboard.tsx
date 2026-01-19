@@ -111,10 +111,10 @@ function AdminDashboardContent() {
         // Create the flag if it doesn't exist
         const { error } = await supabase
           .from('feature_flags')
-          .insert({ 
-            name: 'stripe_registration', 
+          .insert({
+            name: 'stripe_registration',
             description: 'Require Stripe payment during signup',
-            enabled: true 
+            enabled: true
           });
 
         if (error) throw error;
@@ -175,14 +175,6 @@ function AdminDashboardContent() {
       textColor: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
     },
-    {
-      title: 'Total Revenue',
-      value: formatCurrencyWithSeparators(stats.totalRevenue),
-      icon: DollarSign,
-      color: 'bg-emerald-500',
-      textColor: 'text-emerald-600',
-      bgColor: 'bg-emerald-50',
-    },
   ];
 
   return (
@@ -219,38 +211,6 @@ function AdminDashboardContent() {
           })}
         </div>
 
-        {/* Billing Overview */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Billing Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">Monthly Recurring Revenue</p>
-              <p className="text-2xl font-bold text-blue-600">{formatCurrencyWithSeparators(stats.monthlyRevenue)}</p>
-              <p className="text-xs text-gray-500 mt-1">Estimated</p>
-            </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">Total Revenue (Annual)</p>
-              <p className="text-2xl font-bold text-green-600">{formatCurrencyWithSeparators(stats.totalRevenue)}</p>
-              <p className="text-xs text-gray-500 mt-1">Estimated</p>
-            </div>
-            <div className="bg-yellow-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">Trialing Users</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.trialingUsers}</p>
-              <p className="text-xs text-gray-500 mt-1">Potential conversions</p>
-            </div>
-            <div className="bg-red-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">Canceled Subscriptions</p>
-              <p className="text-2xl font-bold text-red-600">{stats.canceledSubscriptions}</p>
-              <p className="text-xs text-gray-500 mt-1">Churn risk</p>
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
-              <strong>Note:</strong> Revenue calculations are estimates. For accurate billing data, integrate with Stripe Dashboard.
-            </p>
-          </div>
-        </div>
-
         {/* Registration Settings */}
         <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Registration Settings</h2>
@@ -266,7 +226,7 @@ function AdminDashboardContent() {
                   {stripeRegistrationEnabled ? 'Stripe Registration' : 'Normal Registration'}
                 </p>
                 <p className="text-sm text-gray-600">
-                  {stripeRegistrationEnabled 
+                  {stripeRegistrationEnabled
                     ? 'Users must complete payment during signup'
                     : 'Users can sign up without payment'}
                 </p>
@@ -275,16 +235,14 @@ function AdminDashboardContent() {
             <button
               onClick={toggleStripeRegistration}
               disabled={toggling}
-              className={`relative inline-flex h-12 w-24 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                stripeRegistrationEnabled
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 focus:ring-blue-500'
-                  : 'bg-gray-300 focus:ring-gray-400'
-              } ${toggling ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              className={`relative inline-flex h-12 w-24 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${stripeRegistrationEnabled
+                ? 'bg-gradient-to-r from-blue-500 to-blue-600 focus:ring-blue-500'
+                : 'bg-gray-300 focus:ring-gray-400'
+                } ${toggling ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <span
-                className={`inline-block h-10 w-10 transform rounded-full bg-white shadow-lg transition-transform ${
-                  stripeRegistrationEnabled ? 'translate-x-12' : 'translate-x-1'
-                }`}
+                className={`inline-block h-10 w-10 transform rounded-full bg-white shadow-lg transition-transform ${stripeRegistrationEnabled ? 'translate-x-12' : 'translate-x-1'
+                  }`}
               />
               {toggling && (
                 <div className="absolute inset-0 flex items-center justify-center">
