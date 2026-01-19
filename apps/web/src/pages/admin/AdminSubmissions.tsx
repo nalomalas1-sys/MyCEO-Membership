@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
@@ -38,7 +37,6 @@ interface Module {
 }
 
 function AdminSubmissionsContent() {
-    const navigate = useNavigate();
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [modules, setModules] = useState<Module[]>([]);
     const [loading, setLoading] = useState(true);
