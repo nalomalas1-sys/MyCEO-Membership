@@ -4,8 +4,8 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import { Users, BookOpen, DollarSign, Activity, ToggleLeft, CreditCard, UserPlus, Loader2 } from 'lucide-react';
-import { formatCurrencyWithSeparators, usdToRm } from '@/utils/currency';
+import { Users, BookOpen, Activity, ToggleLeft, CreditCard, UserPlus, Loader2 } from 'lucide-react';
+import { usdToRm } from '@/utils/currency';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
