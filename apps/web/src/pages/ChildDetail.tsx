@@ -5,7 +5,7 @@ import { ParentNavBar } from '@/components/navigation/ParentNavBar';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
 import { supabase } from '@/lib/supabase';
 import { Child } from '@/types/child';
-import { ArrowLeft, Edit, Trophy, TrendingUp, BookOpen, Clock, Award, File, Download, FileText } from 'lucide-react';
+import { ArrowLeft, Edit, Trophy, TrendingUp, BookOpen, Clock, Award, File, Download, FileText, Youtube, Link2, ExternalLink } from 'lucide-react';
 import { EditChildModal } from '@/components/parent/EditChildModal';
 import { ChildCodeDisplay } from '@/components/parent/ChildCodeDisplay';
 import { formatCurrency } from '@/utils/currency';
@@ -45,16 +45,32 @@ interface ChildAchievement {
 interface TrackSubmission {
   id: string;
   module_id: string;
-  file_url: string;
-  file_name: string;
+  file_url: string | null;
+  file_name: string | null;
   file_size: number | null;
   mime_type: string | null;
+  youtube_url: string | null;
+  external_link: string | null;
   notes: string | null;
   submitted_at: string;
   module: {
     title: string;
     track: string;
   };
+}
+
+// Extract YouTube video ID from URL
+function extractYouTubeId(url: string): string | null {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
 }
 
 function ChildDetailContent() {
@@ -143,6 +159,8 @@ function ChildDetailContent() {
               file_name,
               file_size,
               mime_type,
+              youtube_url,
+              external_link,
               notes,
               submitted_at,
               modules!inner (
@@ -192,6 +210,8 @@ function ChildDetailContent() {
               file_name: s.file_name,
               file_size: s.file_size,
               mime_type: s.mime_type,
+              youtube_url: s.youtube_url,
+              external_link: s.external_link,
               notes: s.notes,
               submitted_at: s.submitted_at,
               module: s.modules,
@@ -255,17 +275,19 @@ function ChildDetailContent() {
         let imageUrl = null;
         let fileUrl = null;
 
-        // Generate signed URL for the file
-        const { data, error } = await supabase.storage
-          .from('track-submissions')
-          .createSignedUrl(submission.file_url, 86400); // 24 hours expiry
+        // Generate signed URL for the file (only if file exists)
+        if (submission.file_url) {
+          const { data, error } = await supabase.storage
+            .from('track-submissions')
+            .createSignedUrl(submission.file_url, 86400); // 24 hours expiry
 
-        if (!error && data) {
-          if (isImageFile(submission.mime_type)) {
-            // Convert image to base64 for reliable PDF printing
-            imageUrl = await convertImageToBase64(data.signedUrl);
-          } else {
-            fileUrl = data.signedUrl;
+          if (!error && data) {
+            if (isImageFile(submission.mime_type)) {
+              // Convert image to base64 for reliable PDF printing
+              imageUrl = await convertImageToBase64(data.signedUrl);
+            } else {
+              fileUrl = data.signedUrl;
+            }
           }
         }
 
@@ -627,6 +649,22 @@ function ChildDetailContent() {
         ? `<a href="${submission.fileUrl}" target="_blank" class="file-link">View File</a>`
         : '';
 
+      // YouTube video link
+      const youtubeLink = submission.youtube_url
+        ? `<div class="link-item" style="margin-top: 15px; padding: 15px; background: #fff0f0; border-left: 4px solid #FF0000;">
+             <div style="font-size: 12px; color: #c41e1e; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px;">📺 YouTube Video</div>
+             <a href="${submission.youtube_url}" target="_blank" style="color: #c41e1e; text-decoration: underline; word-break: break-all;">${submission.youtube_url}</a>
+           </div>`
+        : '';
+
+      // External link
+      const externalLink = submission.external_link
+        ? `<div class="link-item" style="margin-top: 15px; padding: 15px; background: #f0f5ff; border-left: 4px solid #2c5aa0;">
+             <div style="font-size: 12px; color: #2c5aa0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px;">🔗 External Link</div>
+             <a href="${submission.external_link}" target="_blank" style="color: #2c5aa0; text-decoration: underline; word-break: break-all;">${submission.external_link}</a>
+           </div>`
+        : '';
+
       const trackName = submission.module.track.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
       const formattedDate = new Date(submission.submitted_at).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -647,6 +685,8 @@ function ChildDetailContent() {
                       <div class="file-info">
                         ${fileLink}
                         ${imageDisplay}
+                        ${youtubeLink}
+                        ${externalLink}
                         <div class="track-label">Learning Track: ${trackName}</div>
                       </div>
                       
@@ -927,57 +967,123 @@ function ChildDetailContent() {
               Project Submissions
             </h2>
             <div className="space-y-4">
-              {submissions.map((submission) => (
-                <div key={submission.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">{submission.module.title}</h3>
-                      <p className="text-sm text-gray-600">
-                        Track: {submission.module.track.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                      </p>
+              {submissions.map((submission) => {
+                const youtubeId = submission.youtube_url ? extractYouTubeId(submission.youtube_url) : null;
+                const hasFile = submission.file_url && submission.file_name;
+                const hasYoutube = submission.youtube_url && youtubeId;
+                const hasLink = submission.external_link;
+
+                return (
+                  <div key={submission.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1">{submission.module.title}</h3>
+                        <p className="text-sm text-gray-600">
+                          Track: {submission.module.track.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                        </p>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {new Date(submission.submitted_at).toLocaleDateString()}
+                      </span>
                     </div>
-                    <span className="text-xs text-gray-500">
-                      {new Date(submission.submitted_at).toLocaleDateString()}
-                    </span>
+
+                    <div className="space-y-3">
+                      {/* File */}
+                      {hasFile && (
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <File className="h-5 w-5 text-green-500" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{submission.file_name}</p>
+                            <p className="text-xs text-gray-500">
+                              {submission.file_size ? `${(submission.file_size / 1024).toFixed(1)} KB` : 'Unknown size'}
+                              {submission.mime_type && ` • ${submission.mime_type}`}
+                            </p>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              // Generate signed URL for private bucket
+                              const { data, error } = await supabase.storage
+                                .from('track-submissions')
+                                .createSignedUrl(submission.file_url!, 3600); // 1 hour expiry
+
+                              if (error || !data) {
+                                alert('Failed to generate file link. Please try again.');
+                                return;
+                              }
+
+                              window.open(data.signedUrl, '_blank');
+                            }}
+                            className="btn btn-sm btn-secondary"
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            View
+                          </button>
+                        </div>
+                      )}
+
+                      {/* YouTube Video */}
+                      {hasYoutube && (
+                        <div className="p-3 bg-white rounded-lg border border-gray-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Youtube className="h-4 w-4 text-red-500" />
+                            <span className="text-sm font-medium text-gray-700">YouTube Video</span>
+                            <a
+                              href={submission.youtube_url!}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="ml-auto text-xs text-blue-600 hover:underline flex items-center gap-1"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              Open in YouTube
+                            </a>
+                          </div>
+                          <div className="relative pb-[56.25%] h-0 overflow-hidden rounded-lg">
+                            <iframe
+                              className="absolute top-0 left-0 w-full h-full"
+                              src={`https://www.youtube.com/embed/${youtubeId}`}
+                              title="YouTube video"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* External Link */}
+                      {hasLink && (
+                        <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <Link2 className="h-5 w-5 text-blue-500" />
+                          <a
+                            href={submission.external_link!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 text-sm text-blue-600 hover:underline truncate"
+                          >
+                            {submission.external_link}
+                          </a>
+                          <a
+                            href={submission.external_link!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-secondary"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            Open
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Notes */}
+                      {submission.notes && (
+                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-gray-700">
+                          <p className="text-xs text-yellow-700 font-medium mb-1">Notes</p>
+                          <p className="italic">"{submission.notes}"</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 mb-2">
-                    <File className="h-5 w-5 text-blue-500" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{submission.file_name}</p>
-                      <p className="text-xs text-gray-500">
-                        {submission.file_size ? `${(submission.file_size / 1024).toFixed(1)} KB` : 'Unknown size'}
-                        {submission.mime_type && ` • ${submission.mime_type}`}
-                      </p>
-                    </div>
-                    <button
-                      onClick={async () => {
-                        // Generate signed URL for private bucket
-                        const { data, error } = await supabase.storage
-                          .from('track-submissions')
-                          .createSignedUrl(submission.file_url, 3600); // 1 hour expiry
-
-                        if (error || !data) {
-                          alert('Failed to generate file link. Please try again.');
-                          return;
-                        }
-
-                        window.open(data.signedUrl, '_blank');
-                      }}
-                      className="btn btn-sm btn-secondary"
-                    >
-                      <Download className="h-4 w-4 mr-1" />
-                      View
-                    </button>
-                  </div>
-
-                  {submission.notes && (
-                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-gray-700 italic">
-                      "{submission.notes}"
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
