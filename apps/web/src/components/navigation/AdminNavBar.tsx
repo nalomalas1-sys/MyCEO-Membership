@@ -7,7 +7,6 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Shield,
   Menu,
   X,
   Bell,
@@ -173,7 +172,6 @@ export function AdminNavBar() {
               <Link to="/admin/dashboard" className="flex items-center space-x-3 group">
                 <div className="relative">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg border-2 border-gray-800 group-hover:rotate-12 transition-transform duration-300">
-                    <Shield className="h-5 w-5 text-white" />
                   </div>
                   <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-gradient-to-r from-yellow-400 to-amber-400 rounded-full animate-pulse border border-gray-900"></div>
                 </div>
@@ -199,8 +197,8 @@ export function AdminNavBar() {
                         <button
                           onClick={() => setOpenDropdown(isOpen ? null : entry.id)}
                           className={`group flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${groupActive
-                              ? `bg-gradient-to-r ${entry.color} shadow-lg`
-                              : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                            ? `bg-gradient-to-r ${entry.color} shadow-lg`
+                            : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
                             }`}
                         >
                           <div className="flex items-center space-x-2">
@@ -224,8 +222,8 @@ export function AdminNavBar() {
                                   to={item.path}
                                   onClick={() => setOpenDropdown(null)}
                                   className={`flex items-center space-x-3 px-4 py-3 transition-colors ${itemActive
-                                      ? `bg-gradient-to-r ${item.color} text-white`
-                                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                                    ? `bg-gradient-to-r ${item.color} text-white`
+                                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                                     }`}
                                 >
                                   <ItemIcon className="h-4 w-4" />
@@ -246,8 +244,8 @@ export function AdminNavBar() {
                         key={entry.path}
                         to={entry.path}
                         className={`group flex flex-col items-center px-4 py-2 rounded-lg transition-all duration-200 ${active
-                            ? `bg-gradient-to-r ${entry.color} shadow-lg`
-                            : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                          ? `bg-gradient-to-r ${entry.color} shadow-lg`
+                          : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
                           }`}
                       >
                         <div className="flex items-center space-x-2">
@@ -380,8 +378,8 @@ export function AdminNavBar() {
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${active
-                        ? `bg-gradient-to-r ${item.color} text-white`
-                        : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                      ? `bg-gradient-to-r ${item.color} text-white`
+                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
                       }`}
                   >
                     <Icon className="h-5 w-5" />
