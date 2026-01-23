@@ -882,9 +882,6 @@ export default function LandingPage() {
             {/* Free Plan */}
             <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-green-300 hover:shadow-2xl transition-all max-w-md w-full">
               <div className="mb-6 text-center">
-                <div className="inline-block bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold mb-4">
-                  ✨ Get Started Free
-                </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Free Plan</h3>
                 <div className="flex items-baseline justify-center">
                   <span className="text-5xl font-bold text-green-600">FREE</span>
