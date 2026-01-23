@@ -1,12 +1,40 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Upload, X, File, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Upload, X, File, CheckCircle2, AlertCircle, Youtube, Link2, FileText, Play } from 'lucide-react';
 
 interface TrackSubmissionUploadProps {
   childId: string;
   moduleId: string;
   moduleTitle: string;
   onSuccess?: () => void;
+}
+
+// Extract YouTube video ID from various URL formats
+function extractYouTubeId(url: string): string | null {
+  if (!url) return null;
+
+  // Match various YouTube URL formats
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/, // Just the video ID
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+
+  return null;
+}
+
+// Validate URL format
+function isValidUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function TrackSubmissionUpload({
@@ -17,6 +45,8 @@ export function TrackSubmissionUpload({
 }: TrackSubmissionUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [notes, setNotes] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [externalLink, setExternalLink] = useState('');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -62,8 +92,30 @@ export function TrackSubmissionUpload({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) {
-      setError('Please select a file to upload');
+
+    // Validate at least one content type is provided
+    const hasFile = file !== null;
+    const hasYoutube = youtubeUrl.trim() !== '';
+    const hasLink = externalLink.trim() !== '';
+    const hasNotes = notes.trim() !== '';
+
+    if (!hasFile && !hasYoutube && !hasLink && !hasNotes) {
+      setError('Please provide at least one: file, YouTube video, link, or notes');
+      return;
+    }
+
+    // Validate YouTube URL if provided
+    if (hasYoutube) {
+      const videoId = extractYouTubeId(youtubeUrl.trim());
+      if (!videoId) {
+        setError('Please enter a valid YouTube URL');
+        return;
+      }
+    }
+
+    // Validate external link if provided
+    if (hasLink && !isValidUrl(externalLink.trim())) {
+      setError('Please enter a valid URL for the external link');
       return;
     }
 
@@ -71,35 +123,44 @@ export function TrackSubmissionUpload({
     setError(null);
 
     try {
-      // Get file extension
-      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'file';
-      const fileName = `${childId}/${moduleId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      let filePath: string | null = null;
+      let fileName: string | null = null;
+      let fileSize: number | null = null;
+      let mimeType: string | null = null;
 
-      // Upload file to storage
-      const { error: uploadError } = await supabase.storage
-        .from('track-submissions')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+      // Upload file if provided
+      if (file) {
+        // Get file extension
+        const fileExt = file.name.split('.').pop()?.toLowerCase() || 'file';
+        const storagePath = `${childId}/${moduleId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-      if (uploadError) throw uploadError;
+        // Upload file to storage
+        const { error: uploadError } = await supabase.storage
+          .from('track-submissions')
+          .upload(storagePath, file, {
+            cacheControl: '3600',
+            upsert: false,
+          });
 
-      // Get signed URL for private bucket (valid for 1 year)
-      // Note: For private buckets, we'll store the path and generate signed URLs when needed
-      // For now, store the file path and generate signed URL on-demand
-      const filePath = fileName;
+        if (uploadError) throw uploadError;
+
+        filePath = storagePath;
+        fileName = file.name;
+        fileSize = file.size;
+        mimeType = file.type;
+      }
 
       // Create or update submission record
-      // Store the file path - we'll generate signed URLs when viewing
       const submissionData = {
         child_id: childId,
         module_id: moduleId,
-        file_url: filePath, // Store path, not URL
-        file_name: file.name,
-        file_size: file.size,
-        mime_type: file.type,
-        notes: notes.trim() || null,
+        file_url: filePath,
+        file_name: fileName,
+        file_size: fileSize,
+        mime_type: mimeType,
+        youtube_url: hasYoutube ? youtubeUrl.trim() : null,
+        external_link: hasLink ? externalLink.trim() : null,
+        notes: hasNotes ? notes.trim() : null,
       };
 
       const { error: dbError } = await supabase
@@ -125,6 +186,8 @@ export function TrackSubmissionUpload({
       setSuccess(true);
       setFile(null);
       setNotes('');
+      setYoutubeUrl('');
+      setExternalLink('');
 
       if (onSuccess) {
         onSuccess();
@@ -148,6 +211,9 @@ export function TrackSubmissionUpload({
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+  // Get YouTube preview ID
+  const youtubePreviewId = extractYouTubeId(youtubeUrl);
+
   if (success && existingSubmission) {
     return (
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -158,15 +224,34 @@ export function TrackSubmissionUpload({
             <p className="text-sm text-green-700 mb-3">
               Your submission for "{moduleTitle}" has been uploaded. Your parent can now view it.
             </p>
-            <div className="flex items-center gap-2 text-sm text-green-600">
-              <File className="h-4 w-4" />
-              <span>{existingSubmission.file_name}</span>
-              <span className="text-green-500">•</span>
-              <span>{formatFileSize(existingSubmission.file_size || 0)}</span>
+
+            {/* Show what was submitted */}
+            <div className="space-y-2">
+              {existingSubmission.file_name && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <File className="h-4 w-4" />
+                  <span>{existingSubmission.file_name}</span>
+                  <span className="text-green-500">•</span>
+                  <span>{formatFileSize(existingSubmission.file_size || 0)}</span>
+                </div>
+              )}
+              {existingSubmission.youtube_url && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <Youtube className="h-4 w-4" />
+                  <span>YouTube Video</span>
+                </div>
+              )}
+              {existingSubmission.external_link && (
+                <div className="flex items-center gap-2 text-sm text-green-600">
+                  <Link2 className="h-4 w-4" />
+                  <span>External Link</span>
+                </div>
+              )}
+              {existingSubmission.notes && (
+                <p className="text-sm text-green-700 mt-2 italic">"{existingSubmission.notes}"</p>
+              )}
             </div>
-            {existingSubmission.notes && (
-              <p className="text-sm text-green-700 mt-2 italic">"{existingSubmission.notes}"</p>
-            )}
+
             <p className="text-xs text-green-600 mt-3">
               Submitted on {new Date(existingSubmission.submitted_at).toLocaleDateString()}
             </p>
@@ -180,22 +265,41 @@ export function TrackSubmissionUpload({
     return (
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <div className="flex items-start gap-3 mb-4">
-          <File className="h-6 w-6 text-blue-600 flex-shrink-0 mt-0.5" />
+          <FileText className="h-6 w-6 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-blue-900 mb-1">Submission Already Uploaded</h3>
             <p className="text-sm text-blue-700 mb-3">
-              You've already submitted your work for this module. You can update it by uploading a new file.
+              You've already submitted your work for this module. You can update it by uploading new content.
             </p>
-            <div className="flex items-center gap-2 text-sm text-blue-600 mb-2">
-              <File className="h-4 w-4" />
-              <span>{existingSubmission.file_name}</span>
-              <span className="text-blue-500">•</span>
-              <span>{formatFileSize(existingSubmission.file_size || 0)}</span>
+
+            {/* Show existing submission content */}
+            <div className="space-y-2">
+              {existingSubmission.file_name && (
+                <div className="flex items-center gap-2 text-sm text-blue-600">
+                  <File className="h-4 w-4" />
+                  <span>{existingSubmission.file_name}</span>
+                  <span className="text-blue-500">•</span>
+                  <span>{formatFileSize(existingSubmission.file_size || 0)}</span>
+                </div>
+              )}
+              {existingSubmission.youtube_url && (
+                <div className="flex items-center gap-2 text-sm text-blue-600">
+                  <Youtube className="h-4 w-4" />
+                  <span className="truncate max-w-xs">{existingSubmission.youtube_url}</span>
+                </div>
+              )}
+              {existingSubmission.external_link && (
+                <div className="flex items-center gap-2 text-sm text-blue-600">
+                  <Link2 className="h-4 w-4" />
+                  <span className="truncate max-w-xs">{existingSubmission.external_link}</span>
+                </div>
+              )}
+              {existingSubmission.notes && (
+                <p className="text-sm text-blue-700 mb-2 italic">"{existingSubmission.notes}"</p>
+              )}
             </div>
-            {existingSubmission.notes && (
-              <p className="text-sm text-blue-700 mb-2 italic">"{existingSubmission.notes}"</p>
-            )}
-            <p className="text-xs text-blue-600">
+
+            <p className="text-xs text-blue-600 mt-2">
               Submitted on {new Date(existingSubmission.submitted_at).toLocaleDateString()}
             </p>
           </div>
@@ -204,7 +308,7 @@ export function TrackSubmissionUpload({
           onClick={() => setExistingSubmission(null)}
           className="btn btn-secondary text-sm"
         >
-          Upload New File
+          Update Submission
         </button>
       </div>
     );
@@ -216,17 +320,69 @@ export function TrackSubmissionUpload({
         Upload Your Project Submission
       </h3>
       <p className="text-sm text-gray-600 mb-4">
-        Upload your completed work for "{moduleTitle}". Your parent will be able to view and download it.
+        Submit your work for "{moduleTitle}". You can upload a file, share a YouTube video, add a link, or write notes.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* YouTube Video Section */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+            <Youtube className="h-4 w-4 text-red-500" />
+            YouTube Video (Optional)
+          </label>
+          <input
+            type="text"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
+
+          {/* YouTube Preview */}
+          {youtubePreviewId && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                <Play className="h-3 w-3" /> Video Preview
+              </p>
+              <div className="relative pb-[56.25%] h-0 overflow-hidden rounded-lg border border-gray-300">
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${youtubePreviewId}`}
+                  title="YouTube video preview"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* External Link Section */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+            <Link2 className="h-4 w-4 text-blue-500" />
+            External Link (Optional)
+          </label>
+          <input
+            type="text"
+            value={externalLink}
+            onChange={(e) => setExternalLink(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            placeholder="https://example.com/my-project"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Share a link to your project, presentation, or any external resource
+          </p>
+        </div>
+
         {/* File Upload */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Upload File *
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+            <File className="h-4 w-4 text-green-500" />
+            Upload File (Optional)
           </label>
           {!file ? (
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-colors">
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <Upload className="h-8 w-8 text-gray-400 mb-2" />
                 <p className="mb-2 text-sm text-gray-500">
@@ -244,7 +400,7 @@ export function TrackSubmissionUpload({
               />
             </label>
           ) : (
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
               <File className="h-5 w-5 text-gray-600" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
@@ -263,7 +419,8 @@ export function TrackSubmissionUpload({
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+            <FileText className="h-4 w-4 text-purple-500" />
             Notes (Optional)
           </label>
           <textarea
@@ -271,7 +428,7 @@ export function TrackSubmissionUpload({
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            placeholder="Add any notes about your submission..."
+            placeholder="Add any notes about your submission, describe your project, or write your response here..."
           />
         </div>
 
@@ -286,13 +443,16 @@ export function TrackSubmissionUpload({
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={!file || uploading}
+          disabled={uploading}
           className="btn btn-primary w-full"
         >
-          {uploading ? 'Uploading...' : 'Upload Submission'}
+          {uploading ? 'Uploading...' : 'Submit'}
         </button>
+
+        <p className="text-xs text-center text-gray-500">
+          You must provide at least one: file, YouTube video, link, or notes
+        </p>
       </form>
     </div>
   );
 }
-

@@ -7,7 +7,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
 import { LoadingAnimation } from '@/components/ui/LoadingAnimation';
-import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical, Image, FileDown, User, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Edit, Trash2, Eye, EyeOff, Upload, FileText, Presentation, X, GripVertical, Image, FileDown, User, Youtube, Link2 } from 'lucide-react';
 import { QuizBuilder } from '@/components/admin/QuizBuilder';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import {
@@ -53,10 +53,12 @@ interface Submission {
   id: string;
   child_id: string;
   child_name: string;
-  file_url: string;
-  file_name: string;
+  file_url: string | null;
+  file_name: string | null;
   file_size: number | null;
   mime_type: string | null;
+  youtube_url: string | null;
+  external_link: string | null;
   notes: string | null;
   submitted_at: string;
   signed_url?: string;
@@ -160,6 +162,8 @@ function AdminModuleEditContent() {
           file_name,
           file_size,
           mime_type,
+          youtube_url,
+          external_link,
           notes,
           submitted_at
         `)
@@ -666,7 +670,7 @@ function AdminModuleEditContent() {
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 font-semibold text-gray-700">Student</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-700">File</th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">Content</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-700">Submitted</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-700">Notes</th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
@@ -682,14 +686,28 @@ function AdminModuleEditContent() {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-blue-500" />
-                          <span className="truncate max-w-[200px]" title={sub.file_name}>
-                            {sub.file_name}
-                          </span>
-                          {sub.file_size && (
-                            <span className="text-xs text-gray-400">
-                              ({(sub.file_size / 1024).toFixed(1)} KB)
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {sub.file_url && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">
+                              <FileText className="h-3 w-3" />
+                              File
+                            </span>
+                          )}
+                          {sub.youtube_url && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs">
+                              <Youtube className="h-3 w-3" />
+                              YouTube
+                            </span>
+                          )}
+                          {sub.external_link && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
+                              <Link2 className="h-3 w-3" />
+                              Link
+                            </span>
+                          )}
+                          {!sub.file_url && !sub.youtube_url && !sub.external_link && sub.notes && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                              Text Only
                             </span>
                           )}
                         </div>
@@ -707,15 +725,41 @@ function AdminModuleEditContent() {
                         )}
                       </td>
                       <td className="py-3 px-4">
-                        <a
-                          href={sub.signed_url || sub.file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-xs font-medium"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                          View
-                        </a>
+                        <div className="flex items-center gap-1">
+                          {sub.file_url && sub.signed_url && (
+                            <a
+                              href={sub.signed_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors text-xs font-medium"
+                              title="View File"
+                            >
+                              <FileText className="h-3 w-3" />
+                            </a>
+                          )}
+                          {sub.youtube_url && (
+                            <a
+                              href={sub.youtube_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors text-xs font-medium"
+                              title="View YouTube"
+                            >
+                              <Youtube className="h-3 w-3" />
+                            </a>
+                          )}
+                          {sub.external_link && (
+                            <a
+                              href={sub.external_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-xs font-medium"
+                              title="Open Link"
+                            >
+                              <Link2 className="h-3 w-3" />
+                            </a>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
