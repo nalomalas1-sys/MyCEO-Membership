@@ -14,7 +14,7 @@ A parent-focused LMS subscription platform where parents subscribe via Stripe, a
 ```
 myceo/
 ├── apps/
-│   └── web/              # React frontend app
+│   └── web/             # React frontend app
 ├── packages/
 │   └── shared/          # Shared types and utilities
 ├── supabase/            # Supabase migrations and functions

@@ -10,7 +10,7 @@ import {
   Check,
   Loader2
 } from 'lucide-react';
-import logoImage from '../Logo-MyCeo-300x200.png';
+import logoImage from '../Logo-MyC-300x200.png';
 
 // --- Playful Background Effects ---
 const BackgroundEffects = () => (
