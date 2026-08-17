@@ -8,11 +8,12 @@ import { AdminNavBar } from '@/components/navigation/AdminNavBar';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Save, Image, X } from 'lucide-react';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { useLearningTracks } from '@/hooks/useLearningTracks';
 
 const moduleSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().optional(),
-  track: z.enum(['money_basics', 'entrepreneurship', 'advanced', 'project_based', 'online_class', 'recording']),
+  track: z.string().min(1, 'Select a learning track'),
   order_index: z.number().min(1, 'Order index must be at least 1'),
   difficulty_level: z.number().min(1).max(5),
   xp_reward: z.number().min(0, 'XP reward must be non-negative'),
@@ -20,8 +21,17 @@ const moduleSchema = z.object({
 
 type ModuleFormData = z.infer<typeof moduleSchema>;
 
+const FALLBACK_TRACKS = [
+  { slug: 'entrepreneurship', name: 'Interactive Games' },
+  { slug: 'project_based', name: 'Project Based' },
+  { slug: 'online_class', name: 'Online Class' },
+  { slug: 'recording', name: 'Recording' },
+];
+
 function AdminModuleCreateContent() {
   const navigate = useNavigate();
+  const { tracks } = useLearningTracks();
+  const trackOptions = tracks?.length ? tracks : FALLBACK_TRACKS;
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
@@ -268,10 +278,11 @@ function AdminModuleCreateContent() {
                   {...register('track')}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
                 >
-                  <option value="entrepreneurship">Interactive Games</option>
-                  <option value="project_based">Project Based</option>
-                  <option value="online_class">Online Class</option>
-                  <option value="recording">Recording</option>
+                  {trackOptions.map((t) => (
+                    <option key={t.slug} value={t.slug}>
+                      {t.name}
+                    </option>
+                  ))}
                 </select>
                 {errors.track && (
                   <p className="mt-2 text-sm text-red-600">{errors.track.message}</p>

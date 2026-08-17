@@ -31,7 +31,7 @@ import AdminFeatureFlagsPage from '@/pages/admin/AdminFeatureFlags';
 import AdminNotificationsPage from '@/pages/admin/AdminNotifications';
 import AdminCompletionTrackingPage from '@/pages/admin/AdminCompletionTracking';
 import AdminSubmissionsPage from '@/pages/admin/AdminSubmissions';
-
+import AdminLearningTracksPage from '@/pages/admin/AdminLearningTracks';
 
 // Child pages
 import ChildLoginPage from '@/pages/ChildLogin';
@@ -43,6 +43,10 @@ import AchievementsPage from '@/pages/Achievements';
 import CompanyPage from '@/pages/Company';
 import MarketplacePage from '@/pages/Marketplace';
 import LeaderboardPage from '@/pages/Leaderboard';
+import ChildProfilePage from '@/pages/ChildProfile';
+import ChallengeModePage from '@/pages/ChallengeMode';
+import ChatHubPage from '@/pages/ChatHub';
+import ChatRoomPage from '@/pages/ChatRoom';
 
 // Protected Route Wrapper
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -126,6 +130,11 @@ function App() {
               <AdminModuleEditPage />
             </ProtectedRoute>
           } />
+          <Route path="/admin/learning-tracks" element={
+            <ProtectedRoute requireRole="admin">
+              <AdminLearningTracksPage />
+            </ProtectedRoute>
+          } />
           <Route path="/admin/analytics" element={
             <ProtectedRoute requireRole="admin">
               <AdminAnalyticsPage />
@@ -157,12 +166,35 @@ function App() {
             </ProtectedRoute>
           } />
 
-
           {/* Child Routes */}
           <Route path="/child/login" element={<ChildLoginPage />} />
           <Route path="/child/dashboard" element={
             <ProtectedRoute requireRole="child">
               <ChildDashboardPage />
+            </ProtectedRoute>
+          } />
+          
+<Route
+  path="/child/challenge"
+  element={
+    <ProtectedRoute requireRole="child">
+      <ChallengeModePage />
+    </ProtectedRoute>
+  }
+/>        
+<Route path="/child/chat" element={
+            <ProtectedRoute requireRole="child">
+              <ChatHubPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/child/chat/:conversationId" element={
+            <ProtectedRoute requireRole="child">
+              <ChatRoomPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/child/profile" element={
+            <ProtectedRoute requireRole="child">
+              <ChildProfilePage />
             </ProtectedRoute>
           } />
           <Route path="/child/modules" element={
@@ -234,4 +266,3 @@ function App() {
 }
 
 export default App;
-

@@ -96,6 +96,12 @@ export function AdminNavBar() {
           color: 'from-purple-500 to-violet-500'
         },
         {
+          path: '/admin/learning-tracks',
+          icon: BookOpen,
+          label: 'Learning Tracks',
+          color: 'from-violet-500 to-purple-500'
+        },
+        {
           path: '/admin/submissions',
           icon: FileDown,
           label: 'Submissions',

@@ -7,6 +7,8 @@ import { useModules, Module } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 import { generateSSOTicketAndRedirect } from '@/lib/sso';
 import { Sparkles, Lock } from 'lucide-react';
+import { getTrackTheme, getThemeForKey, CATEGORY_ORDER } from '@/constants/moduleTrackThemes';
+import { useLearningTracks } from '@/hooks/useLearningTracks';
 
 interface ChildSession {
   childId: string;
@@ -16,6 +18,7 @@ interface ChildSession {
 
 export default function ModulesPage() {
   const { modules, loading } = useModules();
+  const { tracks } = useLearningTracks();
   const [childSession, setChildSession] = useState<ChildSession | null>(null);
   const [childProgress, setChildProgress] = useState<Record<string, any>>({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,51 +69,6 @@ export default function ModulesPage() {
     fetchProgress();
   }, [childSession]);
 
-  const getTrackColor = (track: string) => {
-    switch (track) {
-      case 'entrepreneurship':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'project_based':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'online_class':
-        return 'bg-cyan-100 text-cyan-800 border-cyan-200';
-      case 'recording':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getTrackIcon = (track: string) => {
-    switch (track) {
-      case 'entrepreneurship':
-        return '🎮';
-      case 'project_based':
-        return '🔨';
-      case 'online_class':
-        return '💻';
-      case 'recording':
-        return '🎥';
-      default:
-        return '📚';
-    }
-  };
-
-  const getTrackName = (track: string) => {
-    switch (track) {
-      case 'entrepreneurship':
-        return 'Interactive Games';
-      case 'project_based':
-        return 'Project Based';
-      case 'online_class':
-        return 'Online Class';
-      case 'recording':
-        return 'Recording';
-      default:
-        return track;
-    }
-  };
-
   const getStatusBadge = (module: Module) => {
     const progress = childProgress[module.id];
     if (!progress) {
@@ -148,11 +106,11 @@ export default function ModulesPage() {
     if (!progress || progress.status === 'not_started' || progress.status === 'completed') {
       return null;
     }
-
+    const theme = getTrackTheme(module.track);
     return (
       <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mt-3">
         <div
-          className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out shadow-sm"
+          className={`h-full ${theme.progressBar} rounded-full transition-all duration-500 ease-out shadow-sm`}
           style={{ width: `${progress.progress_percentage}%` }}
         />
       </div>
@@ -186,13 +144,24 @@ export default function ModulesPage() {
     return acc;
   }, {} as Record<string, Module[]>);
 
-  // Define the order of categories (only showing Interactive Games, Project Based, Online Class, Recording)
-  const categoryOrder: Array<'entrepreneurship' | 'project_based' | 'online_class' | 'recording'> = [
-    'entrepreneurship',
-    'project_based',
-    'online_class',
-    'recording',
-  ];
+  const categoryOrder = tracks?.length ? tracks.map((t) => t.slug) : CATEGORY_ORDER;
+  const getSectionTheme = (slug: string) => {
+    const t = tracks?.find((x) => x.slug === slug);
+    if (t) {
+      const theme = getThemeForKey(t.theme_key);
+      return { ...theme, name: t.name, icon: t.icon };
+    }
+    return getTrackTheme(slug);
+  };
+  const getCardTheme = (slug: string) => {
+    const t = tracks?.find((x) => x.slug === slug);
+    if (t) {
+      const theme = getThemeForKey(t.theme_key);
+      return { ...theme, name: t.name, icon: t.icon };
+    }
+    return getTrackTheme(slug);
+  };
+   
 
   const totalModules = modules.length;
   const completedModules = Object.values(childProgress).filter(
@@ -200,12 +169,12 @@ export default function ModulesPage() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <ChildNavBar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section */}
-        <div className="mb-8 animate-fade-in">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        {/* Header Section - separate block for contrast */}
+        <div className="mb-8 animate-fade-in bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-purple-600 mb-2">
                 Learning Modules 📚
@@ -249,7 +218,7 @@ export default function ModulesPage() {
                   <Sparkles className="h-5 w-5" />
                   {ssoLoading ? 'Opening...' : 'AI Tools'}
                 </button>
-                <div className="bg-white rounded-lg shadow-md px-4 py-2 border border-gray-200">
+                <div className="bg-gray-50 rounded-lg shadow-md px-4 py-2 border border-gray-200">
                   <div className="text-xs text-gray-500 uppercase tracking-wide">Progress</div>
                   <div className="text-lg font-bold text-gray-900">
                     {completedModules} / {totalModules}
@@ -260,11 +229,11 @@ export default function ModulesPage() {
           </div>
 
           {/* Search and Filter */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 mt-6 pt-6 border-t border-gray-200 mb-0">
             <div className="flex-1 relative">
               <input
                 type="text"
-                placeholder="🔍 Search modules..."
+                placeholder=" Search modules..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm"
@@ -283,19 +252,22 @@ export default function ModulesPage() {
               >
                 All
               </button>
-              {categoryOrder.map((track) => (
-                <button
-                  key={track}
-                  onClick={() => setSelectedCategory(selectedCategory === track ? null : track)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${selectedCategory === track
-                    ? `${getTrackColor(track)} shadow-md scale-105 border-2`
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                    }`}
-                >
-                  <span>{getTrackIcon(track)}</span>
-                  {getTrackName(track)}
-                </button>
-              ))}
+              {categoryOrder.map((slug) => {
+                const theme = getSectionTheme(slug);
+                return (
+                  <button
+                    key={slug}
+                    onClick={() => setSelectedCategory(selectedCategory === slug ? null : slug)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 border-2 ${selectedCategory === slug
+                      ? `${theme.button} ${theme.buttonHover} text-white border-transparent shadow-md scale-105`
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                  >
+                    <span>{theme.icon}</span>
+                    {theme.name}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -307,7 +279,7 @@ export default function ModulesPage() {
             <p className="text-xl font-semibold text-gray-700 mb-2">No modules found</p>
             <p className="text-gray-500">
               {searchQuery || selectedCategory
-                ? 'Try adjusting your search or filter'
+                ? ''
                 : 'No modules available yet. Check back soon!'}
             </p>
             {(searchQuery || selectedCategory) && (
@@ -324,30 +296,31 @@ export default function ModulesPage() {
           </div>
         ) : (
           <div className="space-y-12">
-            {categoryOrder.map((track, categoryIndex) => {
-              const trackModules = groupedModules[track] || [];
+            {categoryOrder.map((slug, categoryIndex) => {
+              const trackModules = groupedModules[slug] || [];
               if (trackModules.length === 0) return null;
 
+              const sectionTheme = getSectionTheme(slug);
               return (
                 <div
-                  key={track}
-                  className="space-y-4 animate-fade-in"
+                  key={slug}
+                  className={`rounded-2xl p-6 sm:p-8 ${sectionTheme.sectionBg} ${sectionTheme.sectionBorder} ${sectionTheme.sectionAccent} space-y-4 animate-fade-in`}
                   style={{ animationDelay: `${categoryIndex * 100}ms` }}
                 >
-                  {/* Category Header */}
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className={`p-3 rounded-xl ${getTrackColor(track).split(' ')[0]} shadow-md`}>
-                      <span className="text-3xl">{getTrackIcon(track)}</span>
+                  {/* Category Header - distinct block */}
+                  <div className={`mb-6 rounded-xl border-2 ${sectionTheme.badge} bg-white/80 backdrop-blur px-4 py-3 flex items-center gap-4`}>
+                    <div className={`p-3 rounded-xl border-2 ${sectionTheme.badge} shadow-md`}>
+                      <span className="text-3xl">{sectionTheme.icon}</span>
                     </div>
                     <div className="flex-1">
                       <h2 className="text-3xl font-bold text-gray-900">
-                        {getTrackName(track)}
+                        {sectionTheme.name}
                       </h2>
                       <p className="text-sm text-gray-500 mt-1">
                         {trackModules.length} {trackModules.length === 1 ? 'module' : 'modules'} in this track
                       </p>
                     </div>
-                    <span className={`px-4 py-2 text-sm font-semibold rounded-full border-2 ${getTrackColor(track)}`}>
+                    <span className={`px-4 py-2 text-sm font-semibold rounded-full border-2 ${sectionTheme.badge}`}>
                       {trackModules.length}
                     </span>
                   </div>
@@ -358,13 +331,14 @@ export default function ModulesPage() {
                       const progress = childProgress[module.id];
                       const isCompleted = progress?.status === 'completed';
                       const isLocked = module.is_locked;
+                      const theme = getCardTheme(module.track);
 
                       return (
                         <div
                           key={module.id}
                           className={`group relative bg-white rounded-xl shadow-md border-2 overflow-hidden transition-all duration-300 ${isLocked
                             ? 'border-gray-300 cursor-not-allowed opacity-75'
-                            : `border-gray-200 cursor-pointer hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${isCompleted ? 'ring-2 ring-green-200' : ''}`
+                            : `${theme.cardBorder} cursor-pointer hover:shadow-2xl hover:scale-105 hover:-translate-y-1 ${theme.cardBorderHover} ${isCompleted ? 'ring-2 ring-green-200' : ''}`
                             } animate-fade-in`}
                           style={{ animationDelay: `${(categoryIndex * 100) + (index * 50)}ms` }}
                           onClick={() => {
@@ -375,7 +349,7 @@ export default function ModulesPage() {
                         >
                           {/* Thumbnail */}
                           {module.thumbnail_url ? (
-                            <div className="w-full h-48 overflow-hidden bg-gray-100">
+                            <div className="w-full h-48 overflow-hidden bg-gray-100 border-b-2 border-gray-200">
                               <img
                                 src={module.thumbnail_url}
                                 alt={module.title}
@@ -383,8 +357,8 @@ export default function ModulesPage() {
                               />
                             </div>
                           ) : (
-                            <div className={`w-full h-48 ${getTrackColor(module.track).split(' ')[0]} flex items-center justify-center`}>
-                              <span className="text-6xl">{getTrackIcon(module.track)}</span>
+                            <div className={`w-full h-48 ${theme.placeholderBg} flex items-center justify-center border-b-2 ${theme.cardBorder}`}>
+                              <span className="text-6xl">{theme.icon}</span>
                             </div>
                           )}
 
@@ -405,8 +379,8 @@ export default function ModulesPage() {
 
                             {/* Card Header */}
                             <div className="flex items-start justify-between mb-4">
-                              <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getTrackColor(module.track)}`}>
-                                {getTrackName(module.track)}
+                              <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${theme.badge}`}>
+                                {theme.name}
                               </span>
                               {isLocked ? (
                                 <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-600 border border-gray-300">
@@ -418,7 +392,7 @@ export default function ModulesPage() {
                             </div>
 
                             {/* Module Title */}
-                            <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
+                            <h3 className={`text-xl font-bold text-gray-900 mb-3 transition-colors ${theme.titleHover}`}>
                               {module.title}
                             </h3>
 
@@ -434,13 +408,13 @@ export default function ModulesPage() {
                             {/* Progress Bar */}
                             {getProgressBar(module)}
 
-                            {/* Footer Info */}
-                            <div className="flex items-center justify-between text-sm mt-4 pt-4 border-t border-gray-100">
+                            {/* Footer Info - distinct block */}
+                            <div className={`flex items-center justify-between text-sm mt-4 pt-4 border-t-2 border-gray-200 bg-gray-50 rounded-lg px-3 py-2 -mx-1`}>
                               <div className="flex items-center gap-1 text-amber-500">
                                 <span className="text-base">⭐</span>
                                 <span className="font-semibold text-gray-700">Level {module.difficulty_level}</span>
                               </div>
-                              <div className="flex items-center gap-1 text-purple-600">
+                              <div className={`flex items-center gap-1 ${theme.accentText}`}>
                                 <span className="text-base">🎁</span>
                                 <span className="font-bold">{module.xp_reward} XP</span>
                               </div>
@@ -481,4 +455,3 @@ export default function ModulesPage() {
     </div>
   );
 }
-

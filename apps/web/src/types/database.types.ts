@@ -43,6 +43,7 @@ export interface Database {
           current_level: number;
           current_streak: number;
           last_activity_at: string | null;
+          avatar_config: unknown | null;
           created_at: string;
           updated_at: string;
         };

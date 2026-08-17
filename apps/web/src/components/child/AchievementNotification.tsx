@@ -29,13 +29,22 @@ export function AchievementNotification({
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && leveledUp) {
       setShowConfetti(true);
       // Hide confetti after animation
       const timer = setTimeout(() => setShowConfetti(false), 2000);
       return () => clearTimeout(timer);
+    } else {
+      setShowConfetti(false);
     }
-  }, [isOpen]);
+  }, [isOpen, leveledUp]);
+
+  const headingText =
+    leveledUp && newLevel
+      ? `🎉 Level Up! You reached Level ${newLevel}!`
+      : type === 'module'
+        ? '🎉 Module Complete!'
+        : '🎉 Lesson Complete!';
 
   if (!isOpen) return null;
 
@@ -75,9 +84,14 @@ export function AchievementNotification({
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4 animate-pulse">
             <Trophy className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {type === 'module' ? '🎉 Module Complete!' : '🎉 Lesson Complete!'}
+          <h2 className="text-3xl font-bold text-gray-900 mb-1">
+            {headingText}
           </h2>
+          {leveledUp && newLevel && (
+            <p className="text-sm text-gray-600">
+              Keep going to unlock even more rewards!
+            </p>
+          )}
         </div>
 
         {/* XP Earned */}
@@ -147,4 +161,3 @@ export function AchievementNotification({
     </div>
   );
 }
-

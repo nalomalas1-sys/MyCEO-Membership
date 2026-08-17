@@ -6,6 +6,8 @@ import { LinkifiedText } from '@/components/ui/LinkifiedText';
 import { useModule, useChildModuleProgress, Lesson } from '@/hooks/useModules';
 import { supabase } from '@/lib/supabase';
 import { TrackSubmissionUpload } from '@/components/child/TrackSubmissionUpload';
+import { getTrackTheme, getThemeForKey } from '@/constants/moduleTrackThemes';
+import { useLearningTracks } from '@/hooks/useLearningTracks';
 import { Lock, ArrowLeft } from 'lucide-react';
 
 interface ChildSession {
@@ -15,12 +17,13 @@ interface ChildSession {
 }
 
 export default function ModuleDetailPage() {
-  const { moduleId } = useParams<{ moduleId: string }>();
+  const {moduleId} = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
-  const { module, lessons, loading } = useModule(moduleId || '');
+  const {module, lessons, loading } = useModule(moduleId || '');
   const [childSession, setChildSession] = useState<ChildSession | null>(null);
   const [lessonProgress, setLessonProgress] = useState<Record<string, any>>({});
   const [startingModule, setStartingModule] = useState(false);
+  const { tracks } = useLearningTracks();
 
   useEffect(() => {
     // Clear any existing Supabase auth session to ensure we use anon role
@@ -163,28 +166,36 @@ export default function ModuleDetailPage() {
 
   const isStarted = progress?.status === 'in_progress' || progress?.status === 'completed';
   const isCompleted = progress?.status === 'completed';
+  const trackRecord = tracks?.find((t) => t.slug === module.track);
+  const theme = trackRecord
+    ? { ...getThemeForKey(trackRecord.theme_key), name: trackRecord.name, icon: trackRecord.icon }
+    : getTrackTheme(module.track);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen bg-gradient-to-b ${theme.heroGradient}`}>
       <ChildNavBar />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <div className="card mb-8 overflow-hidden p-0">
+        <div className={`bg-white rounded-2xl shadow-xl border-2 mb-10 overflow-hidden p-0 ${theme.cardBorder}`}>
           {/* Thumbnail */}
           {module.thumbnail_url ? (
-            <div className="w-full h-64 overflow-hidden bg-gray-100">
+            <div className="w-full h-64 overflow-hidden bg-gray-100 border-b-2 border-gray-200">
               <img
                 src={module.thumbnail_url}
                 alt={module.title}
                 className="w-full h-full object-cover"
               />
             </div>
-          ) : null}
+          ) : (
+            <div className={`w-full h-40 ${theme.placeholderBg} flex items-center justify-center border-b-2 ${theme.cardBorder}`}>
+              <span className="text-6xl">{theme.icon}</span>
+            </div>
+          )}
 
           <div className="p-6">
             <div className="mb-4">
-              <span className="px-3 py-1 text-sm font-medium rounded-full bg-primary-100 text-primary-800">
-                {module.track.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+              <span className={`px-3 py-1 text-sm font-medium rounded-full border ${theme.badge}`}>
+                {theme.icon} {theme.name}
               </span>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{module.title}</h1>
@@ -196,7 +207,7 @@ export default function ModuleDetailPage() {
               )}
             </p>
 
-            <div className="flex items-center gap-6 text-sm text-gray-600 mb-6">
+            <div className={`flex items-center gap-6 text-sm text-gray-600 mb-6 p-4 rounded-xl border-2 ${theme.lessonBorder} bg-gray-50`}>
               <span>⭐ Difficulty: {module.difficulty_level}/5</span>
               <span>🎁 Reward: {module.xp_reward} XP</span>
               {progress && (
@@ -216,7 +227,7 @@ export default function ModuleDetailPage() {
                     className={`h-full rounded-full transition-all duration-500 ${progress.progress_percentage === 100
                       ? 'bg-green-500'
                       : progress.progress_percentage > 0
-                        ? 'bg-primary-500'
+                        ? theme.progressBar
                         : 'bg-gray-300'
                       }`}
                     style={{ width: `${progress.progress_percentage}%` }}
@@ -229,7 +240,7 @@ export default function ModuleDetailPage() {
               <button
                 onClick={handleStartModule}
                 disabled={startingModule}
-                className="btn btn-primary w-full"
+                className={`w-full py-3 px-4 rounded-xl font-bold text-white transition-all disabled:opacity-50 ${theme.button} ${theme.buttonHover}`}
               >
                 {startingModule ? 'Starting...' : 'Start Module'}
               </button>
@@ -257,8 +268,10 @@ export default function ModuleDetailPage() {
           </div>
         </div>
 
-        <div className="card">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Lessons</h2>
+        <div className={`bg-white rounded-2xl shadow-lg border-2 p-6 ${theme.cardBorder}`}>
+          <h2 className={`text-2xl font-bold text-gray-900 mb-6 pb-2 border-b-4 ${theme.progressBar} rounded-sm`}>
+            Lessons
+          </h2>
           {lessons.length === 0 ? (
             <p className="text-gray-600">No lessons available yet.</p>
           ) : (
@@ -269,8 +282,8 @@ export default function ModuleDetailPage() {
                   <div
                     key={lesson.id}
                     className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${lessonProgress[lesson.id]?.is_completed
-                      ? 'border-green-300 bg-green-50'
-                      : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50'
+                      ? 'border-green-400 bg-green-50'
+                      : `${theme.lessonBorder} ${theme.lessonBorderHover} ${theme.lessonBgHover} ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`
                       }`}
                     onClick={() => handleLessonClick(lesson)}
                   >
@@ -303,4 +316,3 @@ export default function ModuleDetailPage() {
     </div>
   );
 }
-

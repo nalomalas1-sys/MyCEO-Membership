@@ -122,6 +122,7 @@ export function SubscriptionSignupForm() {
     },
   });
 
+
   const selectedPlan = watch('plan');
   const billingPeriod = watch('billingPeriod');
 
@@ -239,7 +240,7 @@ export function SubscriptionSignupForm() {
               <span className="mr-1">⚠</span>
               {errors.email.message}
             </p>
-          )}
+          )} 
         </div>
 
         <div>
@@ -495,4 +496,3 @@ export function SubscriptionSignupForm() {
     </div>
   );
 }
-

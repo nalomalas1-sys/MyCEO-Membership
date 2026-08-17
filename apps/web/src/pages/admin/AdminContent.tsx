@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Plus, Edit, Eye, EyeOff, Search, Trash2, ExternalLink, Lock, Unlock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useLearningTracks } from '@/hooks/useLearningTracks';
 
 interface Module {
   id: string;
@@ -27,6 +28,7 @@ interface Module {
 function AdminContentContent() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { tracks } = useLearningTracks();
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingModuleId, setDeletingModuleId] = useState<string | null>(null);
@@ -193,13 +195,8 @@ function AdminContentContent() {
   };
 
   const getTrackName = (track: string) => {
-    const names: Record<string, string> = {
-      entrepreneurship: 'Interactive Games',
-      project_based: 'Project Based',
-      online_class: 'Online Class',
-      recording: 'Recording',
-    };
-    return names[track] || track;
+    const t = tracks?.find((x) => x.slug === track);
+    return t ? t.name : track;
   };
 
   const getDifficultyName = (level: number) => {
@@ -258,10 +255,11 @@ function AdminContentContent() {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               <option value="all">All Tracks</option>
-              <option value="entrepreneurship">Interactive Games</option>
-              <option value="project_based">Project Based</option>
-              <option value="online_class">Online Class</option>
-              <option value="recording">Recording</option>
+              {(tracks ?? []).map((t) => (
+                <option key={t.id} value={t.slug}>
+                  {t.name}
+                </option>
+              ))}
             </select>
             <select
               value={publishedFilter}

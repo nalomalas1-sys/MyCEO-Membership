@@ -11,10 +11,12 @@ import {
   Gamepad2,
   TrendingUp,
   Bell,
+  MessageCircle,
 } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { NotificationInbox } from '@/components/child/NotificationInbox';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useChatUnread } from '@/hooks/useChatUnread';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 interface ChildSession {
@@ -30,7 +32,9 @@ export function ChildNavBar() {
   const [loading, setLoading] = useState(true);
   const [expCoins, setExpCoins] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const [notificationInboxOpen, setNotificationInboxOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const { unreadCount } = useNotifications(childSession?.childId || null);
+  const { unreadCount: chatUnreadCount } = useChatUnread(childSession?.childId || null);
   const { isEnabled } = useFeatureFlags();
 
   const loadSession = useCallback(async () => {
@@ -77,6 +81,11 @@ export function ChildNavBar() {
   };
 
   const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false);
     createExplodingCoins();
     setTimeout(() => {
       localStorage.removeItem('child_session');
@@ -103,9 +112,10 @@ export function ChildNavBar() {
     return null;
   }
 
-  // Define all possible nav links
-  const allNavLinks = [
+   // Define all possible nav links (Home removed -- accessible via logo and top bar Home button)
+   const allNavLinks = [
     { to: '/child/dashboard', icon: <Home className="h-5 w-5" />, label: 'Home', color: 'from-blue-400 to-cyan-400', featureFlag: null },
+    { to: '/child/profile', icon: <span className="text-xl leading-none block text-center">👤</span>, label: 'My Profile', color: 'from-purple-400 to-pink-400', featureFlag: null },
     { to: '/child/modules', icon: <BookOpen className="h-5 w-5" />, label: 'Learn', color: 'from-green-400 to-emerald-400', featureFlag: null },
     { to: '/child/company', icon: <Building2 className="h-5 w-5" />, label: 'My Company', color: 'from-yellow-400 to-orange-400', featureFlag: 'company' },
     { to: '/child/marketplace', icon: <ShoppingBag className="h-5 w-5" />, label: 'Marketplace', color: 'from-purple-400 to-pink-400', featureFlag: 'marketplace' },
@@ -120,6 +130,15 @@ export function ChildNavBar() {
     // If feature flag is required, check if it's enabled
     return isEnabled(link.featureFlag);
   });
+
+  // For desktop, we only show the most essential links to avoid overcrowding the navbar.
+  // The dashboard serves as the main hub for accessing Company, Marketplace, etc.
+  const desktopNavLinks = [
+    { to: '/child/dashboard', icon: <Home className="h-5 w-5" />, label: 'Home', color: 'from-blue-400 to-cyan-400', featureFlag: null },
+    ...navLinks.filter(link =>
+      ['/child/modules', '/child/profile'].includes(link.to)
+    ),
+  ];
 
   return (
     <>
@@ -169,29 +188,49 @@ export function ChildNavBar() {
             </div>
 
             {/* Center - Desktop Navigation Links - Pixel Game Style */}
-            <div className="hidden lg:flex items-center justify-center flex-1 min-w-0">
-              <div className="flex items-center space-x-1 xl:space-x-1.5 2xl:space-x-2 justify-center flex-nowrap">
-                {navLinks.map((link) => (
+            <div className="hidden lg:flex items-center justify-center flex-1 min-w-0 mx-4">
+              <div className="flex items-center justify-center gap-2 lg:gap-4 xl:gap-6 flex-wrap">
+                {desktopNavLinks.map((link) => (
                   <Link
                     key={link.to}
                     to={link.to}
                     className="group relative transform hover:-translate-y-1 transition-all duration-300 flex-shrink-0"
                   >
                     <div className="absolute -inset-1 bg-yellow-400 opacity-30 blur group-hover:opacity-50 transition-opacity rounded-xl"></div>
-                    <div className="relative flex items-center space-x-1 xl:space-x-1.5 px-2 xl:px-2.5 py-2 xl:py-2.5 rounded-xl border-2 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)] bg-yellow-400 pixel-font transition-all hover:brightness-110">
-                      <div className="w-6 h-6 xl:w-7 xl:h-7 bg-blue-500 rounded-lg border-2 border-gray-600 flex items-center justify-center shadow-inner flex-shrink-0">
-                        <div className="h-3.5 w-3.5 xl:h-4 xl:w-4 text-white">{link.icon}</div>
+                    <div className="relative flex items-center space-x-2 px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl border-2 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)] bg-yellow-400 pixel-font transition-all hover:brightness-110">
+                      <div className="w-8 h-8 lg:w-9 lg:h-9 bg-blue-500 rounded-lg border-2 border-gray-600 flex items-center justify-center shadow-inner flex-shrink-0">
+                        <div className="h-4 w-4 lg:h-5 lg:w-5 text-white">{link.icon}</div>
                       </div>
-                      <span className="text-white font-bold text-[10px] xl:text-xs drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)] whitespace-nowrap">{link.label}</span>
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg flex-shrink-0"></div>
+                      <span className="text-white font-bold text-xs lg:text-sm drop-shadow-[2px_2px_0px_rgba(0,0,0,0.3)] whitespace-nowrap">{link.label}</span>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg flex-shrink-0"></div>
                     </div>
                   </Link>
                 ))}
               </div>
             </div>
 
-            {/* Right Side - Notifications and Logout */}
-            <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0 justify-end">
+                       {/* Right Side - Notifications and Logout */}
+                       <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0 justify-end">
+
+ {/* Chat Button - Game Style */}
+               <Link
+                to="/child/chat"
+                className="group relative transform hover:scale-105 transition-all"
+                aria-label="Chat"
+              >
+                <div className="absolute -inset-1 bg-yellow-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-yellow-400 rounded-xl border-3 border-gray-600 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.4)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all pixel-font hover:brightness-110">
+                  <MessageCircle className="h-5 w-5 lg:h-6 lg:w-6 text-blue-500" />
+                  {chatUnreadCount > 0 && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 lg:w-6 lg:h-6 bg-red-500 rounded-full border-2 border-white flex items-center justify-center shadow-lg">
+                      <span className="text-white text-[10px] lg:text-xs font-bold pixel-font">
+                        {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+
               {/* Notification Button - Game Style */}
               <button
                 onClick={() => setNotificationInboxOpen(true)}
@@ -296,13 +335,44 @@ export function ChildNavBar() {
         }
       `}</style>
 
-      {/* Notification Inbox */}
-      {childSession && (
+            {/* Notification Inbox */}
+            {childSession && (
         <NotificationInbox
           childId={childSession.childId}
           isOpen={notificationInboxOpen}
           onClose={() => setNotificationInboxOpen(false)}
         />
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-2xl border-4 border-gray-700 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.3)] max-w-sm w-full p-6 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-5xl mb-3">😮</div>
+            <h3 className="text-2xl font-black text-gray-900 mb-2">Leaving already?</h3>
+            <p className="text-gray-500 text-sm mb-6">Don't worry, your progress is saved!</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 px-4 py-3 bg-green-500 hover:bg-green-400 text-white font-black text-base rounded-xl border-3 border-gray-700 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none active:translate-y-1 active:translate-x-1 transition-all uppercase"
+              >
+                Stay 🎮
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="flex-1 px-4 py-3 bg-gray-400 hover:bg-gray-300 text-white font-bold text-sm rounded-xl border-2 border-gray-500 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,0.2)] active:shadow-none active:translate-y-1 active:translate-x-1 transition-all uppercase"
+              >
+                Exit
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

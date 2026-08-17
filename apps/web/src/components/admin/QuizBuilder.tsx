@@ -197,11 +197,11 @@ export function QuizBuilder({ lessonId, onQuestionsChange }: QuizBuilderProps) {
     }
   };
 
-  const handleAddQuestion = () => {
+   const handleAddQuestion = () => {
     setEditingQuestion({
       question: '',
       options: ['', ''],
-      correct_answer_index: 0,
+      correct_answer_index: -1, // No option selected yet; user must click to mark correct (any position)
       explanation: '',
       order_index: questions.length + 1,
     });
@@ -491,8 +491,13 @@ function QuestionFormModal({ question, onSave, onCancel, saving }: QuestionFormM
       return;
     }
 
-    if (formData.options.length < 2) {
+       if (formData.options.length < 2) {
       alert('A question must have at least 2 options');
+      return;
+    }
+
+    if (formData.correct_answer_index < 0 || formData.correct_answer_index >= formData.options.length) {
+      alert('Please select the correct answer by clicking the circle next to the right option (it can be in any position).');
       return;
     }
 
@@ -607,8 +612,8 @@ function QuestionFormModal({ question, onSave, onCancel, saving }: QuestionFormM
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-xs text-gray-500">
-              Click the circle next to an option to mark it as the correct answer
+                       <p className="mt-2 text-xs text-gray-500">
+              The correct answer can be in <strong>any position</strong> (Option 1, 2, 3, or 4). Click the circle next to the correct option.
             </p>
           </div>
 
@@ -662,4 +667,3 @@ function QuestionFormModal({ question, onSave, onCancel, saving }: QuestionFormM
     </div>
   );
 }
-
